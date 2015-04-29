@@ -1,0 +1,127 @@
+.moon-video-transport-slider {
+	height: @moon-video-transport-slider-height;
+	background-color: #323232;
+	margin: 0;
+
+	.moon-slider-popup.above {
+		padding-left: 0px;
+	}
+	&.visible .moon-video-transport-slider-knob {
+		display: block;
+	}
+}
+
+
+/* ----- Knob ---- */
+.moon-video-transport-slider-knob {
+	position: absolute;
+	width: @moon-video-transport-slider-knob-size;
+	top: 0;
+	height: @moon-video-transport-slider-knob-size/2;
+	border-radius: @moon-video-transport-slider-knob-size;
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+	background-color: #fff;
+	pointer-events: none;
+	display: none;
+}
+
+/* ---- Status Indicator ---- */
+
+.moon-video-transport-slider-status-indicator {
+	&.moon-slider-popup {
+		position: relative;
+		display: table;
+		left: 0;
+		margin: 0 auto;
+	}
+	> * {
+		background-color: @moon-dark-gray; //Todo: check exact color
+	}
+
+	.moon-slider-popup-center {
+		font-family: @moon-popup-header-font-family;
+		font-size: 36px;
+		color: @moon-white;
+		border-radius: 48px;
+		line-height: 48px;
+		padding: 0 24px;
+
+		.moon-icon {
+			color: inherit;
+		}
+	}
+}
+
+/* ---- Bar ---- */
+.moon-video-transport-slider-bar-bar {
+	height: 100%;
+	background-color: @moon-accent;
+	position: absolute;
+	top: 0;
+}
+.moon-video-transport-slider-bg-bar {
+	height: 100%;
+	background-color: @moon-dark-gray;
+	position: absolute;
+	top: 0;
+}
+
+.moon-video-transport-slider-taparea {
+	position: absolute;
+	height: 100%;
+	width: 100%;
+}
+
+.moon-video-transport-slider-popup-label {
+	.moon-large-button-text;
+	white-space: nowrap;
+	vertical-align: top;
+
+	> * {
+		display: inline-block;
+	}
+}
+.enyo-locale-non-latin .moon-video-transport-slider-popup-label {
+	.enyo-locale-non-latin .moon-large-button-text;
+}
+
+.moon-video-transport-slider-indicator-wrapper {
+	height: @moon-video-transport-slider-height;
+	line-height: @moon-video-transport-slider-height;
+	top: 0;
+	position: absolute;
+
+	&.start {
+		left: @moon-video-player-side-padding;
+		text-align: left;
+	}
+	&.end {
+		right: @moon-video-player-side-padding;
+		text-align: right;
+	}
+}
+.moon-video-transport-slider-indicator-bar {
+	width: 3px;
+	height: 45px;	//need more precious value
+	margin-top: 18px;	//need more precious value
+	background-color: @moon-indicator-bar-bg-color;	//#ffffff, @moon-white
+
+	&.left {
+		float: left;
+	}
+	&.right {
+		float: right;
+	}
+}
+.moon-video-transport-slider-indicator-text {
+	font-size: 45px;	//34pt
+	font-family: @moon-popup-header-font-family;
+	color: @moon-indicator-text-color;	//#ffffff, @moon-white
+}
+.enyo-locale-non-latin .moon-video-transport-slider-indicator-text {
+	font-family: @moon-non-latin-font-family;
+}
+.enyo-locale-right-to-left .moon-video-transport-slider-indicator-text {
+	direction: rtl;
+}
