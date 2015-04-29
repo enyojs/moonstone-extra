@@ -1,0 +1,7 @@
+{
+  "name": "moonstone-extra",
+  "main": "index.js",
+  "styles": [
+    "css/moonstone-variables.less"
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "main": "VideoControlFullscreen.js",
+  "styles": [
+    "*.less"
+  ]
+}
