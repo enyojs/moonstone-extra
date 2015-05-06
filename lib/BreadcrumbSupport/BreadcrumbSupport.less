@@ -1,0 +1,87 @@
+.moon-breadcrumb-support.enyo-light-panels {
+
+	/* Panels show/hide animation */
+	.moon-breadcrumb-bgscrim {
+		opacity: 0;
+		transition: opacity 0.5s linear;
+		-webkit-transition: opacity 0.5s linear;
+		-moz-transition: opacity 0.5s linear;
+	}
+	.moon-breadcrumb-breadcrumbs,
+	.enyo-light-panels-client {
+		transform: translateX(100%);
+		transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+		-webkit-transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+		-moz-transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+	}
+	&.visible {
+		.moon-breadcrumb-bgscrim {
+			background-color: #000000;
+			opacity: 0.2;
+		}
+		.moon-breadcrumb-breadcrumbs,
+		.enyo-light-panels-client {
+			transform: translateX(0);
+		}
+	}
+
+	/* Always Viewing Pattern */
+	&.alwaysviewing {
+		.moon-breadcrumb-breadcrumbs {
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 50%;
+			height: 100%;
+			overflow: hidden;
+		}
+		.enyo-light-panels-client {
+			position: absolute;
+			top: 0;
+			left: 50%;
+			right: 0;
+			height: 100%;
+			overflow: hidden;
+			background-color: @moon-panels-scrim-always-viewing-bg-color;
+		}
+	}
+
+	/* Activity Pattern */
+	&.activity {
+		.moon-breadcrumb-bgscrim {
+			background-color: @moon-panels-scrim-activity-bg-color;
+		}
+		.moon-breadcrumb-breadcrumbs {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100px;
+			height: 100%;
+			overflow: hidden;
+			opacity: 1;
+		}
+		.enyo-light-panels-client {
+			position: absolute;
+			top: 0;
+			left: 100px;
+			right: 0;
+			height: 100%;
+			overflow: hidden;
+
+			-webkit-transition: left 100ms cubic-bezier(1.000, -0.050, 0.515, 1.000);
+			transition: left 100ms cubic-bezier(1.000, -0.050, 0.515, 1.000);
+		}
+		&.first {
+			.moon-breadcrumb-breadcrumbs {
+				opacity: 0;
+			}
+
+			.enyo-light-panels-client {
+				left: 0;
+			}
+		}
+	}
+	.moon-light-panel {
+		padding: @moon-app-keepout @moon-spotlight-outset;
+	}
+}
