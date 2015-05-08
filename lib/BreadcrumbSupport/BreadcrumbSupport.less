@@ -1,3 +1,5 @@
+@moon-breadcrumb-width: 96px;
+
 .moon-breadcrumb-support.enyo-light-panels {
 
 	/* Panels show/hide animation */
@@ -79,8 +81,15 @@
 
 			.enyo-light-panels-client {
 				overflow: visible;
+				> *:not(:first-child) {
+					left: 0;
+				}
+				.moon-light-panel.full,
+				> *:first-child {
+					left: -@moon-breadcrumb-width;
+				}
 			}
-		}	
+		}
 	}
 	.moon-light-panel {
 		padding: @moon-app-keepout @moon-spotlight-outset;
