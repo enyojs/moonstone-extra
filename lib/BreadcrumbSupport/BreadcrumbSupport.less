@@ -74,18 +74,15 @@
 			height: 100%;
 			overflow: hidden;
 		}
-		&.first {
+		&.fullpanel {
 			.moon-breadcrumb-breadcrumbs {
 				opacity: 0;
 			}
 
 			.enyo-light-panels-client {
 				overflow: visible;
-				> *:not(:first-child) {
-					left: 0;
-				}
-				.moon-light-panel.full,
-				> *:first-child {
+
+				.moon-light-panel.fullpanel {
 					left: -@moon-breadcrumb-width;
 				}
 			}
