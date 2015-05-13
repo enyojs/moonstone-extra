@@ -1,0 +1,20 @@
+{
+  "name": "enyo-moonstone-extra",
+  "main": "index.js",
+  "version": "2.6.0",
+  "homepage": "https://github.com/enyojs/moonstone-extra",
+  "authors": [
+    {"name": "EnyoJS Framework Team", "homepage": "http://enyojs.com/"}
+  ],
+  "description": "Private features of Moonstone",
+  "keywords": [
+    "moonstone"
+  ],
+  "license": "Apache-2.0",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "test",
+    "docs"
+  ]
+}
