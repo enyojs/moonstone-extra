@@ -5,15 +5,19 @@
 	padding: @moon-button-border-width (@moon-button-h-padding + @moon-button-border-width);
 
 	.spacer,
-	.client-frame {
+	.button-client {
 		max-width: (300px - (2 * (@moon-button-h-padding + @moon-button-border-width)));
 	}
 	.spacer {
 		visibility: hidden;
 	}
-	.client-frame {
+	.button-client {
 		position: absolute;
 		left: (@moon-button-h-padding + @moon-button-border-width);
+
+		> * {
+			display: inline-block;
+		}
 	}
 	&.nearly-spotlight,
 	&.nearly-spotlight .moon-icon {
