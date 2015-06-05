@@ -1,16 +1,16 @@
-.moon-video-inline {
-  padding-bottom: @moon-video-transport-slider-height;
+.moon-video-player-inline {
+  padding-bottom: @moon-video-player-transport-slider-height;
 }
 
-.moon-video-inline-control {
+.moon-video-player-inline-control {
 	position: relative;
-	height: @moon-video-transport-slider-height;
-	background-color: @moon-video-inline-bg-color;
+	height: @moon-video-player-transport-slider-height;
+	background-color: @moon-video-player-inline-bg-color;
 
 	.moon-icon-fullscreen {
 		right: 12px;
 	}
-	.moon-video-inline-control-fullscreen {
+	.moon-video-player-inline-control-fullscreen {
 		position: absolute;
 		bottom: 12px;
 		right: 12px;
@@ -33,10 +33,10 @@
 	}
 }
 
-.moon-video-inline-control-text {
+.moon-video-player-inline-control-text {
 	font-family: @moon-alt-font-family;
 	position: absolute;
-	line-height: @moon-video-transport-slider-height;
+	line-height: @moon-video-player-transport-slider-height;
 	left: 96px;
 	background-color: transparent;
 	color: @moon-video-text-color;
@@ -47,19 +47,19 @@
 	}
 }
 
-.moon-video-inline-control-progress {
+.moon-video-player-inline-control-progress {
 	position: absolute;
 	bottom: 0px;
 	left: 0px;
 	width: 0%;
-	height: @moon-video-transport-slider-height;
+	height: @moon-video-player-transport-slider-height;
 	transition: width 0.1s linear;
 	-webkit-transition: width 0.1s linear;
 	-moz-transition: width 0.1s linear;
 }
-.moon-video-inline-control-progress {
+.moon-video-player-inline-control-progress {
 	background-color: @moon-video-progress-bg-color;
 }
-.moon-video-inline-control-bgprogress {
+.moon-video-player-inline-control-bgprogress {
     background-color: @moon-video-progress-bgprogress-bg-color;
 }
