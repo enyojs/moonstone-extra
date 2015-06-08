@@ -11,19 +11,13 @@
 .moon-icon.moon-video-feedback-icon-right {
 	display: inline-block;
 	width: @moon-video-feedback-icon-width;
-	margin: 0;
+	margin: 0 @moon-video-player-icon-text-gutter-width 0 @moon-video-player-icon-text-gutter-width;
 	font-size: @moon-video-feedback-icon-font-size;
 	line-height: @moon-video-feedback-icon-line-height; /* use line-height to middle align the icon, the defaut 32px from moon-icon will make it too low */
 
 	.small-icon-tap-area {
 		line-height: inherit;
 	}
-}
-.moon-icon.moon-video-feedback-icon-left {
-	margin-left: @moon-video-player-icon-text-gutter-width;
-}
-.moon-icon.moon-video-feedback-icon-right {
-	margin-right: @moon-video-player-icon-text-gutter-width;
 }
 
 .moon-video-player-feedback .moon-icon.small {
