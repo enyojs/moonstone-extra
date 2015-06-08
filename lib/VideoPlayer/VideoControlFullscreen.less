@@ -1,5 +1,5 @@
 /* --- Fullscreen Video UI --- */
-.moon-video-fullscreen-control {
+.moon-video-player-fullscreen {
 	box-sizing: border-box;
 	background-color: @moon-video-player-fullscreen-bg-color;
 	transition: background-color 0.1s linear;
@@ -12,7 +12,7 @@
 	}
 
 	// --- Video Info Header (Top) ---
-	.moon-video-player-header {
+	.moon-video-player-top {
 	    background-color: @moon-videoplayer-background-color;
 		color: #ffffff;
 		direction: ltr;
@@ -33,9 +33,9 @@
 		direction: ltr;
 	}
 
-	.moon-video-player-controls {
+	.moon-video-player-controls-frame {
 		padding: 24px @moon-video-player-side-padding;
-		background-color: @moon-icon-video-round-controls-bg-color;
+		background-color: @moon-video-player-controls-bg-color;
 
 		&.enyo-fittable-columns-layout {
 			direction: ltr;
@@ -67,21 +67,7 @@
 			margin: 0 18px;
 		}
 	}
-	.moon-icon-button {
-		color: @moon-icon-video-round-controls-font-color;
-		background-color: @moon-icon-video-round-controls-bg-color;
 
-		&.spotlight {
-			background-color: @moon-spotlight-color;
-		}
-		&.active,
-		&:active,
-		&.pressed,
-		&.spotlight.pressed,
-		&.spotlight:active {
-			background-color: @moon-icon-video-round-controls-bg-color;
-		}
-	}
 }
 
 .enyo-locale-right-to-left .moon-video-player-more-controls > * {
