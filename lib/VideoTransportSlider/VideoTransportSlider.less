@@ -10,18 +10,32 @@
 	// Knob
 	.knob {
 		position: absolute;
-		width: @moon-video-player-transport-slider-knob-size;
+		width: (@moon-video-player-transport-slider-knob-size * 2);
 		top: 0;
-		height: @moon-video-player-transport-slider-knob-size/2;
+		height: @moon-video-player-transport-slider-knob-size;
 		border-radius: @moon-video-player-transport-slider-knob-size;
 		border-top-left-radius: 0;
 		border-top-right-radius: 0;
 		background-color: #fff;
 		pointer-events: none;
 		display: none;
+		-webkit-transform-origin: top;
+		transform-origin: top;
+		-webkit-transform: translateZ(0) translateX(-50%) scale(0.5);
+		transform:         translateZ(0) translateX(-50%) scale(0.5);
+		-webkit-transition: -webkit-transform cubic-bezier(0.15, 0.85, 0.6, 1.65) 0.2s;
+		transition:                 transform cubic-bezier(0.15, 0.85, 0.6, 1.65) 0.2s;
 	}
-	&.visible .knob {
-		display: block;
+	&.visible {
+		.knob {
+			display: block;
+		}
+		&.pressed {
+			.knob {
+				-webkit-transform: translateZ(0) translateX(-50%) scale(0.75);
+				transform:         translateZ(0) translateX(-50%) scale(0.75);
+			}
+		}
 	}
 
 	// Status Indicator
@@ -67,6 +81,10 @@
 		position: absolute;
 		height: 100%;
 		width: 100%;
+	}
+	&.pressed .taparea {
+		position: fixed;
+		top: 0;
 	}
 	.popup-label {
 		.moon-large-button-text;
