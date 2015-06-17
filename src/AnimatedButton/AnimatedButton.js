@@ -2,34 +2,33 @@ require('moonstone');
 
 var
 	kind = require('enyo/kind'),
-	util = require('enyo/utils'),
-	dom = require('enyo/dom');
+	util = require('enyo/utils');
 
 var
 	Button = require('moonstone/Button'),
-	ButtonAnimatedSvg = require('./ButtonAnimatedSvg');
+	AnimatedButtonSvg = require('./AnimatedButtonSvg');
 
 /**
-* {@link moon.ButtonAnimated} is an {@link moon.Button} with Moonstone styling applied.
+* {@link moon.AnimatedButton} is an {@link moon.Button} with Moonstone styling applied.
 * The color of the button may be customized by specifying a background color.
 *
 * For more information, see the documentation on
 * [Buttons]{@linkplain $dev-guide/building-apps/controls/buttons.html} in the
 * Enyo Developer Guide.
 *
-* @class moon.ButtonAnimated
-* @extends enyo.ButtonAnimated
+* @class moon.AnimatedButton
+* @extends enyo.AnimatedButton
 * @mixes moon.MarqueeSupport
 * @ui
 * @public
 */
 module.exports = kind(
-	/** @lends moon.ButtonAnimated.prototype */ {
+	/** @lends moon.AnimatedButton.prototype */ {
 
 	/**
 	* @private
 	*/
-	name: 'moon.ButtonAnimated',
+	name: 'moon.AnimatedButton',
 
 	/**
 	* @private
@@ -38,12 +37,10 @@ module.exports = kind(
 
 	/**
 	* @private
-	* @lends moon.ButtonAnimated.prototype
+	* @lends moon.AnimatedButton.prototype
 	*/
 	published: {
-		duration: 400,
-
-		width: 150
+		duration: 400
 	},
 
 	/**
@@ -53,8 +50,7 @@ module.exports = kind(
 
 	handlers: {
 		onSpotlightFocus: 'animateSpotlightFocus',
-		onSpotlightBlur: 'animateSpotlightBlur',
-		onEnd: 'animDone'
+		onSpotlightBlur: 'animateSpotlightBlur'
 	},
 
 	bindings: [
@@ -68,14 +64,11 @@ module.exports = kind(
 	*/
 	initComponents: function () {
 		// Always add an SVG element, unless one already exists
-		this.createComponent(
-			{name: 'spacer', classes: 'spacer', isChrome: true, content: 'x'}
-		);
-		this.createComponent(
-			{classes: 'moon-button-animated-frame', isChrome: true, components: [
-				{name: 'animation', kind: ButtonAnimatedSvg, isChrome: true}
+		this.createChrome([
+			{classes: 'moon-button-animated-frame', components: [
+				{name: 'animation', kind: AnimatedButtonSvg, onEnd: 'animDone'}
 			]}
-		);
+		]);
 
 		this.inherited(arguments);
 
@@ -90,19 +83,6 @@ module.exports = kind(
 			for (i = 0; i < children.length; i++) {
 				children[i].set('container', newClient);
 			}
-		}
-	},
-	create: function () {
-		this.inherited(arguments);
-		this.widthChanged();
-	},
-	widthChanged: function (was) {
-		var clientWidth = dom.unit(this.get('width'), 'rem'),
-			client = this.$.client || this.getClientControls()[0];
-
-		this.$.spacer.applyStyle('width', clientWidth);
-		if (client) {
-			client.applyStyle('width', clientWidth);
 		}
 	},
 	animateSpotlightFocus: function () {
@@ -123,5 +103,6 @@ module.exports = kind(
 	animDone: function (sender, ev) {
 		this.addRemoveClass('spotlight', ev.focused);
 		this.removeClass('nearly-spotlight');
+		return true;
 	}
 });
