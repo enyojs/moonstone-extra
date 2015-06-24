@@ -597,6 +597,9 @@ module.exports = kind(
 	playCurrentKnobPosition: function (e) {
 		var v = this.calcKnobPosition(e) || this._value;
 
+		this.mouseDownTapArea();
+		this.startJob('simulateClick', this.mouseUpTapArea, 200);
+
 		v = this.transformToVideo(v);
 		this.sendSeekEvent(v);
 
