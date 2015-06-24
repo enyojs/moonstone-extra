@@ -353,7 +353,7 @@ module.exports = kind(
 			};
 
 		if (langWidths[language]) {
-			//Todo. Instead of adjust begin or end postion, find proper way to conpensate language matter
+			//Todo. Instead of adjust begin or end postion, find proper way tpo conpensate language matter
 			//move begin position to right as much as langWidths[language]
 			//move end position to left as much as langWidths[language] );
 		}
@@ -703,6 +703,9 @@ module.exports = kind(
 	*/
 	playCurrentKnobPosition: function (e) {
 		var v = this.calcKnobPosition(e) || this._value;
+
+		this.mouseDownTapArea();
+		this.startJob('simulateClick', this.mouseUpTapArea, 200);
 
 		v = this.transformToVideo(v);
 		this.sendSeekEvent(v);
