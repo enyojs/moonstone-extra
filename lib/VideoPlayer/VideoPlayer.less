@@ -2,6 +2,10 @@
 	position: relative;
 	display: inline-block;
 	background-color: @moon-video-player-bg-color;
+
+	&.spotlight-5way-mode {
+		pointer-events: none;
+	}
 }
 .moon-video-player:not(.enyo-fullscreen) {
 	margin: 0 @moon-spotlight-outset;
