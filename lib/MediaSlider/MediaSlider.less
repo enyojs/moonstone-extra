@@ -38,7 +38,7 @@
 			transition:                 transform @activate-transition-function 0.2s, left @slide-transition-function 0.2s;
 		}
 	}
-	&.visible {
+	&.spotlight {
 		.knob {
 			display: block;
 		}
@@ -91,7 +91,7 @@
 	}
 	.taparea {
 		position: absolute;
-		height: 100%;
+		height: 200%; // 200% so it doesn't matter where on the screen (vertically) the slider is.
 		width: 100%;
 	}
 	&.pressed .taparea {
