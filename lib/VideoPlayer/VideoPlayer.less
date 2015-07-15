@@ -2,75 +2,76 @@
 	position: relative;
 	display: inline-block;
 	background-color: @moon-video-player-bg-color;
-}
-.moon-video-player:not(.enyo-fullscreen) {
-	margin: 0 @moon-spotlight-outset;
-}
-.moon-video-player-container {
-	display: block;
-	margin: 0;
-	height: 100%;
-	width: 100%;
-}
 
-.moon-video-player-video {
-	position: absolute;
-	display: block;
-	margin: 0px auto;
-	height: 100%;
-	width: 100%;
-}
-.moon-video-player-spinner {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	margin-top: -@moon-spinner-size/2;
-	margin-left: -@moon-spinner-size/2;
-}
-
-/* Fullscreen CSS */
-:-webkit-full-screen.moon-video-player {
-	position: static !important;
-	display: block !important;
-	margin: 0;
-
-	.moon-video-player-video {
-		position: static;
+	.moon-video-player-container {
+		display: block;
+		margin: 0;
+		height: 100%;
+		width: 100%;
 	}
-}
-:-moz-full-screen.moon-video-player {
-	position: static !important;
-	display: block !important;
-	margin: 0;
 
 	.moon-video-player-video {
-		position: static;
+		position: absolute;
+		display: block;
+		margin: 0px auto;
+		height: 100%;
+		width: 100%;
 	}
-}
-:-ms-full-screen.moon-video-player {
-	position: static !important;
-	display: block !important;
-	margin: 0;
-
-	.moon-video-player-video {
-		position: static;
+	.moon-spinner {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		margin-top: (-@moon-spinner-size / 2);
+		margin-left: (-@moon-spinner-size / 2);
 	}
-}
-:-o-full-screen.moon-video-player {
-	position: static !important;
-	display: block !important;
-	margin: 0;
 
-	.moon-video-player-video {
-		position: static;
+	/* Fullscreen CSS */
+	&:-webkit-full-screen {
+		position: static !important;
+		display: block !important;
+		margin: 0;
+
+		.moon-video-player-video {
+			position: static;
+		}
 	}
-}
-:full-screen.moon-video-player {
-	position: static !important;
-	display: block !important;
-	margin: 0;
+	&:-moz-full-screen {
+		position: static !important;
+		display: block !important;
+		margin: 0;
 
-	.moon-video-player-video {
-		position: static;
+		.moon-video-player-video {
+			position: static;
+		}
+	}
+	&:-ms-fullscreen {
+		position: static !important;
+		display: block !important;
+		margin: 0;
+
+		.moon-video-player-video {
+			position: static;
+		}
+	}
+	&:-o-full-screen {
+		position: static !important;
+		display: block !important;
+		margin: 0;
+
+		.moon-video-player-video {
+			position: static;
+		}
+	}
+	&:fullscreen {
+		position: static !important;
+		display: block !important;
+		margin: 0;
+
+		.moon-video-player-video {
+			position: static;
+		}
+	}
+	&:not(.enyo-fullscreen) {
+		margin: 0 @moon-spotlight-outset;
 	}
 }
