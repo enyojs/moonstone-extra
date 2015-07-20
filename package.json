@@ -3,5 +3,8 @@
   "main": "index.js",
   "styles": [
     "css/moonstone-variables.less"
+  ],
+  "assets": [
+    "resources/**/*.*"
   ]
 }
