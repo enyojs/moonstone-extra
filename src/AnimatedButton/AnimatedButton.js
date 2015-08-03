@@ -1,3 +1,8 @@
+/**
+* Contains the declaration for the {@link module:moonstone-extra/AnimatedButton~AnimatedButton} kind.
+* @module moonstone-extra/AnimatedButton
+*/
+
 require('moonstone');
 
 var
@@ -9,21 +14,21 @@ var
 	AnimatedButtonSvg = require('./AnimatedButtonSvg');
 
 /**
-* {@link moon.AnimatedButton} is an {@link moon.Button} with Moonstone styling applied.
+* {@link module:moonstone-extra/AnimatedButton~AnimatedButton} is an {@link module:moonstone/Button~Button} with Moonstone styling applied.
 * The color of the button may be customized by specifying a background color.
 *
 * For more information, see the documentation on
 * [Buttons]{@linkplain $dev-guide/building-apps/controls/buttons.html} in the
 * Enyo Developer Guide.
 *
-* @class moon.AnimatedButton
-* @extends enyo.AnimatedButton
-* @mixes moon.MarqueeSupport
+* @class AnimatedButton
+* @extends module:enyo/AnimatedButton~AnimatedButton
+* @mixes module:moonstone/MarqueeSupport~MarqueeSupport
 * @ui
 * @public
 */
 module.exports = kind(
-	/** @lends moon.AnimatedButton.prototype */ {
+	/** @lends module:moonstone-extra/AnimatedButton~AnimatedButton.prototype */ {
 
 	/**
 	* @private
@@ -37,9 +42,17 @@ module.exports = kind(
 
 	/**
 	* @private
-	* @lends moon.AnimatedButton.prototype
+	* @lends module:moonstone-extra/AnimatedButton~AnimatedButton.prototype
 	*/
 	published: {
+
+		/**
+		* The length of time, in milliseconds, that the animation will run.
+		*
+		* @type {Number}
+		* @default 400
+		* @public
+		*/
 		duration: 400
 	},
 
@@ -48,18 +61,22 @@ module.exports = kind(
 	*/
 	classes: 'moon-button-animated',
 
+	/**
+	* @private
+	*/
 	handlers: {
 		onSpotlightFocus: 'animateSpotlightFocus',
 		onSpotlightBlur: 'animateSpotlightBlur'
 	},
 
+	/**
+	* @private
+	*/
 	bindings: [
 		{from: 'duration', to: '$.animation.duration'}
 	],
 
 	/**
-	* On creation, updates based on value of `this.small`.
-	*
 	* @private
 	*/
 	initComponents: function () {
@@ -85,6 +102,10 @@ module.exports = kind(
 			}
 		}
 	},
+
+	/**
+	* @private
+	*/
 	animateSpotlightFocus: function () {
 		this.$.animation.startFocus();
 		var self = this;
@@ -95,11 +116,19 @@ module.exports = kind(
 			self.addClass('nearly-spotlight');
 		}, this.get('duration') / 2);
 	},
+
+	/**
+	* @private
+	*/
 	animateSpotlightBlur: function () {
 		this.stopJob('textTransition');
 		this.removeClass('nearly-spotlight');
 		this.$.animation.startBlur();
 	},
+
+	/**
+	* @private
+	*/
 	animDone: function (sender, ev) {
 		this.addRemoveClass('spotlight', ev.focused);
 		this.removeClass('nearly-spotlight');
