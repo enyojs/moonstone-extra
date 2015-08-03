@@ -26,7 +26,7 @@
 	}
 
 	/* Fullscreen CSS */
-	&:-webkit-full-screen {
+	.vendor-fullscreen({
 		position: static !important;
 		display: block !important;
 		margin: 0;
@@ -34,43 +34,8 @@
 		.moon-video-player-video {
 			position: static;
 		}
-	}
-	&:-moz-full-screen {
-		position: static !important;
-		display: block !important;
-		margin: 0;
+	});
 
-		.moon-video-player-video {
-			position: static;
-		}
-	}
-	&:-ms-fullscreen {
-		position: static !important;
-		display: block !important;
-		margin: 0;
-
-		.moon-video-player-video {
-			position: static;
-		}
-	}
-	&:-o-full-screen {
-		position: static !important;
-		display: block !important;
-		margin: 0;
-
-		.moon-video-player-video {
-			position: static;
-		}
-	}
-	&:fullscreen {
-		position: static !important;
-		display: block !important;
-		margin: 0;
-
-		.moon-video-player-video {
-			position: static;
-		}
-	}
 	&:not(.enyo-fullscreen) {
 		margin: 0 @moon-spotlight-outset;
 	}

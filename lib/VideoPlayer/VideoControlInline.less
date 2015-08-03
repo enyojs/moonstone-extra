@@ -1,21 +1,9 @@
 .moon-video-player-inline {
 	padding-bottom: @moon-video-player-transport-slider-height;
 
-	&:-webkit-full-screen {
+	.vendor-fullscreen({
 		padding-bottom: 0;
-	}
-	&:-moz-full-screen {
-		padding-bottom: 0;
-	}
-	&:-ms-fullscreen {
-		padding-bottom: 0;
-	}
-	&:-o-full-screen {
-		padding-bottom: 0;
-	}
-	&:fullscreen {
-		padding-bottom: 0;
-	}
+	});
 }
 
 .moon-video-player-inline-control {
