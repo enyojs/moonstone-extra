@@ -1154,6 +1154,9 @@ module.exports = kind(
 				if (!this.$.videoInfoHeaderClient.getShowing()) {
 					this.showFSInfo();
 				} else {
+					if (this.allowBackKey && EnyoHistory.get('updateHistory')) {
+						EnyoHistory.drop();
+					}
 					this.hideFSInfo();
 				}
 			}
@@ -1170,6 +1173,9 @@ module.exports = kind(
 			if (!this.$.playerControl.getShowing()) {
 				this.showFSBottomControls();
 			} else {
+				if (this.allowBackKey && EnyoHistory.get('updateHistory')) {
+					EnyoHistory.drop();
+				}
 				this.hideFSBottomControls();
 			}
 			return true;
@@ -1238,6 +1244,10 @@ module.exports = kind(
 	*/
 	hideFSControls: function(spottingHandled) {
 		if (this.isOverlayShowing()) {
+			if (this.allowBackKey && EnyoHistory.get('updateHistory')) {
+				EnyoHistory.drop();
+				EnyoHistory.drop();
+			}
 			this.hideFSInfo();
 			this.hideFSBottomControls();
 		}
@@ -2182,15 +2192,13 @@ module.exports = kind(
 		// if videoInfoHeaderClient and playerControl are visible
 		// it means that we pushed video player into history stack twice.
 		// to set correct target for next back key, we should pop one instance.
-		if (visibleUp && visibleDown && current && current.context == this) {
+		if (visibleUp && visibleDown) {
 			EnyoHistory.drop();
 		}
-		if (visibleUp) {
-			this.hideFSInfo();
-		}
-		if (visibleDown) {
-			this.hideFSBottomControls();
-		}
+
+		if (visibleUp) this.hideFSInfo();
+		if (visibleDown) this.hideFSBottomControls();
+
 		return true;
 	}
 });
