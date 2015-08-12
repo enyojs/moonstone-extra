@@ -1154,7 +1154,7 @@ module.exports = kind(
 				if (!this.$.videoInfoHeaderClient.getShowing()) {
 					this.showFSInfo();
 				} else {
-					if (this.allowBackKey && EnyoHistory.get('updateHistory')) {
+					if (this.allowBackKey && !EnyoHistory.get('updateHistory')) {
 						EnyoHistory.drop();
 					}
 					this.hideFSInfo();
@@ -1173,7 +1173,7 @@ module.exports = kind(
 			if (!this.$.playerControl.getShowing()) {
 				this.showFSBottomControls();
 			} else {
-				if (this.allowBackKey && EnyoHistory.get('updateHistory')) {
+				if (this.allowBackKey && !EnyoHistory.get('updateHistory')) {
 					EnyoHistory.drop();
 				}
 				this.hideFSBottomControls();
@@ -1244,9 +1244,8 @@ module.exports = kind(
 	*/
 	hideFSControls: function(spottingHandled) {
 		if (this.isOverlayShowing()) {
-			if (this.allowBackKey && EnyoHistory.get('updateHistory')) {
-				EnyoHistory.drop();
-				EnyoHistory.drop();
+			if (this.allowBackKey && !EnyoHistory.get('updateHistory')) {
+				EnyoHistory.drop(2);
 			}
 			this.hideFSInfo();
 			this.hideFSBottomControls();
