@@ -2020,7 +2020,9 @@ module.exports = kind(
 	* @private
 	*/
 	_play: function(sender, e) {
-		this.sendFeedback('Play');
+		if(e.playbackRate != this.playbackRateHash.slowRewind[0] && e.playbackRate != this.playbackRateHash.slowForward[0]){
+			this.sendFeedback('Play');
+		}
 	},
 
 	/**
