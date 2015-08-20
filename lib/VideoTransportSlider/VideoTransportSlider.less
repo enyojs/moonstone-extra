@@ -1,4 +1,4 @@
-.moon-video-player-transport-slider {
+.moon-progress-bar.moon-video-player-transport-slider {
 	height: @moon-video-player-transport-slider-height;
 	background-color: #323232;
 	margin: 0;
@@ -133,6 +133,11 @@
 		font-size: 45px;	//34pt
 		font-family: @moon-popup-header-font-family;
 		color: @moon-indicator-text-color;	//#ffffff, @moon-white
+	}
+
+	// Disable the slider taparea since video slider is big enough for tapping on its own
+	&:before {
+		content: none;
 	}
 }
 
