@@ -13,7 +13,8 @@ var
 	Control = require('enyo/Control'),
 	EnyoHistory = require('enyo/History'),
 	Signals = require('enyo/Signals'),
-	ri = require('enyo/resolution');
+	ri = require('enyo/resolution'),
+	TaskManagerSupport = require('enyo/TaskManagerSupport');
 
 var
 	Panels = require('layout/Panels');
@@ -245,7 +246,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	mixins : [HistorySupport],
+	mixins : [HistorySupport, TaskManagerSupport],
 
 	/**
 	* @private
@@ -338,13 +339,31 @@ module.exports = kind(
 		popOnBack: false,
 
 		/**
+		* When `true`, previous panels are automatically popped when moving forwards.
+		*
+		* @type {Boolean}
+		* @default false
+		* @public
+		*/
+		popOnForward: false,
+
+		/**
 		* When `true`, focus can move from panel to breadcrumb when press left key. (Experimental)
 		*
 		* @type {Boolean}
 		* @default false
 		* @public
 		*/
-		leftKeyToBreadcrumb: false
+		leftKeyToBreadcrumb: false,
+
+		/**
+		* When `true`, existing views are cached for reuse; otherwise, they are destroyed.
+		*
+		* @type {Boolean}
+		* @default true
+		* @public
+		*/
+		cacheViews: false
 	},
 
 	/**
@@ -395,6 +414,13 @@ module.exports = kind(
 		]},
 		{name: 'showHideHandle', kind: PanelsHandle, classes: 'hidden', canGenerate: false, ontap: 'handleTap', onSpotlightLeft: 'handleSpotLeft', onSpotlightRight: 'handleSpotRight', onSpotlightFocused: 'handleFocused', onSpotlightBlur: 'handleBlur', tabIndex: -1},
 		{name: 'showHideAnimator', kind: StyleAnimator, onComplete: 'showHideAnimationComplete'}
+	],
+
+	/**
+	* @private
+	*/
+	viewCacheTools: [
+		{name: 'viewCache', kind: Control, canGenerate: false}
 	],
 
 	/**
@@ -541,6 +567,77 @@ module.exports = kind(
 	},
 
 	/**
+	* Determines the id of the given view.
+	*
+	* @param {Object} view - The view whose id we will determine.
+	* @return {String} The id of the given view.
+	* @public
+	*/
+	getViewId: function (view) {
+		return view.id;
+	},
+
+	/**
+	* Retrieves an array of either cached panels, if found, or creates a new array of panels
+	*
+	* @param {Object[]} info - The declarative {@glossary kind} definitions.
+	* @param {Object} moreInfo - Additional properties to be applied (defaults).
+	* @return {Array} List of found or created controls
+	* @private
+	*/
+	createPanels: function (info, moreInfo) {
+		var newPanels = [],
+			idx;
+
+		for (idx = 0; idx < info.length; idx++) {
+			newPanel = this.createPanel(info[idx], moreInfo);
+			newPanels.push(newPanel);
+		}
+
+		return newPanels;
+	},
+
+	/**
+	* Retrieves a cached panel or, if not found, creates a new panel
+	*
+	* @param {Object} info - The declarative {@glossary kind} definition.
+	* @param {Object} moreInfo - Additional properties to be applied (defaults).
+	* @return {Object} - Found or created control
+	* @private
+	*/
+	createPanel: function (info, moreInfo) {
+		var panel,
+			panelId = this.getViewId(info);
+
+		if (this.cacheViews && panelId) {
+			panel = this.restoreView(panelId);
+		}
+
+		panel = panel || this.createComponent(info, moreInfo);
+		return panel;
+	},
+
+	/**
+	* Prunes the queue of to-be-cached panels in the event that any panels in the queue have
+	* already been instanced.
+	*
+	* @param {String} viewProps - The properties of the view to be enqueued.
+	* @private
+	*/
+	pruneQueue: function (viewProps) {
+		for (var idx = 0; idx < viewProps.length; idx++) {
+			this.removeTask(this.getViewId(viewProps[idx]));
+		}
+	},
+
+	/**
+	* @private
+	*/
+	cacheViewsChanged: function () {
+		this.popOnForward = this.cacheViews;
+	},
+
+	/**
 	* Creates a panel on top of the stack and increments index to select that component.
 	*
 	* @param {Object} info - The declarative {@glossary kind} definition.
@@ -552,7 +649,10 @@ module.exports = kind(
 		if (this.transitioning || this.isModifyingPanels) {return null;}
 		this.isModifyingPanels = true;
 		var lastIndex = this.getPanels().length - 1,
-			oPanel = this.createComponent(info, moreInfo);
+			oPanel = this.createPanel(info, moreInfo);
+		if (this.cacheViews) {
+			this.pruneQueue([info]);
+		}
 		oPanel.render();
 		this.addBreadcrumb(true);
 		this.recalcLayout();
@@ -593,7 +693,7 @@ module.exports = kind(
 
 		if (!options) { options = {}; }
 		var lastIndex = this.getPanels().length,
-			oPanels = this.createComponents(info, commonInfo),
+			oPanels = this.createPanels(info, commonInfo),
 			nPanel;
 
 		for (nPanel = 0; nPanel < oPanels.length; ++nPanel) {
@@ -623,26 +723,175 @@ module.exports = kind(
 	* Destroys panels whose index is greater than or equal to a specified value.
 	*
 	* @param {Number} index - Index at which to start destroying panels.
+	* @param {Number} direction - The direction in which we want to destroy panels. A negative
+	*	number signifies popping backwards, otherwise we pop forwards.
 	* @public
 	*/
-	popPanels: function (index) {
+	popPanels: function (index, direction) {
 		if (this.transitioning || this.isModifyingPanels) return;
 
 		var panels = this.getPanels(),
-			panelStack = this.panelStack;
+			panelStack = this.panelStack,
+			i;
 
-		index = index || panels.length - 1;
 		this.isModifyingPanels = true;
+		
+		if (direction < 0) {
+			index = index || panels.length - 1;
 
-		while (panels.length > index && index >= 0) {
-			panels[panels.length - 1].destroy();
-			if (panelStack && panels.length == panelStack.length) {
-				panelStack.pop();
+			while (panels.length > index && index >= 0) {
+				this.popPanel(panels.length - 1);
+				if (panelStack && panels.length == panelStack.length) {
+					panelStack.pop();
+				}
 			}
+		} else if (direction > 0) {
+ 			for (i = 0; i <= index; ++i) {
+ 				if (panels[i].generated) {
+ 					this.popPanel(i, true);
+ 				}
+ 			}
 		}
+		
 		this.removeBreadcrumb();
 		this.recalcLayout();
 		this.isModifyingPanels = false;
+		
+	},
+
+	/**
+	* @private
+	*/
+	popPanel: function (index, preserve) {
+		var panels = this.getPanels(),
+			panel = panels[index];
+
+		if (panel) {
+			if (this.cacheViews) {
+				this.cacheView(panel, preserve);
+			} else {
+				panel.destroy();
+			}
+		}
+	},
+
+	/**
+	* Caches a given view so that it can be quickly instantiated and utilized at a later point.
+	* This is typically performed on a view which has already been rendered and which no longer
+	* needs to remain in view, but may be revisited at a later time.
+	*
+	* @param {Object} view - The view to cache for later use.
+	* @param {Boolean} preserve - If `true`, preserves the view's position both on the screen
+	*	and within the component hierarchy.
+	* @public
+	*/
+	cacheView: function (view, preserve) {
+
+		var id = this.getViewId(view);
+
+		// The panel could have already been removed from DOM and torn down if we popped when
+		// moving forward.
+		if (view.node) {
+			view.node.remove();
+			view.teardownRender(true);
+		}
+
+		if (!preserve) {
+			this.removeControl(view);
+			this.$.viewCache.addControl(view);
+		}
+
+		this._cachedViews[id] = view;
+	},
+
+	/**
+	* Restores the specified view that was previously cached.
+	*
+	* @param {String} id - The unique identifier for the cached view that is being restored.
+	* @return {Object} The restored view.
+	* @public
+	*/
+	restoreView: function (id) {
+		var cp = this._cachedViews,
+			view = cp[id];
+
+		if (view) {
+			this.$.viewCache.removeControl(view);
+			this.addControl(view);
+
+			this._cachedViews[id] = null;
+		}
+
+		return view;
+	},
+
+	/**
+	* Pre-caches a set of views by creating and caching them, even if they have not yet been
+	* rendered into view. This is helpful for reducing the instantiation time for views which
+	* have yet to be shown, but can and eventually will be shown to the user.
+	*
+	* @param {Object} info - The declarative {@glossary kind} definition.
+	* @param {Object} commonInfo - Additional properties to be applied (defaults).
+	* @param {Boolean} [cbEach] - If specified, this callback will be executed once for each view
+	*	that is created, with the created view being passed as a parameter.
+	* @param {Boolean} [cbComplete] - If specified, this callback will be executed after all of the
+	*	views have been created, with the created views being passed as a parameter.
+	* @return {Object[]} The set of view components that were created.
+	* @public
+	*/
+	preCacheViews: function(info, commonInfo, cbEach, cbComplete) {
+		var views = [],
+			i;
+
+		for (i = 0; i < info.length; i++) {
+			views.push(this.preCacheView(info[i], commonInfo, cbEach));
+		}
+		if (cbComplete) {
+			cbComplete.call(this, views);
+		}
+
+		return views;
+	},
+
+	/**
+	* Pre-caches a single view by creating and caching the view, even if it has not yet been
+	* rendered into view. This is helpful for reducing the instantiation time for panels which
+	* have yet to be shown, but can and eventually will be shown to the user.
+	*
+	* @param {Object} info - The declarative {@glossary kind} definition.
+	* @param {Object} commonInfo - Additional properties to be applied (defaults).
+	* @param {Function} [cbComplete] - If specified, this callback will be executed, with the
+	*	created view being passed as a parameter.
+	* @return {Object} The view component that was created.
+	* @public
+	*/
+	preCacheView: function(info, commonInfo, cbComplete) {
+		var viewId = this.getViewId(info),
+			vc, view;
+
+		if (!this.isViewPreloaded(viewId)) {
+			vc = this.$.viewCache;
+			commonInfo = commonInfo || {};
+			commonInfo.owner = this;
+			view = vc.createComponent(info, commonInfo);
+			this._cachedViews[viewId] = view;
+			if (cbComplete) {
+				cbComplete.call(this, view);
+			}
+		}
+
+		return view;
+	},
+
+	/**
+	* Determines whether or not a given view has already been pre-loaded.
+	*
+	* @param {Object} viewId - The id of the view whose pre-load status is being determined.
+	* @return {Boolean} If `true`, the view has already been pre-loaded; `false` otherwise.
+	* @public
+	*/
+	isViewPreloaded: function (viewId) {
+		return !!(viewId && this._cachedViews[viewId]);
 	},
 
 	/**
@@ -664,7 +913,7 @@ module.exports = kind(
 				moreInfo = util.mixin({addBefore: this.getPanels()[index]}, moreInfo);
 			}
 		}
-		oPanel = this.createComponent(info, moreInfo);
+		oPanel = this.createPanel(info, moreInfo);
 		oPanel.render();
 		this.resize();
 		this.isModifyingPanels = false;
@@ -1040,6 +1289,8 @@ module.exports = kind(
 			return;
 		}
 
+		var panels, toPanel;
+
 		// Clear before start
 		this.queuedIndex = null;
 		this._willMove = null;
@@ -1058,6 +1309,16 @@ module.exports = kind(
 			if(!this.popOnBack || (this.popOnBack && this.fromIndex < this.toIndex)){
 				this.panelStack.push(this.index);
 				this.pushBackHistory();
+			}
+		}
+
+		if (this.cacheViews && this.toIndex < this.fromIndex) {
+			panels = this.getPanels();
+			toPanel = panels[this.toIndex];
+
+			if (!toPanel.generated) {
+				toPanel.addBefore = panels[this.fromIndex];
+				toPanel.render();
 			}
 		}
 
@@ -1292,22 +1553,37 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	processPopOnBack: function(fromIndex, toIndex) {
+	processPopPanels: function(fromIndex, toIndex) {
 		var panels = this.getPanels(),
+			direction = toIndex < fromIndex ? -1 : 1,
 			i, panel, info, popFrom;
+
 		// Automatically pop off panels that are no longer on screen
-		if (this.popOnBack && (toIndex < fromIndex)) {
+		if (this.popOnBack && (direction < 0)) {
 			popFrom = toIndex + 1;
 			for (i = 0; (panel = panels[i]); i++) {
 				info = this.getTransitionInfo(i);
+
 				// If a panel is onscreen, don't pop it
 				if ((i > toIndex) && !info.isOffscreen) {
 					popFrom++;
 				}
 			}
+			this.popPanels(popFrom, direction);
 
-			this.popPanels(popFrom);
-		}
+		} else if (this.popOnForward && direction > 0) {
+			popFrom = toIndex - 1;
+			for (i = 0; (panel = panels[i]); i++) {
+				info = this.getTransitionInfo(i);
+
+				// If a panel is onscreen, don't pop it
+				if ((i < toIndex) && !info.isOffscreen) {
+					popFrom++;
+				}
+			}
+			this.popPanels(popFrom, direction);
+			
+ 		}
 	},
 
 	processQueuedKey: function() {
@@ -1331,7 +1607,7 @@ module.exports = kind(
 		this.adjustFirstPanelAfterTransition();
 		this.notifyPanels('transitionFinished');
 		Panels.prototype.finishTransition.apply(this, arguments);
-		this.processPopOnBack(fromIndex, toIndex);
+		this.processPopPanels(fromIndex, toIndex);
 		this.processQueuedKey();
 		Spotlight.unmute(this);
 		Spotlight.spot(this.getActive());
@@ -1383,12 +1659,22 @@ module.exports = kind(
 		case 'activity':
 			this.addClass(this.pattern);
 			this.useHandle = (this.useHandle === 'auto') ? true : this.useHandle;
+			if (this.cacheViews) {
+				this.handleTools.push.apply(this.handleTools, this.viewCacheTools);
+			}
 			this.createChrome(this.handleTools);
 			this.tools = this.animatorTools;
 			break;
 		default:
 			this.useHandle = false;
+			if (this.cacheViews) {
+				this.createChrome(this.viewCacheTools);
+			}
 			break;
+		}
+		if (this.cacheViews) {
+			this.removeChild(this.$.viewCache);
+			this._cachedViews = {};
 		}
 	},
 
