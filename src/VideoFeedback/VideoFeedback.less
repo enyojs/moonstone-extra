@@ -6,12 +6,14 @@
 	display: inline-block;
 	color: @moon-accent;
 	margin: 0;
+	margin-right: @moon-video-player-icon-text-gutter-width;
 }
 .moon-icon.moon-video-feedback-icon-left,
 .moon-icon.moon-video-feedback-icon-right {
 	display: inline-block;
 	width: @moon-video-feedback-icon-width;
-	margin: 0 @moon-video-player-icon-text-gutter-width 0 @moon-video-player-icon-text-gutter-width;
+	margin-left: 0;
+	margin-right: @moon-video-player-icon-text-gutter-width;
 	font-size: @moon-video-feedback-icon-font-size;
 	line-height: @moon-video-feedback-icon-line-height; /* use line-height to middle align the icon, the defaut 32px from moon-icon will make it too low */
 
@@ -20,13 +22,7 @@
 	}
 }
 
-.moon-video-player-feedback .moon-icon.small {
-	background-position: center -3px;
-}
-
 .moon-icon.moon-video-feedback-icon-left {
-	margin-left: 0;
-	margin-right: @moon-video-player-icon-text-gutter-width;
 	&.moon-icon-pausejumpbackward {
 		width: @moon-video-feedback-icon-pausejumpbackward-width;
 	}
@@ -44,6 +40,10 @@
 	&.moon-icon-pausejumpforward {
 		width: @moon-video-feedback-icon-pausejumpforward-width;
 	}
+}
+
+.moon-video-player-feedback .moon-icon.small {
+	background-position: center -3px;
 }
 
 .moon-video-player-feedback .moon-icon.small > .small-icon-tap-area {
