@@ -35,7 +35,7 @@ var
 	Spinner = require('moonstone/Spinner'),
 	VideoFullscreenToggleButton = require('../VideoFullscreenToggleButton'),
 	VideoTransportSlider = require('../VideoTransportSlider'),
-	VideoPlayerAccessibilitySupport = require('moonstone/VideoPlayer/VideoPlayerAccessibilitySupport');
+	VideoPlayerAccessibilitySupport = require('./VideoPlayerAccessibilitySupport');
 
 /**
 * Fires when [disablePlaybackControls]{@link module:moonstone-extra/VideoPlayer~VideoPlayer#disablePlaybackControls}
