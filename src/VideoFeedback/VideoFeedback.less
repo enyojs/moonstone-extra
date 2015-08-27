@@ -5,21 +5,23 @@
 .moon-video-feedback-text {
 	display: inline-block;
 	color: @moon-accent;
-	margin: 0;
 	margin-right: @moon-video-player-icon-text-gutter-width;
 }
 .moon-icon.moon-video-feedback-icon-left,
 .moon-icon.moon-video-feedback-icon-right {
 	display: inline-block;
 	width: @moon-video-feedback-icon-width;
-	margin-left: 0;
-	margin-right: @moon-video-player-icon-text-gutter-width;
+	margin: 0 @moon-video-player-icon-text-gutter-width 0 0;
 	font-size: @moon-video-feedback-icon-font-size;
 	line-height: @moon-video-feedback-icon-line-height; /* use line-height to middle align the icon, the defaut 32px from moon-icon will make it too low */
 
 	.small-icon-tap-area {
 		line-height: inherit;
 	}
+}
+
+.moon-video-player-feedback .moon-icon.small {
+	background-position: center -3px;
 }
 
 .moon-icon.moon-video-feedback-icon-left {
@@ -42,10 +44,6 @@
 	}
 }
 
-.moon-video-player-feedback .moon-icon.small {
-	background-position: center -3px;
-}
-
 .moon-video-player-feedback .moon-icon.small > .small-icon-tap-area {
 	top: 0;
 	right: 0;
@@ -55,16 +53,4 @@
 .enyo-locale-non-latin .moon-video-feedback-icon-left,
 .enyo-locale-non-latin .moon-video-feedback-icon-right {
 	margin-bottom: 3px;
-}
-
-.enyo-locale-right-to-left {
-	.moon-video-player-feedback {
-		margin: 0 0 0 @moon-video-player-icon-text-gutter-width;
-	}
-	.moon-icon.moon-video-feedback-icon-left {
-		margin: 0 0 0 @moon-video-player-icon-text-gutter-width;
-	}
-	.moon-icon.moon-video-feedback-icon-right {
-		margin: 0 @moon-video-player-icon-text-gutter-width 0 0;
-	}
 }
