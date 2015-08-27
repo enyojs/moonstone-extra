@@ -12,10 +12,6 @@ var
 	Control = require('enyo/Control');
 
 var
-	DurationFmt = require('enyo-ilib/DurationFmt');
-
-var
-	$L = require('../i18n'),
 	Icon = require('moonstone/Icon');
 
 /**
@@ -148,14 +144,6 @@ module.exports = kind(
 	],
 
 	/**
-	* @private
-	*/
-	create: function() {
-		Control.prototype.create.apply(this, arguments);
-		this.df = new DurationFmt({length: 'medium', useNative: false});
-	},
-
-	/**
 	* Updates [IconButton]{@link module:moonstone/IconButton~IconButton} image and [Slider]{@link module:moonstone-extra/Slider~Slider}
 	* message with current state and playback rate when any of the playback controls are
 	* triggered.
@@ -210,12 +198,12 @@ module.exports = kind(
 
 		switch (msg) {
 		case 'Play':
-			msg = $L('PLAY'); // i18n "PLAY" feedback text in moon.VideoPlayer widget, should be translated to ALL CAPS in all languages
+			msg = '';
 			rightSrc = this.retriveImgOrIconPath(this._playImg);
 			break;
 
 		case 'Pause':
-			msg = $L('PAUSE'); // i18n "PAUSE" feedback text in moon.VideoPlayer widget, should be translated to ALL CAPS in all languages
+			msg = '';
 			rightSrc = this.retriveImgOrIconPath(this._pauseImg);
 			break;
 
@@ -240,12 +228,12 @@ module.exports = kind(
 			break;
 
 		case 'JumpBackward':
-			msg = this.df.format({second: params.jumpSize});
+			msg = '';
 			leftSrc = this.retriveImgOrIconPath(this._pauseJumpBackImg);
 			break;
 
 		case 'JumpForward':
-			msg = this.df.format({second: params.jumpSize});
+			msg = '';
 			rightSrc = this.retriveImgOrIconPath(this._pauseJumpForwardImg);
 			break;
 
@@ -260,7 +248,7 @@ module.exports = kind(
 			break;
 
 		case 'Stop':
-			msg = $L('STOP'); // i18n "STOP" feedback text in moon.VideoPlayer widget, should be translated to ALL CAPS in all languages
+			msg = '';
 			rightSrc = '';
 			break;
 
