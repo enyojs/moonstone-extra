@@ -1,12 +1,14 @@
 {
   "name": "moonstone-extra",
-  "main": "index.js",
-  "styles": [
-    "css/moonstone-variables.less"
-  ],
   "assets": [
     "resources/**/*.*"
   ],
+  "devAssets": [],
+  "styles": [
+    "css/moonstone-variables.less"
+  ],
+  "main": "index.js",
+  "moduleDir": "src",
   "scripts": {
     "test": "./node_modules/.bin/gulp"
   },
