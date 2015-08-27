@@ -288,7 +288,7 @@ module.exports = kind(
 	* @private
 	*/
 	popupComponents: [
-		{name: 'popup', kind: Popup, classes: 'moon-slider-popup above status-indicator', components: [
+		{name: 'popup', kind: Popup, classes: 'moon-slider-popup above status-indicator', accessibilityDisabled: true, components: [
 			{name: 'popupLabel', classes: 'moon-slider-popup-center' }
 		]}
 	],
@@ -815,5 +815,12 @@ module.exports = kind(
 	*/
 	updatePopupOffset: function() {
 		this.$.popup.applyStyle('top', dom.unit(-(ri.scale(this.getPopupHeight() + this.getPopupOffset())), 'rem'));
-	}
+	},
+
+	// Accessibility
+
+	/**
+	* @private
+	*/
+	accessibilityDisabled: true
 });
