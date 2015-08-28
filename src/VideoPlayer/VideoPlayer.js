@@ -668,7 +668,7 @@ module.exports = kind(
 						{name: 'trickPlay', kind: Control, ontap:'playbackControlsTapped', components: [
 							{name: 'playbackControls', kind: Control, rtl: false, classes: 'moon-video-player-control-buttons', components: [
 								{name: 'jumpBack',		kind: IconButton, small: false, backgroundOpacity: 'translucent', onholdpulse: 'onHoldPulseBackHandler', ontap: 'onjumpBackward', onrelease: 'onReleaseHandler', accessibilityLabel: $L('Previous')},
-								{name: 'rewind',		kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'rewind', , accessibilityLabel: $L('Rewind')},
+								{name: 'rewind',		kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'rewind', accessibilityLabel: $L('Rewind')},
 								{name: 'fsPlayPause',	kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'playPause'},
 								{name: 'fastForward',	kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'fastForward', accessibilityLabel: $L('Fast Forward')},
 								{name: 'jumpForward',	kind: IconButton, small: false, backgroundOpacity: 'translucent', onholdpulse: 'onHoldPulseForwardHandler', ontap: 'onjumpForward', onrelease: 'onReleaseHandler', accessibilityLabel: $L('Next')}
