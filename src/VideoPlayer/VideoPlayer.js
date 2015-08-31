@@ -2208,6 +2208,22 @@ module.exports = kind(
 			var index = this.$.controlsContainer.index,
 				label = index === 0 ? $L('More') : $L('Back');
 			this.$.moreButton.set('accessibilityLabel', label);
+		}},
+		{path: '$.videoInfoHeaderClient.showing', method: function () {
+			var client = this.$.videoInfoHeaderClient,
+				showing = client.get('showing');
+
+			client.set('accessibilityAlert', showing);
+			client.setAriaAttribute('aria-live', showing ? 'off' : null);
+			if (!showing) {
+				client.set('accessibilityDisabled', false);
+			}
+		}},
+		{path: '$.playerControl.showing', method: function () {
+			var client = this.$.videoInfoHeaderClient;
+			if (client.get('showing')) {
+				client.set('accessibilityDisabled', true);
+			}
 		}}
 	]
 });
