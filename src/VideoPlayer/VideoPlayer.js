@@ -467,6 +467,18 @@ module.exports = kind(
 		handleRemoteControlKey: true,
 
 		/**
+		* Sliders will increase or decrease as much as this percentage value in either direction
+		* when left or right key is pressed in 5-Way mode.
+		*
+		* @type {Number} or {String}
+		* @default '5%'
+		* @public
+		*/
+		knobIncrement: '5%',
+
+		/**
+
+		/**
 		* Base URL for icons
 		*
 		* @private
@@ -601,6 +613,7 @@ module.exports = kind(
 		{from: 'poster',					to:'$.video.poster'},
 		{from: 'constrainToBgProgress',		to:'$.slider.constrainToBgProgress'},
 		{from: 'elasticEffect',				to:'$.slider.elasticEffect'},
+		{from: 'knobIncrement',				to:'$.slider.knobIncrement'},
 		{from: 'showJumpControls',			to:'$.jumpForward.showing'},
 		{from: 'showJumpControls',			to:'$.jumpBack.showing'},
 		{from: 'showFFRewindControls',		to:'$.fastForward.showing'},
