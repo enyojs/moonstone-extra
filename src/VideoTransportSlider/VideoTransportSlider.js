@@ -667,7 +667,10 @@ module.exports = kind(
 	* @private
 	*/
 	spotBlur: function () {
-		this.selected = false;
+		if (!this.dragging) {
+			if (this.$.knob) this.$.knob.removeClass('spotselect');
+			this.selected = false;
+		}
 		this.removeClass('visible');
 		this.endPreview();
 		//fires enyo.VideoTransportSlider#onLeaveTapArea
