@@ -1148,13 +1148,13 @@ module.exports = kind(
 	*/
 	spotlightUpHandler: function(sender, e) {
 		if (this._shouldHandleUpDown) {
-			// Toggle info header on 'up' press
-			if (e.originator !== this.$.slider) {
-				if (!this.$.videoInfoHeaderClient.getShowing()) {
-					this.showFSInfo();
-				} else {
-					this.hideFSInfo();
-				}
+			var current = Spotlight.getCurrent();
+
+			if (current.isDescendantOf(this.$.slider)) Spotlight.spot(this.$.fsPlayPause);
+			else if (current == this || current.isDescendantOf(this.$.controls)) {
+				// Toggle info header on 'up' press
+				if (!this.$.videoInfoHeaderClient.get('showing')) this.showFSInfo();
+				else this.hideFSInfo();
 			}
 			return true;
 		}
@@ -1165,12 +1165,11 @@ module.exports = kind(
 	*/
 	spotlightDownHandler: function(sender, e) {
 		if (this._shouldHandleUpDown) {
-			// Toggle info header on 'down' press
-			if (!this.$.playerControl.getShowing()) {
-				this.showFSBottomControls();
-			} else {
-				this.hideFSBottomControls();
-			}
+			var current = Spotlight.getCurrent();
+
+			if (current == this) this.showFSBottomControls();
+			else if (current.isDescendantOf(this.$.controls)) Spotlight.spot(this.$.slider);
+			else if (current.isDescendantOf(this.$.slider)) this.hideFSBottomControls();
 			return true;
 		}
 	},
