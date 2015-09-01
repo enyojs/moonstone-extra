@@ -568,9 +568,11 @@ module.exports = kind(
 		p = this._calcPercent(p);
 		var slider = this.inverseToSlider(p);
 		this.$.knob.applyStyle('left', slider + '%');
-		if(this.currentTime !== undefined) {
-			this.$.popupLabelText.setContent(this.formatTime(this.currentTime));
-		}
+		if (Spotlight.getCurrent() === this) {
+			this.$.popupLabelText.setContent(this.formatTime(val));
+		} else if (this.currentTime !== undefined) {
+ 			this.$.popupLabelText.setContent(this.formatTime(this.currentTime));
+ 		}
 	},
 
 	/**
