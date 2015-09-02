@@ -258,7 +258,6 @@ module.exports = kind(
 	*/
 	handlers: {
 		onTimeupdate: 'timeUpdate',
-		durationchange: 'durationUpdate',
 		onresize: 'handleResize'
 	},
 
@@ -758,9 +757,8 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	durationUpdate: function(sender, e) {
-		this._duration = sender.duration;
-		this.duration = this._duration;
+	durationUpdate: function(val) {
+		this.duration = val;
 		this.$.endTickText.setContent(this.formatTime(this.duration));
 	},
 

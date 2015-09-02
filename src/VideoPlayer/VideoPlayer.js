@@ -1949,7 +1949,7 @@ module.exports = kind(
 
 		this.updatePosition();
 
-		this.waterfall('durationchange', e);
+		this.$.slider.durationUpdate(this.duration);
 	},
 
 	/**
