@@ -1949,7 +1949,7 @@ module.exports = kind(
 
 		this.updatePosition();
 
-		this.waterfall('onTimeupdate', e);
+		this.waterfall('durationchange', e);
 	},
 
 	/**

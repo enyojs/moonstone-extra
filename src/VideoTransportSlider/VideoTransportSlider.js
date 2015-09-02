@@ -258,6 +258,7 @@ module.exports = kind(
 	*/
 	handlers: {
 		onTimeupdate: 'timeUpdate',
+		durationchange: 'durationUpdate',
 		onresize: 'handleResize'
 	},
 
@@ -744,15 +745,21 @@ module.exports = kind(
 	},
 
 	/**
-	* During time update, updates buffered progress, canvas, video currentTime, and duration.
+	* During time update, updates buffered progress, canvas and video currentTime
 	*
 	* @private
 	*/
 	timeUpdate: function(sender, e) {
 		this._currentTime = sender._currentTime;
 		if (!this.dragging && this.isInPreview()) { return; }
-		this._duration = sender.duration;
 		this.currentTime = this._currentTime;
+	},
+
+	/**
+	* @private
+	*/
+	durationUpdate: function(sender, e) {
+		this._duration = sender.duration;
 		this.duration = this._duration;
 		this.$.endTickText.setContent(this.formatTime(this.duration));
 	},
