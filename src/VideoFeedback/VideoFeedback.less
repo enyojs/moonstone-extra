@@ -34,7 +34,8 @@
 	}
 
 	.moon-icon.moon-video-feedback-icon-right {
-		.margin-start-end(@moon-video-player-icon-text-gutter-width, 0);
+		margin-left: @moon-video-player-icon-text-gutter-width;
+		margin-right: 0;
 
 		&.moon-icon-play {
 			font-size: @moon-video-feedback-icon-font-play-size;
@@ -47,9 +48,5 @@
 		&.moon-icon-pausejumpforward {
 			width: @moon-video-feedback-icon-pausejumpforward-width;
 		}
-	}
-
-	.enyo-locale-right-to-left & {
-		direction: rtl;
 	}
 }
