@@ -664,7 +664,7 @@ module.exports = kind(
 
 					{name: 'leftPremiumPlaceHolder', kind: Control, classes: 'moon-video-player-premium-placeholder-left'},
 
-					{name: 'controlsContainer', kind: Panels, arrangerKind: CarouselArranger, fit: true, draggable: false, classes: 'moon-video-player-controls-container', components: [
+					{name: 'controlsContainer', kind: Panels, arrangerKind: CarouselArranger, fit: true, flipOnRtl: true, draggable: false, classes: 'moon-video-player-controls-container', components: [
 						{name: 'trickPlay', kind: Control, ontap:'playbackControlsTapped', components: [
 							{name: 'playbackControls', kind: Control, rtl: false, classes: 'moon-video-player-control-buttons', components: [
 								{name: 'jumpBack',		kind: IconButton, small: false, backgroundOpacity: 'translucent', onholdpulse: 'onHoldPulseBackHandler', ontap: 'onjumpBackward', onrelease: 'onReleaseHandler', accessibilityLabel: $L('Previous')},
