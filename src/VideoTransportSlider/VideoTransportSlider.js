@@ -20,7 +20,7 @@ var
 	Locale = require('enyo-ilib/Locale');
 
 var
-	Slider = require('../Slider'),
+	Slider = require('moonstone/Slider'),
 	VideoFeedback = require('../VideoFeedback');
 
 /**
@@ -257,7 +257,12 @@ module.exports = kind(
 	* @private
 	*/
 	handlers: {
-		onresize: 'handleResize'
+		onresize: 'handleResize',
+		onmove: 'preview',
+		onenter: 'enterTapArea',
+		onleave: 'leaveTapArea',
+		onmousedown: 'mouseDownTapArea',
+		onmouseup: 'mouseUpTapArea'
 	},
 
 	/**
@@ -305,9 +310,12 @@ module.exports = kind(
 	_previewMode: false,
 
 	/**
+	* Overriding {@link module:moonstone/Slider~Slider#createPopup} to change the
+	* position of popup. It is not included in knob
+	*
 	* @private
 	*/
-	createPopupComponents: function() {
+	createPopup: function() {
 		this.createComponents(this.popupComponents);
 	},
 
@@ -318,11 +326,6 @@ module.exports = kind(
 		Slider.prototype.create.apply(this, arguments);
 		this.$.popup.setAutoDismiss(false);		//* Always showing popup
 		this.$.popup.captureEvents = false;		//* Hot fix for bad originator on tap, drag ...
-		this.$.tapArea.onmove = 'preview';
-		this.$.tapArea.onenter = 'enterTapArea';
-		this.$.tapArea.onleave = 'leaveTapArea';
-		this.$.tapArea.onmousedown = 'mouseDownTapArea';
-		this.$.tapArea.onmouseup = 'mouseUpTapArea';
 		//* Extend components
 		this.createTickComponents();
 		this.createPopupLabelComponents();
@@ -351,7 +354,7 @@ module.exports = kind(
 	* @private
 	*/
 	createTickComponents: function() {
-		this.createComponents(this.tickComponents, {owner: this, addBefore: this.$.tapArea});
+		this.createComponents(this.tickComponents, {owner: this, addBefore: this});
 	},
 
 	/**
@@ -600,7 +603,7 @@ module.exports = kind(
 	},
 
 	/**
-	* If user presses `this.$.tapArea`, seeks to that point.
+	* If user presses slider, seeks to that point.
 	*
 	* @private
 	*/
