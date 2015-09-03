@@ -1917,11 +1917,7 @@ module.exports = kind(
 
 		this.updatePosition();
 
-		// TODO: Event handler shouldn't know about event delegates.
-		// Waterfall should handle this automatically.
-		// See https://enyojs.atlassian.net/browse/ENYO-3188
-		delete e.delegate;
-		this.waterfall('onTimeupdate', e);
+		this.$.slider.timeUpdate(this._currentTime);
 	},
 
 	/**
