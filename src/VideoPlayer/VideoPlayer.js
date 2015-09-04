@@ -9,7 +9,6 @@ var
 	dispatcher = require('enyo/dispatcher'),
 	dom = require('enyo/dom'),
 	kind = require('enyo/kind'),
-	options = require('enyo/options'),
 	util = require('enyo/utils'),
 	Animator = require('enyo/Animator'),
 	Control = require('enyo/Control'),
