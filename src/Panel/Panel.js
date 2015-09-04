@@ -464,5 +464,34 @@ module.exports = kind(
 			panelHeight = panelNode.getBoundingClientRect().height,
 			headerHeight = headerNode.getBoundingClientRect().height;
 		this.initialHeight = panelHeight - headerHeight - (panelPaddingT + panelPaddingB + bodyPaddingT);
-	}
+	},
+
+	// Accessibility
+
+	/**
+	* @private
+	*/
+	accessibilityRole: 'region',
+
+	/**
+	* @private
+	*/
+	ariaObservers: [
+		{path: ['title', 'accessibilityLabel', 'accessibilityHint'], method: function () {
+			var content = this.title,
+				prefix = this.accessibilityLabel || content || null,
+				label = this.accessibilityHint && prefix && (prefix + ' ' + this.accessibilityHint) ||
+						this.accessibilityHint ||
+						this.accessibilityLabel ||
+						prefix ||
+						null;
+
+			this.setAriaAttribute('aria-label', label);
+		}}
+	],
+
+	/**
+	* @private
+	*/
+	accessibilityLive: 'off'
 });
