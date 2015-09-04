@@ -9,7 +9,6 @@ var
 	dispatcher = require('enyo/dispatcher'),
 	dom = require('enyo/dom'),
 	kind = require('enyo/kind'),
-	options = require('enyo/options'),
 	util = require('enyo/utils'),
 	Animator = require('enyo/Animator'),
 	Control = require('enyo/Control'),
@@ -1917,11 +1916,7 @@ module.exports = kind(
 
 		this.updatePosition();
 
-		// TODO: Event handler shouldn't know about event delegates.
-		// Waterfall should handle this automatically.
-		// See https://enyojs.atlassian.net/browse/ENYO-3188
-		delete e.delegate;
-		this.waterfall('onTimeupdate', e);
+		this.$.slider.timeUpdate(this._currentTime);
 	},
 
 	/**
@@ -1949,7 +1944,7 @@ module.exports = kind(
 
 		this.updatePosition();
 
-		this.waterfall('onTimeupdate', e);
+		this.$.slider.durationUpdate(this.duration);
 	},
 
 	/**
