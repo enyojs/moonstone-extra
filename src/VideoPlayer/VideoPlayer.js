@@ -8,6 +8,7 @@ require('moonstone-extra');
 var
 	dispatcher = require('enyo/dispatcher'),
 	dom = require('enyo/dom'),
+	gesture = require('enyo/gesture'),
 	kind = require('enyo/kind'),
 	options = require('enyo/options'),
 	util = require('enyo/utils'),
@@ -587,7 +588,7 @@ module.exports = kind(
 	handlers: {
 		onRequestTimeChange: 'timeChange',
 		onRequestToggleFullscreen: 'toggleFullscreen',
-		onSpotlightKeyUp: 'resetAutoTimeout',
+		onSpotlightKeyUp: 'spotlightKeyUpHandler',
 		onSpotlightKeyDown: 'spotlightKeyDownHandler',
 		onSpotlightUp: 'spotlightUpHandler',
 		onSpotlightDown: 'spotlightDownHandler',
@@ -1160,6 +1161,9 @@ module.exports = kind(
 	* @private
 	*/
 	spotlightUpHandler: function(sender, e) {
+		if (!Spotlight.Accelerator.isAccelerating()) {
+			gesture.drag.beginHold(e);
+		}
 		if (this._shouldHandleUpDown) {
 			var current = Spotlight.getCurrent();
 
@@ -1176,7 +1180,18 @@ module.exports = kind(
 	/**
 	* @private
 	*/
+	spotlightKeyUpHandler: function(sender, e) {
+		this.resetAutoTimeout();
+		gesture.drag.endHold();
+	},
+
+	/**
+	* @private
+	*/
 	spotlightDownHandler: function(sender, e) {
+		if (!Spotlight.Accelerator.isAccelerating()) {
+			gesture.drag.beginHold(e);
+		}
 		if (this._shouldHandleUpDown) {
 			var current = Spotlight.getCurrent();
 
@@ -1193,24 +1208,6 @@ module.exports = kind(
 	spotlightKeyDownHandler: function(sender, e) {
 		this._shouldHandleUpDown = this.isLarge() && (e.originator === this || Spotlight.getParent(e.originator) === this);
 	},
-
-	///// Fullscreen controls /////
-
-
-	/**
-	* @private
-	*/
-	_holdPulseThreadhold: 400,
-
-	/**
-	* @private
-	*/
-	_holding: false,
-
-	/**
-	* @private
-	*/
-	_sentHold: false,
 
 	/**
 	* Returns `true` if any piece of the overlay is showing.
