@@ -831,24 +831,17 @@ module.exports = kind(
 			return;
 		}
 
-		if (this.shouldHide(oEvent)) {
+		// If tapped on breadcrambs area (which is located in the left side of panel)
+		if (oEvent.originator === this.$.breadcrumbs) {
 			if (this.showing && (this.useHandle === true) && this.handleShowing) {
 				this.hide();
 			}
 		} else {
-			var n = (oEvent.breadcrumbTap) ? oEvent.index : -1;
-			// If tapped on not current panel (breadcrumb), go to that panel
-			if (n >= 0 && n !== this.getIndex()) {
-				this.setIndex(n);
+			// If tapped on breadcrumb, go to that panel
+			if (oEvent.breadcrumbTap && oEvent.index !== this.getIndex()) {
+				this.setIndex(oEvent.index);
 			}
 		}
-	},
-
-	/**
-	* @private
-	*/
-	shouldHide: function (oEvent) {
-		return (oEvent.originator === this.$.clientWrapper || (oEvent.originator instanceof Panel && this.isPanel(oEvent.originator)));
 	},
 
 	/**
@@ -1543,6 +1536,22 @@ module.exports = kind(
 		} else if(this.panelStack) {
 			this.panelStack = null;
 		}
-	}
+	},
+
+	// Accessibility
+
+	ariaObservers: [
+		{path: 'index', method: function () {
+			var panels = this.getPanels(),
+				active = this.getActive(),
+				l = panels.length,
+				panel;
+
+			while (--l >= 0) {
+				panel = panels[l];
+				panel.set('accessibilityRole', panel === active ? 'alert' : 'region');
+			}
+		}}
+	]
 
 });

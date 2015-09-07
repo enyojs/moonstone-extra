@@ -10,7 +10,6 @@ var
 	dom = require('enyo/dom'),
 	gesture = require('enyo/gesture'),
 	kind = require('enyo/kind'),
-	options = require('enyo/options'),
 	util = require('enyo/utils'),
 	Animator = require('enyo/Animator'),
 	Control = require('enyo/Control'),
@@ -1949,11 +1948,7 @@ module.exports = kind(
 
 		this.updatePosition();
 
-		// TODO: Event handler shouldn't know about event delegates.
-		// Waterfall should handle this automatically.
-		// See https://enyojs.atlassian.net/browse/ENYO-3188
-		delete e.delegate;
-		this.waterfall('onTimeupdate', e);
+		this.$.slider.timeUpdate(this._currentTime);
 	},
 
 	/**
@@ -1981,7 +1976,7 @@ module.exports = kind(
 
 		this.updatePosition();
 
-		this.waterfall('onTimeupdate', e);
+		this.$.slider.durationUpdate(this.duration);
 	},
 
 	/**
@@ -2240,6 +2235,22 @@ module.exports = kind(
 			var index = this.$.controlsContainer.index,
 				label = index === 0 ? $L('More') : $L('Back');
 			this.$.moreButton.set('accessibilityLabel', label);
+		}},
+		{path: '$.videoInfoHeaderClient.showing', method: function () {
+			var client = this.$.videoInfoHeaderClient,
+				showing = client.get('showing');
+
+			client.set('accessibilityAlert', showing);
+			client.setAriaAttribute('aria-live', showing ? 'off' : null);
+			if (!showing) {
+				client.set('accessibilityDisabled', false);
+			}
+		}},
+		{path: '$.playerControl.showing', method: function () {
+			var client = this.$.videoInfoHeaderClient;
+			if (client.get('showing')) {
+				client.set('accessibilityDisabled', true);
+			}
 		}}
 	]
 });
