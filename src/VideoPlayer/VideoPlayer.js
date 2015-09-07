@@ -594,7 +594,8 @@ module.exports = kind(
 		onSpotlightDown: 'spotlightDownHandler',
 		onSpotlightLeft: 'spotlightLeftRightFilter',
 		onSpotlightRight: 'spotlightLeftRightFilter',
-		onresize: 'handleResize'
+		onresize: 'handleResize',
+		onholdpulse: 'onHoldPulseHandler'
 	},
 
 	/**
@@ -682,11 +683,11 @@ module.exports = kind(
 					{name: 'controlsContainer', kind: Panels, arrangerKind: CarouselArranger, fit: true, draggable: false, classes: 'moon-video-player-controls-container', components: [
 						{name: 'trickPlay', kind: Control, ontap:'playbackControlsTapped', components: [
 							{name: 'playbackControls', kind: Control, classes: 'moon-video-player-control-buttons', components: [
-								{name: 'jumpBack',		kind: IconButton, small: false, backgroundOpacity: 'translucent', onholdpulse: 'onHoldPulseBackHandler', ontap: 'onjumpBackward', onrelease: 'onReleaseHandler', accessibilityLabel: $L('Previous')},
+								{name: 'jumpBack',		kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'onjumpBackward', onrelease: 'onReleaseHandler', accessibilityLabel: $L('Previous')},
 								{name: 'rewind',		kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'rewind', accessibilityLabel: $L('Rewind')},
 								{name: 'fsPlayPause',	kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'playPause'},
 								{name: 'fastForward',	kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'fastForward', accessibilityLabel: $L('Fast Forward')},
-								{name: 'jumpForward',	kind: IconButton, small: false, backgroundOpacity: 'translucent', onholdpulse: 'onHoldPulseForwardHandler', ontap: 'onjumpForward', onrelease: 'onReleaseHandler', accessibilityLabel: $L('Next')}
+								{name: 'jumpForward',	kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'onjumpForward', onrelease: 'onReleaseHandler', accessibilityLabel: $L('Next')}
 							]}
 						]},
 						{name: 'client', kind: Control, classes: 'moon-video-player-more-controls'}
@@ -1209,6 +1210,24 @@ module.exports = kind(
 		this._shouldHandleUpDown = this.isLarge() && (e.originator === this || Spotlight.getParent(e.originator) === this);
 	},
 
+	///// Fullscreen controls /////
+
+
+	/**
+	* @private
+	*/
+	_holdPulseThreadhold: 400,
+
+	/**
+	* @private
+	*/
+	_holding: false,
+
+	/**
+	* @private
+	*/
+	_sentHold: false,
+
 	/**
 	* Returns `true` if any piece of the overlay is showing.
 	*
@@ -1387,11 +1406,12 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	onHoldPulseBackHandler: function(sender, e) {
+	onHoldPulseHandler: function(sender, e) {
 		if (!this.jumpStartEnd) {
 			if (e.holdTime > this._holdPulseThreadhold) {
 				if (sender._sentHold !== true) {
-					this.jumpToStart(sender, e);
+					if (sender == this.$.jumpBack) this.jumpToStart(sender, e);
+					else if (sender == this.$.jumpForward) this.jumpToEnd(sender, e);
 					sender._sentHold = true;
 					return true;
 				}
@@ -1400,28 +1420,13 @@ module.exports = kind(
 				sender._sentHold = false;
 			}
 		}
-	},
-
-	onReleaseHandler: function(sender, e) {
-		if (sender._sentHold && sender._sentHold === true) sender._sentHold = false;
 	},
 
 	/**
 	* @private
 	*/
-	onHoldPulseForwardHandler: function(sender, e) {
-		if (!this.jumpStartEnd) {
-			if (e.holdTime > this._holdPulseThreadhold) {
-				if (sender._sentHold !== true) {
-					this.jumpToEnd(sender, e);
-					sender._sentHold = true;
-					return true;
-				}
-			} else {
-				sender._holding = true;
-				sender._sentHold = false;
-			}
-		}
+	onReleaseHandler: function(sender, e) {
+		if (sender._sentHold && sender._sentHold === true) sender._sentHold = false;
 	},
 
 	/**
