@@ -26,7 +26,8 @@
 	}
 
 	.moon-icon.moon-video-feedback-icon-left {
-		.margin-start-end(0, @moon-video-player-icon-text-gutter-width);
+		margin-left: 0;
+		margin-right: @moon-video-player-icon-text-gutter-width;
 
 		&.moon-icon-pausejumpbackward {
 			width: @moon-video-feedback-icon-pausejumpbackward-width;
@@ -34,7 +35,8 @@
 	}
 
 	.moon-icon.moon-video-feedback-icon-right {
-		.margin-start-end(@moon-video-player-icon-text-gutter-width, 0);
+		margin-left: @moon-video-player-icon-text-gutter-width;
+		margin-right: 0;
 
 		&.moon-icon-play {
 			font-size: @moon-video-feedback-icon-font-play-size;
@@ -47,9 +49,5 @@
 		&.moon-icon-pausejumpforward {
 			width: @moon-video-feedback-icon-pausejumpforward-width;
 		}
-	}
-
-	.enyo-locale-right-to-left & {
-		direction: rtl;
 	}
 }
