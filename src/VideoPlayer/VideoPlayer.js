@@ -1154,9 +1154,7 @@ module.exports = kind(
 				if (!this.$.videoInfoHeaderClient.getShowing()) {
 					this.showFSInfo();
 				} else {
-					if (this.allowBackKey && !EnyoHistory.get('updateHistory')) {
-						EnyoHistory.drop();
-					}
+					if (this.allowBackKey) EnyoHistory.drop();
 					this.hideFSInfo();
 				}
 			}
@@ -1173,9 +1171,7 @@ module.exports = kind(
 			if (!this.$.playerControl.getShowing()) {
 				this.showFSBottomControls();
 			} else {
-				if (this.allowBackKey && !EnyoHistory.get('updateHistory')) {
-					EnyoHistory.drop();
-				}
+				if (this.allowBackKey) EnyoHistory.drop();
 				this.hideFSBottomControls();
 			}
 			return true;
@@ -1244,9 +1240,11 @@ module.exports = kind(
 	*/
 	hideFSControls: function(spottingHandled) {
 		if (this.isOverlayShowing()) {
-			if (this.allowBackKey && !EnyoHistory.get('updateHistory')) {
-				EnyoHistory.drop(2);
-			}
+			var dropCount = 0;
+			if (this.$.videoInfoHeaderClient.get('showing')) dropCount++;
+			if (this.$.playerControl.get('showing')) dropCount++;
+			if (this.allowBackKey) EnyoHistory.drop(dropCount);
+
 			this.hideFSInfo();
 			this.hideFSBottomControls();
 		}
