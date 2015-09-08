@@ -12,6 +12,9 @@
 
 	// Knob
 	.knob {
+		@activate-transition-function: cubic-bezier(0.15, 0.85, 0.6, 1.65);
+		@slide-transition-function:    cubic-bezier(0.15, 0.85, 0.53, 1.09);
+
 		position: absolute;
 		width: (@moon-video-player-transport-slider-knob-size * 2);
 		top: 0;
@@ -26,8 +29,13 @@
 		transform-origin: top;
 		-webkit-transform: translateZ(0) translateX(-50%) scale(0.5);
 		transform:         translateZ(0) translateX(-50%) scale(0.5);
-		-webkit-transition: -webkit-transform cubic-bezier(0.15, 0.85, 0.6, 1.65) 0.2s;
-		transition:                 transform cubic-bezier(0.15, 0.85, 0.6, 1.65) 0.2s;
+		-webkit-transition: -webkit-transform @activate-transition-function 0.2s;
+		transition:                 transform @activate-transition-function 0.2s;
+
+		.moon-video-player & {
+			-webkit-transition: -webkit-transform @activate-transition-function 0.2s, left @slide-transition-function 0.2s;
+			transition:                 transform @activate-transition-function 0.2s, left @slide-transition-function 0.2s;
+		}
 	}
 	&.visible {
 		.knob {

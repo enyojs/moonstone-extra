@@ -23,6 +23,9 @@ var
 	Slider = require('../Slider'),
 	VideoFeedback = require('../VideoFeedback');
 
+var
+	defaultKnobIncrement = '5%';
+
 /**
 * The parameter [object]{@glossary Object} used when displaying a {@link module:moonstone-extra/VideoFeedback~VideoFeedback}
 * control.
@@ -109,11 +112,6 @@ module.exports = kind(
 	* @private
 	*/
 	kind: Slider,
-
-	/**
-	* @private
-	*/
-	spotlight: false,
 
 	/**
 	* @private
@@ -250,7 +248,19 @@ module.exports = kind(
 		* @default 67
 		* @public
 		*/
-		popupHeight: 48
+		popupHeight: 48,
+
+		/**
+		* Sliders will increase or decrease as much as knobIncrement in either direction
+		* when left or right key is pressed in 5-Way mode.
+		* If you'd like to use specific value instead of percentage,
+		* give value as number to this property when you instanciate moon.VideoPlayer.
+		*
+		* @type {Number} or {String}
+		* @default '5%'
+		* @public
+		*/
+		knobIncrement: defaultKnobIncrement
 	},
 
 	/**
@@ -307,26 +317,25 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	createPopupComponents: function() {
+	createPopupComponents: function () {
 		this.createComponents(this.popupComponents);
 	},
 
 	/**
 	* @private
 	*/
-	create: function() {
+	create: function () {
 		Slider.prototype.create.apply(this, arguments);
 		this.$.popup.setAutoDismiss(false);		//* Always showing popup
 		this.$.popup.captureEvents = false;		//* Hot fix for bad originator on tap, drag ...
 		this.$.tapArea.onmove = 'preview';
-		this.$.tapArea.onenter = 'enterTapArea';
-		this.$.tapArea.onleave = 'leaveTapArea';
 		this.$.tapArea.onmousedown = 'mouseDownTapArea';
 		this.$.tapArea.onmouseup = 'mouseUpTapArea';
 		//* Extend components
 		this.createTickComponents();
 		this.createPopupLabelComponents();
 		this.showTickTextChanged();
+		this.knobIncrementChanged();
 
 		this.durfmt = new DurationFmt({length: 'medium', style: 'clock', useNative: false});
 		this.$.beginTickText.setContent(this.formatTime(0));
@@ -350,44 +359,22 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	createTickComponents: function() {
+	createTickComponents: function () {
 		this.createComponents(this.tickComponents, {owner: this, addBefore: this.$.tapArea});
 	},
 
 	/**
 	* @private
 	*/
-	createPopupLabelComponents: function() {
+	createPopupLabelComponents: function () {
 		this.$.popupLabel.createComponents(this.popupLabelComponents, {owner: this});
 		this.currentTime = 0;
 	},
 
 	/**
-	* @fires module:enyo/VideoTransportSlider~VideoTransportSlider#onEnterTapArea
 	* @private
 	*/
-	enterTapArea: function(sender, e) {
-		this.startPreview();
-		if (!this.disabled) {
-			this.addClass('visible');
-			this.doEnterTapArea();
-		}
-	},
-
-	/**
-	* @fires module:enyo/VideoTransportSlider~VideoTransportSlider#onLeaveTapArea
-	* @private
-	*/
-	leaveTapArea: function(sender, e) {
-		this.removeClass('visible');
-		this.endPreview();
-		this.doLeaveTapArea();
-	},
-
-	/**
-	* @private
-	*/
-	mouseDownTapArea: function(sender, e) {
+	mouseDownTapArea: function (sender, e) {
 		if (!this.disabled) {
 			this.addClass('pressed');
 		}
@@ -396,14 +383,14 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	mouseUpTapArea: function(sender, e) {
+	mouseUpTapArea: function (sender, e) {
 		this.removeClass('pressed');
 	},
 
 	/**
 	* @private
 	*/
-	preview: function(sender, e) {
+	preview: function (sender, e) {
 		if (!this.disabled && !this.dragging) {
 			if (!this._previewMode) {
 				this.startPreview();
@@ -417,7 +404,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	startPreview: function(sender, e) {
+	startPreview: function (sender, e) {
 		this._previewMode = true;
 		this.$.feedback.setShowing(false);
 	},
@@ -425,7 +412,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	endPreview: function(sender, e) {
+	endPreview: function (sender, e) {
 		this._previewMode = false;
 		this.currentTime = this._currentTime;
 		this._updateKnobPosition(this.currentTime);
@@ -437,14 +424,14 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	isInPreview: function(sender, e) {
+	isInPreview: function (sender, e) {
 		return this._previewMode;
 	},
 
 	/**
 	* @private
 	*/
-	handleResize: function() {
+	handleResize: function () {
 		Slider.prototype.handleResize.apply(this, arguments);
 		this.updateSliderRange();
 	},
@@ -452,7 +439,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	updateSliderRange: function() {
+	updateSliderRange: function () {
 		this.setRangeStart(this.min);
 		this.setRangeEnd(this.max);
 
@@ -462,7 +449,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	setMin: function() {
+	setMin: function () {
 		Slider.prototype.setMin.apply(this, arguments);
 		this.updateSliderRange();
 	},
@@ -470,7 +457,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	setMax: function() {
+	setMax: function () {
 		Slider.prototype.setMax.apply(this, arguments);
 		this.updateSliderRange();
 	},
@@ -478,7 +465,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	setRangeStart: function(val) {
+	setRangeStart: function (val) {
 		this.rangeStart = this.clampValue(this.getMin(), this.getMax(), val);
 		this.rangeStartChanged();
 	},
@@ -486,7 +473,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	setRangeEnd: function(val) {
+	setRangeEnd: function (val) {
 		this.rangeEnd = this.clampValue(this.getMin(), this.getMax(), val);
 		this.rangeEndChanged();
 	},
@@ -494,7 +481,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	showTickTextChanged: function() {
+	showTickTextChanged: function () {
 		this.$.beginTickText.setShowing(this.getShowTickText());
 		this.$.endTickText.setShowing(this.getShowTickText());
 	},
@@ -502,7 +489,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	rangeStartChanged: function() {
+	rangeStartChanged: function () {
 		this.updateInternalProperty();
 		var p = this._calcPercent(this.rangeStart),
 			property = 'margin-left';
@@ -516,55 +503,55 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	rangeEndChanged: function() {
+	rangeEndChanged: function () {
 		this.updateInternalProperty();
 	},
 
 	/**
 	* @private
 	*/
-	updateInternalProperty: function() {
+	updateInternalProperty: function () {
 		this.updateScale();
 		this.progressChanged();
 		this.bgProgressChanged();
 	},
 	//* Sets value of hidden variable, _scaleFactor_.
-	updateScale: function() {
+	updateScale: function () {
 		this.scaleFactor = (this.rangeEnd-this.rangeStart)/(this.max-this.min);
 	},
 
 	/**
 	* @private
 	*/
-	calcPercent: function(val) {
+	calcPercent: function (val) {
 		return (this.calcRatio(val) * 100) * this.scaleFactor;
 	},
 
 	/**
 	* @private
 	*/
-	_calcPercent: function(val) {
+	_calcPercent: function (val) {
 		return this.calcRatio(val) * 100;
 	},
 
 	/**
 	* @private
 	*/
-	calcVariationRatio: function(val, currentVal) {
+	calcVariationRatio: function (val, currentVal) {
 		return (val - currentVal) / (this.max - this.min);
 	},
 
 	/**
 	* @private
 	*/
-	calcVariationPercent: function(val, currentVal) {
+	calcVariationPercent: function (val, currentVal) {
 		return this.calcVariationRatio(val, currentVal) * 100;
 	},
 
 	/**
 	* @private
 	*/
-	updateKnobPosition: function(val) {
+	updateKnobPosition: function (val) {
 		if (!this.dragging && this.isInPreview()) { return; }
 		this._updateKnobPosition(val);
 	},
@@ -574,20 +561,22 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	_updateKnobPosition: function(val) {
+	_updateKnobPosition: function (val) {
 		var p = this.clampValue(this.min, this.max, val);
 		p = this._calcPercent(p);
 		var slider = this.inverseToSlider(p);
 		this.$.knob.applyStyle('left', slider + '%');
-		if(this.currentTime !== undefined) {
-			this.$.popupLabelText.setContent(this.formatTime(this.currentTime));
-		}
+		if (Spotlight.getCurrent() === this) {
+			this.$.popupLabelText.setContent(this.formatTime(val));
+		} else if (this.currentTime !== undefined) {
+ 			this.$.popupLabelText.setContent(this.formatTime(this.currentTime));
+ 		}
 	},
 
 	/**
 	* @private
 	*/
-	inverseToSlider: function(percent) {
+	inverseToSlider: function (percent) {
 		var val = this.scaleFactor * percent + this._calcPercent(this.rangeStart);
 		return val;
 	},
@@ -595,8 +584,29 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	transformToVideo: function(val) {
+	transformToVideo: function (val) {
 		return (val - this.rangeStart) / this.scaleFactor;
+	},
+
+	/**
+	* Using mouse cursor or 5-way key, you can point some spot of video
+	* If you tap or press enter on slider, video will play that part.
+	*
+	* @private
+	*/
+	playCurrentKnobPosition: function (e) {
+		var v = this.calcKnobPosition(e) || this._value;
+
+		this.mouseDownTapArea();
+		this.startJob('simulateClick', this.mouseUpTapArea, 200);
+
+		v = this.transformToVideo(v);
+		this.sendSeekEvent(v);
+
+		if (this.isInPreview()) {
+			//* This will move popup position to playing time when preview move is end
+			this._currentTime = v;
+		}
 	},
 
 	/**
@@ -604,17 +614,9 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	tap: function(sender, e) {
+	tap: function (sender, e) {
 		if (this.tappable && !this.disabled) {
-			var v = this.calcKnobPosition(e);
-
-			v = this.transformToVideo(v);
-			this.sendSeekEvent(v);
-
-			if (this.isInPreview()) {
-				//* This will move popup position to playing time when preview move is end
-				this._currentTime = v;
-			}
+			this.playCurrentKnobPosition(e);
 			return true;
 		}
 	},
@@ -622,7 +624,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	setValue: function(val) {
+	setValue: function (val) {
 		this.currentTime = val;
 		if (Math.abs(this.calcVariationPercent(val, this.value)) > this.smallVariation ||
 			this.calcVariationPercent(this.max, val) < this.smallVariation) {
@@ -634,9 +636,97 @@ module.exports = kind(
 	},
 
 	/**
+	* If user presses enter on `this.$.tapArea`, seeks to that point.
+	*
 	* @private
 	*/
-	_updateBeginText: function(val) {
+	spotlightKeyDownHandler: function (sender, e) {
+		if (this.tappable && !this.disabled && event.keyCode == 13) {
+			this.playCurrentKnobPosition(e);
+ 			return true;
+ 		}
+ 	},	
+
+ 	/**
+ 	* @private
+ 	*/
+
+	spotFocused: function (sender, e) {
+		Slider.prototype.spotFocused.apply(this, arguments);
+		// this._value will be used for knob positioning.
+		if (!Spotlight.getPointerMode()) {
+			this._value = this.get('value');
+			this.spotSelect();
+		}
+		this.startPreview();
+		if (!this.disabled) {
+			this.addClass('visible');
+			//fires enyo.VideoTransportSlider#onEnterTapArea
+			this.doEnterTapArea();
+		}
+	},
+
+	/**
+	* @private
+	*/
+	spotBlur: function () {
+		if (!this.dragging) {
+			if (this.$.knob) this.$.knob.removeClass('spotselect');
+			this.selected = false;
+		}
+		this.removeClass('visible');
+		this.endPreview();
+		//fires enyo.VideoTransportSlider#onLeaveTapArea
+		this.doLeaveTapArea();
+	},
+
+	/**
+	* @private
+	*/
+	spotLeft: function (sender, e) {
+		if (this.selected && this._value > this.min) {
+			// If in the process of animating, work from the previously set value
+			var v = this.clampValue(this.min, this.max, this._value || this.getValue());
+			v = (v - this._knobIncrement < this.min) ? this.min : v - this._knobIncrement;
+			this._updateKnobPosition(v);
+			this.set('_value', v);			
+		}
+		return true;
+	},
+
+	/**
+	* @private
+	*/
+	spotRight: function (sender, e) {
+		if (this.selected && this._value < this.max - 1) {
+			var v = this.clampValue(this.min, this.max, this._value || this.getValue());
+			v = (v + this._knobIncrement > this.max) ? this.max - 1 : v + this._knobIncrement;
+			this._updateKnobPosition(v);
+			this.set('_value', v);
+		}
+		return true;
+	},
+
+	/**
+	* @private
+	*/
+	knobIncrementChanged: function () {
+		var increment = this.knobIncrement || defaultKnobIncrement;
+
+		if (typeof increment == 'number' && increment > 0) {
+			this._knobIncrement = increment;
+		} else {
+			if (typeof increment != 'string' || increment.charAt(increment.length - 1) == '%') {
+				increment = defaultKnobIncrement;
+			}
+			this._knobIncrement = (this.max - this.min) * increment.substr(0, increment.length - 1) / 100;
+		}
+	},
+
+	/**
+	* @private
+	*/
+	_updateBeginText: function (val) {
 		var v = this.clampValue(this.min, this.max, val);
 		this.$.beginTickText.setContent(this.formatTime(v));
 	},
@@ -648,7 +738,7 @@ module.exports = kind(
 	* @fires module:moonstone-extra/VideoTransportSlider~VideoTransportSlider#onSeekStart
 	* @private
 	*/
-	dragstart: function(sender, e) {
+	dragstart: function (sender, e) {
 		if (this.disabled) {
 			return; // return nothing
 		}
@@ -670,7 +760,7 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	drag: function(sender, e) {
+	drag: function (sender, e) {
 		if (this.dragging) {
 			var v = this.calcKnobPosition(e);
 
@@ -707,7 +797,7 @@ module.exports = kind(
 	* @fires module:moonstone-extra/VideoTransportSlider~VideoTransportSlider#onSeekFinish
 	* @private
 	*/
-	dragfinish: function(sender, e) {
+	dragfinish: function (sender, e) {
 		if (this.disabled) {
 			return;
 		}
@@ -738,7 +828,7 @@ module.exports = kind(
 	* @fires module:moonstone-extra/VideoTransportSlider~VideoTransportSlider#onSeek
 	* @private
 	*/
-	sendSeekEvent: function(val) {
+	sendSeekEvent: function (val) {
 		this.doSeek({value: val});
 	},
 
@@ -765,7 +855,7 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	formatTime: function(val) {
+	formatTime: function (val) {
 		var hour = Math.floor(val / (60*60));
 		var min = Math.floor((val / 60) % 60);
 		var sec = Math.floor(val % 60);
@@ -781,7 +871,7 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	padDigit: function(val) {
+	padDigit: function (val) {
 		return (val) ? (String(val).length < 2) ? '0'+val : val : '00';
 	},
 
@@ -800,7 +890,7 @@ module.exports = kind(
 	*	of the feedback control.
 	* @public
 	*/
-	feedback: function(msg, params, persist, leftSrc, rightSrc) {
+	feedback: function (msg, params, persist, leftSrc, rightSrc) {
 		this.showKnobStatus();
 		this.$.feedback.feedback(msg, params, persist, leftSrc, rightSrc, this.isInPreview());
 	},
@@ -808,7 +898,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	updatePopupHeight: function() {
+	updatePopupHeight: function () {
 		var h = this.getPopupHeight();
 		this.$.popupLabel.applyStyle('height', dom.unit(ri.scale(h), 'rem'));
 	},
@@ -816,7 +906,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	updatePopupOffset: function() {
+	updatePopupOffset: function () {
 		this.$.popup.applyStyle('top', dom.unit(-(ri.scale(this.getPopupHeight() + this.getPopupOffset())), 'rem'));
 	},
 

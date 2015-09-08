@@ -8,6 +8,7 @@ require('moonstone-extra');
 var
 	dispatcher = require('enyo/dispatcher'),
 	dom = require('enyo/dom'),
+	gesture = require('enyo/gesture'),
 	kind = require('enyo/kind'),
 	util = require('enyo/utils'),
 	Animator = require('enyo/Animator'),
@@ -466,6 +467,18 @@ module.exports = kind(
 		handleRemoteControlKey: true,
 
 		/**
+		* Sliders will increase or decrease as much as this percentage value in either direction
+		* when left or right key is pressed in 5-Way mode.
+		*
+		* @type {Number} or {String}
+		* @default '5%'
+		* @public
+		*/
+		knobIncrement: '5%',
+
+		/**
+
+		/**
 		* Base URL for icons
 		*
 		* @private
@@ -574,13 +587,15 @@ module.exports = kind(
 	handlers: {
 		onRequestTimeChange: 'timeChange',
 		onRequestToggleFullscreen: 'toggleFullscreen',
-		onSpotlightKeyUp: 'resetAutoTimeout',
+		onSpotlightKeyUp: 'spotlightKeyUpHandler',
 		onSpotlightKeyDown: 'spotlightKeyDownHandler',
 		onSpotlightUp: 'spotlightUpHandler',
 		onSpotlightDown: 'spotlightDownHandler',
 		onSpotlightLeft: 'spotlightLeftRightFilter',
 		onSpotlightRight: 'spotlightLeftRightFilter',
-		onresize: 'handleResize'
+		onresize: 'handleResize',
+		onholdpulse: 'onHoldPulseHandler',
+		onrelease: 'onReleaseHandler'
 	},
 
 	/**
@@ -600,6 +615,7 @@ module.exports = kind(
 		{from: 'poster',					to:'$.video.poster'},
 		{from: 'constrainToBgProgress',		to:'$.slider.constrainToBgProgress'},
 		{from: 'elasticEffect',				to:'$.slider.elasticEffect'},
+		{from: 'knobIncrement',				to:'$.slider.knobIncrement'},
 		{from: 'showJumpControls',			to:'$.jumpForward.showing'},
 		{from: 'showJumpControls',			to:'$.jumpBack.showing'},
 		{from: 'showFFRewindControls',		to:'$.fastForward.showing'},
@@ -667,11 +683,11 @@ module.exports = kind(
 					{name: 'controlsContainer', kind: Panels, arrangerKind: CarouselArranger, fit: true, draggable: false, classes: 'moon-video-player-controls-container', components: [
 						{name: 'trickPlay', kind: Control, ontap:'playbackControlsTapped', components: [
 							{name: 'playbackControls', kind: Control, classes: 'moon-video-player-control-buttons', components: [
-								{name: 'jumpBack',		kind: IconButton, small: false, backgroundOpacity: 'translucent', onholdpulse: 'onHoldPulseBackHandler', ontap: 'onjumpBackward', onrelease: 'onReleaseHandler', accessibilityLabel: $L('Previous')},
+								{name: 'jumpBack',		kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'onjumpBackward', accessibilityLabel: $L('Previous')},
 								{name: 'rewind',		kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'rewind', accessibilityLabel: $L('Rewind')},
 								{name: 'fsPlayPause',	kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'playPause'},
 								{name: 'fastForward',	kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'fastForward', accessibilityLabel: $L('Fast Forward')},
-								{name: 'jumpForward',	kind: IconButton, small: false, backgroundOpacity: 'translucent', onholdpulse: 'onHoldPulseForwardHandler', ontap: 'onjumpForward', onrelease: 'onReleaseHandler', accessibilityLabel: $L('Next')}
+								{name: 'jumpForward',	kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'onjumpForward', accessibilityLabel: $L('Next')}
 							]}
 						]},
 						{name: 'client', kind: Control, classes: 'moon-video-player-more-controls'}
@@ -1146,14 +1162,18 @@ module.exports = kind(
 	* @private
 	*/
 	spotlightUpHandler: function(sender, e) {
+		if (this._sentHold) return;
+		if (!Spotlight.Accelerator.isAccelerating()) {
+			gesture.drag.beginHold(e);
+		}
 		if (this._shouldHandleUpDown) {
-			// Toggle info header on 'up' press
-			if (e.originator !== this.$.slider) {
-				if (!this.$.videoInfoHeaderClient.getShowing()) {
-					this.showFSInfo();
-				} else {
-					this.hideFSInfo();
-				}
+			var current = Spotlight.getCurrent();
+
+			if (current.isDescendantOf(this.$.slider)) Spotlight.spot(this.$.fsPlayPause);
+			else if (current == this || current.isDescendantOf(this.$.controls)) {
+				// Toggle info header on 'up' press
+				if (!this.$.videoInfoHeaderClient.get('showing')) this.showFSInfo();
+				else this.hideFSInfo();
 			}
 			return true;
 		}
@@ -1162,14 +1182,25 @@ module.exports = kind(
 	/**
 	* @private
 	*/
+	spotlightKeyUpHandler: function(sender, e) {
+		this.resetAutoTimeout();
+		gesture.drag.endHold();
+	},
+
+	/**
+	* @private
+	*/
 	spotlightDownHandler: function(sender, e) {
+		if (this._sentHold) return;
+		if (!Spotlight.Accelerator.isAccelerating()) {
+			gesture.drag.beginHold(e);
+		}
 		if (this._shouldHandleUpDown) {
-			// Toggle info header on 'down' press
-			if (!this.$.playerControl.getShowing()) {
-				this.showFSBottomControls();
-			} else {
-				this.hideFSBottomControls();
-			}
+			var current = Spotlight.getCurrent();
+
+			if (current == this) this.showFSBottomControls();
+			else if (current.isDescendantOf(this.$.controls)) Spotlight.spot(this.$.slider);
+			else if (current.isDescendantOf(this.$.slider)) this.hideFSBottomControls();
 			return true;
 		}
 	},
@@ -1377,40 +1408,41 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	onHoldPulseBackHandler: function(sender, e) {
+	onHoldPulseHandler: function(sender, e) {
 		if (!this.jumpStartEnd) {
 			if (e.holdTime > this._holdPulseThreadhold) {
 				if (sender._sentHold !== true) {
-					this.jumpToStart(sender, e);
-					sender._sentHold = true;
+					if (sender == this.$.jumpBack) {
+						this.jumpToStart(sender, e);
+						sender._sentHold = true;
+					}
+					else if (sender == this.$.jumpForward) {
+						this.jumpToEnd(sender, e);
+						sender._sentHold = true;
+					}
+					else this._sentHold = true;
 					return true;
 				}
 			} else {
-				sender._holding = true;
-				sender._sentHold = false;
+				if (sender == this.$.jumpBack || sender == this.$.jumpForward) {
+					sender._holding = true;
+					sender._sentHold = false;
+				} else {
+					this._holding = true;
+					this._sentHold = false;
+				}
 			}
 		}
-	},
-
-	onReleaseHandler: function(sender, e) {
-		if (sender._sentHold && sender._sentHold === true) sender._sentHold = false;
 	},
 
 	/**
 	* @private
 	*/
-	onHoldPulseForwardHandler: function(sender, e) {
-		if (!this.jumpStartEnd) {
-			if (e.holdTime > this._holdPulseThreadhold) {
-				if (sender._sentHold !== true) {
-					this.jumpToEnd(sender, e);
-					sender._sentHold = true;
-					return true;
-				}
-			} else {
-				sender._holding = true;
-				sender._sentHold = false;
-			}
+	onReleaseHandler: function(sender, e) {
+		if (sender == this.$.jumpBack || sender == this.$.jumpForward) {
+			if (sender._sentHold && sender._sentHold === true) sender._sentHold = false;
+		} else {
+			if (this._sentHold && this._sentHold === true) this._sentHold = false;
 		}
 	},
 
