@@ -2183,8 +2183,7 @@ module.exports = kind(
 	*/
 	backKeyHandler: function () {
 		var visibleUp = this.$.videoInfoHeaderClient.getShowing(),
-			visibleDown = this.$.playerControl.getShowing(),
-			current = EnyoHistory.peek();
+			visibleDown = this.$.playerControl.getShowing();
 
 		// if videoInfoHeaderClient and playerControl are visible
 		// it means that we pushed video player into history stack twice.
