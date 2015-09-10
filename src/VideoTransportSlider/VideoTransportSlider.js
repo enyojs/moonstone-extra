@@ -23,6 +23,9 @@ var
 	Slider = require('../Slider'),
 	VideoFeedback = require('../VideoFeedback');
 
+var 
+	defaultKnobIncrement = '5%';
+
 /**
 * The parameter [object]{@glossary Object} used when displaying a {@link module:moonstone-extra/VideoFeedback~VideoFeedback}
 * control.
@@ -245,14 +248,27 @@ module.exports = kind(
 		* @default 67
 		* @public
 		*/
-		popupHeight: 48
+		popupHeight: 48,
+
+		/**
+		* Sliders will increase or decrease as much as knobIncrement in either direction
+		* when left or right key is pressed in 5-Way mode.
+		* If you'd like to use specific value instead of percentage,
+		* give value as number to this property when you instanciate moon.VideoPlayer.
+		*
+		* @type {Number} or {String}
+		* @default '5%'
+		* @public
+		*/
+		knobIncrement: defaultKnobIncrement
 	},
 
 	/**
 	* @private
 	*/
 	handlers: {
-		onresize: 'handleResize'
+		onresize: 'handleResize',
+		onSpotlightKeyDown: 'spotlightKeyDownHandler'
 	},
 
 	/**
@@ -322,6 +338,7 @@ module.exports = kind(
 		this.createTickComponents();
 		this.createPopupLabelComponents();
 		this.showTickTextChanged();
+		this.knobIncrementChanged();
 
 		this.durfmt = new DurationFmt({length: 'medium', style: 'clock', useNative: false});
 		this.$.beginTickText.setContent(this.formatTime(0));
@@ -396,13 +413,27 @@ module.exports = kind(
 	},
 
 	/**
+	* If user presses enter on `this.$.tapArea`, seeks to that point.
+	*
+	* @private
+	*/
+	spotlightKeyDownHandler: function (sender, e) {
+		if (this.tappable && !this.disabled && event.keyCode == 13) {
+			this.playCurrentKnobPosition(e);
+ 			return true;
+ 		}
+ 	},	
+
+	/**
 	* @private
 	*/
 	spotFocused: function (sender, e) {
 		Slider.prototype.spotFocused.apply(this, arguments);
 		// this._value will be used for knob positioning.
-		if (!Spotlight.getPointerMode()) this.spotSelect();
-
+		if (!Spotlight.getPointerMode()) {
+			this._value = this.get('value');
+			this.spotSelect();
+		}
 		this.startPreview();
 		if (!this.disabled) {
 			this.addClass('visible');
@@ -415,10 +446,54 @@ module.exports = kind(
 	* @private
 	*/
 	spotBlur: function () {
+		this.selected = false;
 		this.removeClass('visible');
 		this.endPreview();
 		//fires enyo.VideoTransportSlider#onLeaveTapArea
 		this.doLeaveTapArea();
+	},
+
+	/**
+	* @private
+	*/
+	spotLeft: function (sender, e) {
+		if (this.selected && this._value > this.min) {
+			// If in the process of animating, work from the previously set value
+			var v = this.clampValue(this.min, this.max, this._value || this.getValue());
+			v = (v - this._knobIncrement < this.min) ? this.min : v - this._knobIncrement;
+			this._updateKnobPosition(v);
+			this.set('_value', v);			
+		}
+		return true;
+	},
+
+	/**
+	* @private
+	*/
+	spotRight: function (sender, e) {
+		if (this.selected && this._value < this.max - 1) {
+			var v = this.clampValue(this.min, this.max, this._value || this.getValue());
+			v = (v + this._knobIncrement > this.max) ? this.max - 1 : v + this._knobIncrement;
+			this._updateKnobPosition(v);
+			this.set('_value', v);
+		}
+		return true;
+	},
+
+	/**
+	* @private
+	*/
+	knobIncrementChanged: function () {
+		var increment = this.knobIncrement || defaultKnobIncrement;
+
+		if (typeof increment == 'number' && increment > 0) {
+			this._knobIncrement = increment;
+		} else {
+			if (typeof increment != 'string' || increment.charAt(increment.length - 1) == '%') {
+				increment = defaultKnobIncrement;
+			}
+			this._knobIncrement = (this.max - this.min) * increment.substr(0, increment.length - 1) / 100;
+		}
 	},
 
 	/**
@@ -620,6 +695,24 @@ module.exports = kind(
 		return (val - this.rangeStart) / this.scaleFactor;
 	},
 
+ 	/**
+	* Using mouse cursor or 5-way key, you can point some spot of video
+	* If you tap or press enter on slider, video will play that part.
+	*
+	* @private
+	*/
+	playCurrentKnobPosition: function (e) {
+		var v = this.calcKnobPosition(e) || this._value;
+
+		v = this.transformToVideo(v);
+		this.sendSeekEvent(v);
+
+		if (this.isInPreview()) {
+			//* This will move popup position to playing time when preview move is end
+			this._currentTime = v;
+		}
+	},
+
 	/**
 	* If user presses `this.$.tapArea`, seeks to that point.
 	*
@@ -627,15 +720,7 @@ module.exports = kind(
 	*/
 	tap: function(sender, e) {
 		if (this.tappable && !this.disabled) {
-			var v = this.calcKnobPosition(e);
-
-			v = this.transformToVideo(v);
-			this.sendSeekEvent(v);
-
-			if (this.isInPreview()) {
-				//* This will move popup position to playing time when preview move is end
-				this._currentTime = v;
-			}
+			this.playCurrentKnobPosition(e);
 			return true;
 		}
 	},
