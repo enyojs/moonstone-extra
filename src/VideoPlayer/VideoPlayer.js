@@ -1149,8 +1149,11 @@ module.exports = kind(
 	*/
 	spotlightUpHandler: function(sender, e) {
 		if (this._shouldHandleUpDown) {
-			// Toggle info header on 'up' press
-			if (e.originator !== this.$.slider) {
+			var current = Spotlight.getCurrent();
+
+			if (current.isDescendantOf(this.$.slider)) Spotlight.spot(this.$.fsPlayPause);
+			else if (current == this || current.isDescendantOf(this.$.controls)) {
+				// Toggle info header on 'up' press
 				if (!this.$.videoInfoHeaderClient.getShowing()) {
 					this.showFSInfo();
 				} else {
@@ -1167,10 +1170,11 @@ module.exports = kind(
 	*/
 	spotlightDownHandler: function(sender, e) {
 		if (this._shouldHandleUpDown) {
-			// Toggle info header on 'down' press
-			if (!this.$.playerControl.getShowing()) {
-				this.showFSBottomControls();
-			} else {
+			var current = Spotlight.getCurrent();
+
+			if (current == this) this.showFSBottomControls();
+			else if (current.isDescendantOf(this.$.controls)) Spotlight.spot(this.$.slider);
+			else if (current.isDescendantOf(this.$.slider)) {
 				if (this.allowBackKey) EnyoHistory.drop();
 				this.hideFSBottomControls();
 			}
