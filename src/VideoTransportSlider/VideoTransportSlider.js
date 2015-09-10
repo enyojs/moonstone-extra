@@ -318,14 +318,14 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	createPopupComponents: function() {
+	createPopupComponents: function () {
 		this.createComponents(this.popupComponents);
 	},
 
 	/**
 	* @private
 	*/
-	create: function() {
+	create: function () {
 		Slider.prototype.create.apply(this, arguments);
 		this.$.popup.setAutoDismiss(false);		//* Always showing popup
 		this.$.popup.captureEvents = false;		//* Hot fix for bad originator on tap, drag ...
@@ -362,14 +362,14 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	createTickComponents: function() {
+	createTickComponents: function () {
 		this.createComponents(this.tickComponents, {owner: this, addBefore: this.$.tapArea});
 	},
 
 	/**
 	* @private
 	*/
-	createPopupLabelComponents: function() {
+	createPopupLabelComponents: function () {
 		this.$.popupLabel.createComponents(this.popupLabelComponents, {owner: this});
 		this.currentTime = 0;
 	},
@@ -378,7 +378,7 @@ module.exports = kind(
 	* @fires module:enyo/VideoTransportSlider~VideoTransportSlider#onEnterTapArea
 	* @private
 	*/
-	enterTapArea: function(sender, e) {
+	enterTapArea: function (sender, e) {
 		this.startPreview();
 		if (!this.disabled) {
 			this.addClass('visible');
@@ -390,7 +390,7 @@ module.exports = kind(
 	* @fires module:enyo/VideoTransportSlider~VideoTransportSlider#onLeaveTapArea
 	* @private
 	*/
-	leaveTapArea: function(sender, e) {
+	leaveTapArea: function (sender, e) {
 		this.removeClass('visible');
 		this.endPreview();
 		this.doLeaveTapArea();
@@ -399,7 +399,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	mouseDownTapArea: function(sender, e) {
+	mouseDownTapArea: function (sender, e) {
 		if (!this.disabled) {
 			this.addClass('pressed');
 		}
@@ -408,7 +408,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	mouseUpTapArea: function(sender, e) {
+	mouseUpTapArea: function (sender, e) {
 		this.removeClass('pressed');
 	},
 
@@ -499,7 +499,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	preview: function(sender, e) {
+	preview: function (sender, e) {
 		if (!this.disabled && !this.dragging) {
 			if (!this._previewMode) {
 				this.startPreview();
@@ -513,7 +513,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	startPreview: function(sender, e) {
+	startPreview: function (sender, e) {
 		this._previewMode = true;
 		this.$.feedback.setShowing(false);
 	},
@@ -521,7 +521,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	endPreview: function(sender, e) {
+	endPreview: function (sender, e) {
 		this._previewMode = false;
 		this.currentTime = this._currentTime;
 		this._updateKnobPosition(this.currentTime);
@@ -533,14 +533,14 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	isInPreview: function(sender, e) {
+	isInPreview: function (sender, e) {
 		return this._previewMode;
 	},
 
 	/**
 	* @private
 	*/
-	handleResize: function() {
+	handleResize: function () {
 		Slider.prototype.handleResize.apply(this, arguments);
 		this.updateSliderRange();
 	},
@@ -548,7 +548,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	updateSliderRange: function() {
+	updateSliderRange: function () {
 		this.setRangeStart(this.min);
 		this.setRangeEnd(this.max);
 
@@ -558,7 +558,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	setMin: function() {
+	setMin: function () {
 		Slider.prototype.setMin.apply(this, arguments);
 		this.updateSliderRange();
 	},
@@ -566,7 +566,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	setMax: function() {
+	setMax: function () {
 		Slider.prototype.setMax.apply(this, arguments);
 		this.updateSliderRange();
 	},
@@ -574,7 +574,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	setRangeStart: function(val) {
+	setRangeStart: function (val) {
 		this.rangeStart = this.clampValue(this.getMin(), this.getMax(), val);
 		this.rangeStartChanged();
 	},
@@ -582,7 +582,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	setRangeEnd: function(val) {
+	setRangeEnd: function (val) {
 		this.rangeEnd = this.clampValue(this.getMin(), this.getMax(), val);
 		this.rangeEndChanged();
 	},
@@ -590,7 +590,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	showTickTextChanged: function() {
+	showTickTextChanged: function () {
 		this.$.beginTickText.setShowing(this.getShowTickText());
 		this.$.endTickText.setShowing(this.getShowTickText());
 	},
@@ -598,7 +598,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	rangeStartChanged: function() {
+	rangeStartChanged: function () {
 		this.updateInternalProperty();
 		var p = this._calcPercent(this.rangeStart),
 			property = 'margin-left';
@@ -612,55 +612,55 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	rangeEndChanged: function() {
+	rangeEndChanged: function () {
 		this.updateInternalProperty();
 	},
 
 	/**
 	* @private
 	*/
-	updateInternalProperty: function() {
+	updateInternalProperty: function () {
 		this.updateScale();
 		this.progressChanged();
 		this.bgProgressChanged();
 	},
 	//* Sets value of hidden variable, _scaleFactor_.
-	updateScale: function() {
+	updateScale: function () {
 		this.scaleFactor = (this.rangeEnd-this.rangeStart)/(this.max-this.min);
 	},
 
 	/**
 	* @private
 	*/
-	calcPercent: function(val) {
+	calcPercent: function (val) {
 		return (this.calcRatio(val) * 100) * this.scaleFactor;
 	},
 
 	/**
 	* @private
 	*/
-	_calcPercent: function(val) {
+	_calcPercent: function (val) {
 		return this.calcRatio(val) * 100;
 	},
 
 	/**
 	* @private
 	*/
-	calcVariationRatio: function(val, currentVal) {
+	calcVariationRatio: function (val, currentVal) {
 		return (val - currentVal) / (this.max - this.min);
 	},
 
 	/**
 	* @private
 	*/
-	calcVariationPercent: function(val, currentVal) {
+	calcVariationPercent: function (val, currentVal) {
 		return this.calcVariationRatio(val, currentVal) * 100;
 	},
 
 	/**
 	* @private
 	*/
-	updateKnobPosition: function(val) {
+	updateKnobPosition: function (val) {
 		if (!this.dragging && this.isInPreview()) { return; }
 		this._updateKnobPosition(val);
 	},
@@ -670,7 +670,7 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	_updateKnobPosition: function(val) {
+	_updateKnobPosition: function (val) {
 		var p = this.clampValue(this.min, this.max, val);
 		p = this._calcPercent(p);
 		var slider = this.inverseToSlider(p);
@@ -683,7 +683,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	inverseToSlider: function(percent) {
+	inverseToSlider: function (percent) {
 		var val = this.scaleFactor * percent + this._calcPercent(this.rangeStart);
 		return val;
 	},
@@ -691,7 +691,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	transformToVideo: function(val) {
+	transformToVideo: function (val) {
 		return (val - this.rangeStart) / this.scaleFactor;
 	},
 
@@ -718,7 +718,7 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	tap: function(sender, e) {
+	tap: function (sender, e) {
 		if (this.tappable && !this.disabled) {
 			this.playCurrentKnobPosition(e);
 			return true;
@@ -728,7 +728,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	setValue: function(val) {
+	setValue: function (val) {
 		this.currentTime = val;
 		if (Math.abs(this.calcVariationPercent(val, this.value)) > this.smallVariation ||
 			this.calcVariationPercent(this.max, val) < this.smallVariation) {
@@ -742,7 +742,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	_updateBeginText: function(val) {
+	_updateBeginText: function (val) {
 		var v = this.clampValue(this.min, this.max, val);
 		this.$.beginTickText.setContent(this.formatTime(v));
 	},
@@ -754,7 +754,7 @@ module.exports = kind(
 	* @fires module:moonstone-extra/VideoTransportSlider~VideoTransportSlider#onSeekStart
 	* @private
 	*/
-	dragstart: function(sender, e) {
+	dragstart: function (sender, e) {
 		if (this.disabled) {
 			return; // return nothing
 		}
@@ -776,7 +776,7 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	drag: function(sender, e) {
+	drag: function (sender, e) {
 		if (this.dragging) {
 			var v = this.calcKnobPosition(e);
 
@@ -813,7 +813,7 @@ module.exports = kind(
 	* @fires module:moonstone-extra/VideoTransportSlider~VideoTransportSlider#onSeekFinish
 	* @private
 	*/
-	dragfinish: function(sender, e) {
+	dragfinish: function (sender, e) {
 		if (this.disabled) {
 			return;
 		}
@@ -844,7 +844,7 @@ module.exports = kind(
 	* @fires module:moonstone-extra/VideoTransportSlider~VideoTransportSlider#onSeek
 	* @private
 	*/
-	sendSeekEvent: function(val) {
+	sendSeekEvent: function (val) {
 		this.doSeek({value: val});
 	},
 
@@ -853,7 +853,7 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	timeUpdate: function(val) {
+	timeUpdate: function (val) {
 		if (!this.dragging && this.isInPreview()) { return; }
 		this.currentTime = val;
 	},
@@ -861,7 +861,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	durationUpdate: function(val) {
+	durationUpdate: function (val) {
 		this.duration = val;
 		this.$.endTickText.setContent(this.formatTime(this.duration));
 	},
@@ -871,7 +871,7 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	formatTime: function(val) {
+	formatTime: function (val) {
 		var hour = Math.floor(val / (60*60));
 		var min = Math.floor((val / 60) % 60);
 		var sec = Math.floor(val % 60);
@@ -887,7 +887,7 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	padDigit: function(val) {
+	padDigit: function (val) {
 		return (val) ? (String(val).length < 2) ? '0'+val : val : '00';
 	},
 
@@ -906,7 +906,7 @@ module.exports = kind(
 	*	of the feedback control.
 	* @public
 	*/
-	feedback: function(msg, params, persist, leftSrc, rightSrc) {
+	feedback: function (msg, params, persist, leftSrc, rightSrc) {
 		this.showKnobStatus();
 		this.$.feedback.feedback(msg, params, persist, leftSrc, rightSrc, this.isInPreview());
 	},
@@ -914,7 +914,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	updatePopupHeight: function() {
+	updatePopupHeight: function () {
 		var h = this.getPopupHeight();
 		this.$.popupLabel.applyStyle('height', dom.unit(ri.scale(h), 'rem'));
 	},
@@ -922,7 +922,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	updatePopupOffset: function() {
+	updatePopupOffset: function () {
 		this.$.popup.applyStyle('top', dom.unit(-(ri.scale(this.getPopupHeight() + this.getPopupOffset())), 'rem'));
 	},
 
