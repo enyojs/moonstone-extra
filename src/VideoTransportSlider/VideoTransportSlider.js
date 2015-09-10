@@ -113,11 +113,6 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	spotlight: false,
-
-	/**
-	* @private
-	*/
 	classes: 'moon-video-player-transport-slider',
 
 	/**
@@ -398,6 +393,32 @@ module.exports = kind(
 	*/
 	mouseUpTapArea: function(sender, e) {
 		this.removeClass('pressed');
+	},
+
+	/**
+	* @private
+	*/
+	spotFocused: function (sender, e) {
+		Slider.prototype.spotFocused.apply(this, arguments);
+		// this._value will be used for knob positioning.
+		if (!Spotlight.getPointerMode()) this.spotSelect();
+
+		this.startPreview();
+		if (!this.disabled) {
+			this.addClass('visible');
+			//fires enyo.VideoTransportSlider#onEnterTapArea
+			this.doEnterTapArea();
+		}
+	},
+
+	/**
+	* @private
+	*/
+	spotBlur: function () {
+		this.removeClass('visible');
+		this.endPreview();
+		//fires enyo.VideoTransportSlider#onLeaveTapArea
+		this.doLeaveTapArea();
 	},
 
 	/**
