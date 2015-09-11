@@ -472,7 +472,8 @@ module.exports = kind(
 	*/
 	spotRight: function (sender, e) {
 		if (this.selected && this._value < this.max - 1) {
-			var v = this.clampValue(this.min, this.max, this._value || this.getValue());
+			var value = (typeof this._value != 'undefined') ? this._value : this.getValue(),
+				v = this.clampValue(this.min, this.max, value);
 			v = (v + this._knobIncrement > this.max) ? this.max - 1 : v + this._knobIncrement;
 			this._updateKnobPosition(v);
 			this.set('_value', v);
