@@ -1182,6 +1182,7 @@ module.exports = kind(
 		if (!Spotlight.Accelerator.isAccelerating()) {
 			gesture.drag.beginHold(e);
 		}
+		if (this.hasClass('spotlight-5way-mode')) this.removeClass('spotlight-5way-mode');
 		if (this._shouldHandleUpDown) {
 			var current = Spotlight.getCurrent();
 
@@ -1219,7 +1220,10 @@ module.exports = kind(
 			var current = Spotlight.getCurrent();
 
 			if (current == this) this.showFSBottomControls();
-			else if (current.isDescendantOf(this.$.controls)) Spotlight.spot(this.$.slider);
+			else if (current.isDescendantOf(this.$.controls)) {
+				this.addClass('spotlight-5way-mode');
+				Spotlight.spot(this.$.slider);
+			}
 			else if (current.isDescendantOf(this.$.slider)) {
 				if (this.allowBackKey) EnyoHistory.drop();
 				this.hideFSBottomControls();
@@ -1353,6 +1357,8 @@ module.exports = kind(
 		// so that it is spottable (since it won't have any spottable children),
 		// and then spot itself
 		this.set('spotlight', true);
+		// when FSBottomControls is closed with timeout, we should recover to get mouse event
+		if (this.hasClass('spotlight-5way-mode')) this.removeClass('spotlight-5way-mode');
 		// Only spot the player if hiding is triggered from player control
 		if (Spotlight.hasCurrent() && Spotlight.getParent(Spotlight.getCurrent()) === this) {
 			Spotlight.spot(this);
@@ -1477,6 +1483,7 @@ module.exports = kind(
 		if (this.hideButtonsOnSlider && !this.$.slider.isDragging()) {
 			this.$.controls.setShowing(true);
 		}
+		if (this.hasClass('spotlight-5way-mode')) this.removeClass('spotlight-5way-mode');
 	},
 
 	/**
