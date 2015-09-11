@@ -1237,11 +1237,14 @@ module.exports = kind(
 	* @private
 	*/
 	hideFSControls: function(spottingHandled) {
+		var dropCount;
 		if (this.isOverlayShowing()) {
-			var dropCount = 0;
-			if (this.$.videoInfoHeaderClient.get('showing')) dropCount++;
-			if (this.$.playerControl.get('showing')) dropCount++;
-			if (this.allowBackKey) EnyoHistory.drop(dropCount);
+			if (this.allowBackKey) {
+				dropCount = 0;
+				if (this.$.videoInfoHeaderClient.get('showing')) dropCount++;
+				if (this.$.playerControl.get('showing')) dropCount++;
+				EnyoHistory.drop(dropCount);
+			}
 
 			this.hideFSInfo();
 			this.hideFSBottomControls();
@@ -1278,7 +1281,9 @@ module.exports = kind(
 			}
 			// When controls are visible, set as container to remember last focused control
 			this.set('spotlight', 'container');
-			this.pushBackHistory();
+			if (this.allowBackKey) {
+				this.pushBackHistory();
+			}
 		}
 	},
 
