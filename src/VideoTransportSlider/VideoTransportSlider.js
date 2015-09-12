@@ -429,17 +429,18 @@ module.exports = kind(
 	*/
 	spotFocused: function (sender, e) {
 		Slider.prototype.spotFocused.apply(this, arguments);
-		// this._value will be used for knob positioning.
+		// this.knobPosValue will be used for knob positioning.
 		if (!Spotlight.getPointerMode()) {
-			this._value = this.get('value');
+			this.knobPosValue = this.get('value');
 			this.spotSelect();
 		}
-		this.startPreview();
 		if (!this.disabled) {
 			this.addClass('visible');
+			this._updateKnobPosition(this.knobPosValue);
 			//fires enyo.VideoTransportSlider#onEnterTapArea
 			this.doEnterTapArea();
 		}
+		this.startPreview();
 	},
 
 	/**
@@ -457,12 +458,12 @@ module.exports = kind(
 	* @private
 	*/
 	spotLeft: function (sender, e) {
-		if (this.selected && this._value > this.min) {
+		if (this.selected && this.knobPosValue > this.min) {
 			// If in the process of animating, work from the previously set value
-			var v = this.clampValue(this.min, this.max, this._value || this.getValue());
+			var v = this.clampValue(this.min, this.max, this.knobPosValue || this.getValue());
 			v = (v - this._knobIncrement < this.min) ? this.min : v - this._knobIncrement;
 			this._updateKnobPosition(v);
-			this.set('_value', v);			
+			this.set('knobPosValue', v);			
 		}
 		return true;
 	},
@@ -471,12 +472,12 @@ module.exports = kind(
 	* @private
 	*/
 	spotRight: function (sender, e) {
-		if (this.selected && this._value < this.max - 1) {
-			var value = (typeof this._value != 'undefined') ? this._value : this.getValue(),
+		if (this.selected && this.knobPosValue < this.max - 1) {
+			var value = (typeof this.knobPosValue != 'undefined') ? this.knobPosValue : this.getValue(),
 				v = this.clampValue(this.min, this.max, value);
 			v = (v + this._knobIncrement > this.max) ? this.max - 1 : v + this._knobIncrement;
 			this._updateKnobPosition(v);
-			this.set('_value', v);
+			this.set('knobPosValue', v);
 		}
 		return true;
 	},
@@ -524,8 +525,6 @@ module.exports = kind(
 	*/
 	endPreview: function (sender, e) {
 		this._previewMode = false;
-		this.currentTime = this._currentTime;
-		this._updateKnobPosition(this.currentTime);
 		if (this.$.feedback.isPersistShowing()) {
 			this.$.feedback.setShowing(true);
 		}
@@ -672,10 +671,14 @@ module.exports = kind(
 	* @private
 	*/
 	_updateKnobPosition: function (val) {
-		var p = this.clampValue(this.min, this.max, val);
-		p = this._calcPercent(p);
-		var slider = this.inverseToSlider(p);
-		this.$.knob.applyStyle('left', slider + '%');
+		// If knob is visible, we need update its current position
+		if (this.hasClass('visible')) {
+			var p = this.clampValue(this.min, this.max, val);
+			p = this._calcPercent(p);
+			var slider = this.inverseToSlider(p);
+			this.$.knob.applyStyle('left', slider + '%');
+		}
+
 		if (Spotlight.getCurrent() === this) {
 			this.$.popupLabelText.setContent(this.formatTime(val));
 		} else if (this.currentTime !== undefined) {
@@ -705,18 +708,13 @@ module.exports = kind(
 	* @private
 	*/
 	playCurrentKnobPosition: function (e) {
-		var v = this.calcKnobPosition(e) || this._value;
+		var v = this.calcKnobPosition(e) || this.knobPosValue;
 
 		this.mouseDownTapArea();
 		this.startJob('simulateClick', this.mouseUpTapArea, 200);
 
 		v = this.transformToVideo(v);
 		this.sendSeekEvent(v);
-
-		if (this.isInPreview()) {
-			//* This will move popup position to playing time when preview move is end
-			this._currentTime = v;
-		}
 	},
 
 	/**
