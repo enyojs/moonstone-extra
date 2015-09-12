@@ -65,6 +65,7 @@ var
 
 /**
 * Fires when cursor enters the tap area.
+* Note. this event will be deprecated and replaced with #onSpotlightFocused
 *
 * @event module:moonstone-extra/VideoTransportSlider~VideoTransportSlider#onEnterTapArea
 * @type {Object}
@@ -73,6 +74,7 @@ var
 
 /**
 * Fires when cursor leaves the tap area.
+* Note. this event will be deprecated and replaced with #onSpotlightBlur
 *
 * @event module:moonstone-extra/VideoTransportSlider~VideoTransportSlider#onLeaveTapArea
 * @type {Object}
@@ -330,8 +332,6 @@ module.exports = kind(
 		this.$.popup.setAutoDismiss(false);		//* Always showing popup
 		this.$.popup.captureEvents = false;		//* Hot fix for bad originator on tap, drag ...
 		this.$.tapArea.onmove = 'preview';
-		this.$.tapArea.onenter = 'enterTapArea';
-		this.$.tapArea.onleave = 'leaveTapArea';
 		this.$.tapArea.onmousedown = 'mouseDownTapArea';
 		this.$.tapArea.onmouseup = 'mouseUpTapArea';
 		//* Extend components
@@ -372,28 +372,6 @@ module.exports = kind(
 	createPopupLabelComponents: function () {
 		this.$.popupLabel.createComponents(this.popupLabelComponents, {owner: this});
 		this.currentTime = 0;
-	},
-
-	/**
-	* @fires module:enyo/VideoTransportSlider~VideoTransportSlider#onEnterTapArea
-	* @private
-	*/
-	enterTapArea: function (sender, e) {
-		this.startPreview();
-		if (!this.disabled) {
-			this.addClass('visible');
-			this.doEnterTapArea();
-		}
-	},
-
-	/**
-	* @fires module:enyo/VideoTransportSlider~VideoTransportSlider#onLeaveTapArea
-	* @private
-	*/
-	leaveTapArea: function (sender, e) {
-		this.removeClass('visible');
-		this.endPreview();
-		this.doLeaveTapArea();
 	},
 
 	/**
