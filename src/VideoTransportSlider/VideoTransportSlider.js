@@ -413,6 +413,8 @@ module.exports = kind(
 			this.spotSelect();
 		}
 		if (!this.disabled) {
+			// Todo: visible does not mean slider is visible. it means knob is visible
+			// we'd better change its name to preview or more intuitive name
 			this.addClass('visible');
 			this._updateKnobPosition(this.knobPosValue);
 			//fires enyo.VideoTransportSlider#onEnterTapArea
@@ -477,6 +479,8 @@ module.exports = kind(
 	},
 
 	/**
+	* onmove event handler. When mouse moves on slider, it will update knob's position
+	*
 	* @private
 	*/
 	preview: function (sender, e) {
@@ -650,7 +654,7 @@ module.exports = kind(
 	*/
 	_updateKnobPosition: function (val) {
 		// If knob is visible, we need update its current position
-		if (this.hasClass('visible')) {
+		if (this.hasClass('visible') && this.isInPreview()) {
 			var p = this.clampValue(this.min, this.max, val);
 			p = this._calcPercent(p);
 			var slider = this.inverseToSlider(p);
