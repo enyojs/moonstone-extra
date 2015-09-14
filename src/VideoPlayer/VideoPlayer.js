@@ -644,7 +644,7 @@ module.exports = kind(
 	* @private
 	*/
 	components: [
-		{kind: Signals, onPanelsShown: 'panelsShown', onPanelsHidden: 'panelsHidden', onPanelsHandleFocused: 'panelsHandleFocused', onPanelsHandleBlurred: 'panelsHandleBlurred', onFullscreenChange: 'fullscreenChanged', onkeyup:'remoteKeyHandler', onSpotlightModeChanged: "resetPreviewMode"},
+		{kind: Signals, onPanelsShown: 'panelsShown', onPanelsHidden: 'panelsHidden', onPanelsHandleFocused: 'panelsHandleFocused', onPanelsHandleBlurred: 'panelsHandleBlurred', onFullscreenChange: 'fullscreenChanged', onkeyup:'remoteKeyHandler', onSpotlightModeChanged: "resetPreviewMode", onlocalechange: 'updateMoreButton'},
 		{name: 'videoContainer', kind: Control, classes: 'moon-video-player-container', components: [
 			{name: 'video', kind: Video, classes: 'moon-video-player-video',
 				ontimeupdate: 'timeUpdate', onloadedmetadata: 'metadataLoaded', durationchange: 'durationUpdate', onloadeddata: 'dataloaded', onprogress: '_progress', onPlay: '_play', onpause: '_pause', onStart: '_start',  onended: '_stop',
@@ -660,13 +660,13 @@ module.exports = kind(
 			{name: 'videoInfoHeaderClient', kind: Control, showing: false, classes: 'moon-video-player-top'},
 
 			{name: 'playerControl', kind: Control, classes: 'moon-video-player-bottom', showing: false, components: [
-				{name: 'controls', kind: FittableColumns, rtl:false, classes: 'moon-video-player-controls-frame', ontap: 'resetAutoTimeout', components: [
+				{name: 'controls', kind: FittableColumns, classes: 'moon-video-player-controls-frame', ontap: 'resetAutoTimeout', components: [
 
 					{name: 'leftPremiumPlaceHolder', kind: Control, classes: 'moon-video-player-premium-placeholder-left'},
 
-					{name: 'controlsContainer', kind: Panels, arrangerKind: CarouselArranger, fit: true, draggable: false, classes: 'moon-video-player-controls-container', components: [
+					{name: 'controlsContainer', kind: Panels, arrangerKind: CarouselArranger, fit: true, flipOnRtl: true, draggable: false, classes: 'moon-video-player-controls-container', components: [
 						{name: 'trickPlay', kind: Control, ontap:'playbackControlsTapped', components: [
-							{name: 'playbackControls', kind: Control, classes: 'moon-video-player-control-buttons', components: [
+							{name: 'playbackControls', kind: Control, rtl: false, classes: 'moon-video-player-control-buttons', components: [
 								{name: 'jumpBack',		kind: IconButton, small: false, backgroundOpacity: 'translucent', onholdpulse: 'onHoldPulseBackHandler', ontap: 'onjumpBackward', onrelease: 'onReleaseHandler', accessibilityLabel: $L('Previous')},
 								{name: 'rewind',		kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'rewind', accessibilityLabel: $L('Rewind')},
 								{name: 'fsPlayPause',	kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'playPause'},
@@ -674,7 +674,7 @@ module.exports = kind(
 								{name: 'jumpForward',	kind: IconButton, small: false, backgroundOpacity: 'translucent', onholdpulse: 'onHoldPulseForwardHandler', ontap: 'onjumpForward', onrelease: 'onReleaseHandler', accessibilityLabel: $L('Next')}
 							]}
 						]},
-						{name: 'client', kind: Control, classes: 'moon-video-player-more-controls'}
+						{name: 'client', kind: Control, rtl: false,  classes: 'moon-video-player-more-controls'}
 					]},
 
 					{name: 'rightPremiumPlaceHolder', kind: Control, classes: 'moon-video-player-premium-placeholder-right', components: [
@@ -697,7 +697,7 @@ module.exports = kind(
 			{kind: Control, classes: 'moon-video-player-inline-control-text', components: [
 				{name: 'currTime', kind: Control, content: '00:00 / 00:00'}
 			]},
-			{name: 'ilPlayPause', kind: IconButton, ontap: 'playPause'},
+			{name: 'ilPlayPause', kind: IconButton, ontap: 'playPause', classes: 'moon-icon-playpause'},
 			{name: 'ilFullscreen', kind: VideoFullscreenToggleButton, small: true}
 		]}
 	],
@@ -1888,11 +1888,11 @@ module.exports = kind(
 	moreButtonTapped: function(sender, e) {
 		var index = this.$.controlsContainer.getIndex();
 		if (index === 0) {
-			this.retrieveIconsSrcOrFont(this.$.moreButton, this.lessControlsIcon, 'moon-icon-video-more-controls-font-style');
+			this.retrieveIconsSrcOrFont(this.$.moreButton, this.rtl?this.moreControlsIcon:this.lessControlsIcon, 'moon-icon-video-more-controls-font-style');
 			this.toggleSpotlightForMoreControls(true);
 			this.$.controlsContainer.next();
 		} else {
-			this.retrieveIconsSrcOrFont(this.$.moreButton, this.moreControlsIcon, 'moon-icon-video-more-controls-font-style');
+			this.retrieveIconsSrcOrFont(this.$.moreButton, this.rtl?this.lessControlsIcon:this.moreControlsIcon, 'moon-icon-video-more-controls-font-style');
 			this.toggleSpotlightForMoreControls(false);
 			this.$.controlsContainer.previous();
 		}
@@ -1900,9 +1900,9 @@ module.exports = kind(
 	updateMoreButton: function() {
 		var index = this.$.controlsContainer.getIndex();
 		if (index === 0) {
-			this.retrieveIconsSrcOrFont(this.$.moreButton, this.moreControlsIcon, 'moon-icon-video-round-controls-style moon-icon-video-more-controls-font-style');
+			this.retrieveIconsSrcOrFont(this.$.moreButton, this.rtl?this.lessControlsIcon:this.moreControlsIcon, 'moon-icon-video-round-controls-style moon-icon-video-more-controls-font-style');
 		} else {
-			this.retrieveIconsSrcOrFont(this.$.moreButton, this.lessControlsIcon, 'moon-icon-video-round-controls-style moon-icon-video-more-controls-font-style');
+			this.retrieveIconsSrcOrFont(this.$.moreButton, this.rtl?this.moreControlsIcon:this.lessControlsIcon, 'moon-icon-video-round-controls-style moon-icon-video-more-controls-font-style');
 		}
 	},
 	toggleSpotlightForMoreControls: function(moreControlsSpottable) {
