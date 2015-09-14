@@ -194,8 +194,6 @@ module.exports = kind(
 		msg = msg || '';
 		params = params || {};
 
-		if (msg !== '') { this.$.feedText.show(); }
-
 		switch (msg) {
 		case 'Play':
 			msg = '';
@@ -260,27 +258,23 @@ module.exports = kind(
 		}
 
 		// Don't show feedback if we are showing custom feedback already, unless this is a new custom message
-		if (!customMessage && this._showingFeedback) {
-			return;
-		}
-
+		if (!customMessage && this._showingFeedback) return;
+		// If msg is '', we do not need to show
+		if (msg !== '') this.$.feedText.show();
+		else this.$.feedText.hide();
 		// Set content as _inMessage_
 		this.$.feedText.setContent( this.get('uppercase') ? util.toUpperCase(msg) : msg);
 
 		// Show output controls when video player is not preview mode
-		if (!preview) {
-			this.showFeedback();
-		}
+		if (!preview) this.showFeedback();
 
 		// Show icons as appropriate
 		this.updateIcons(leftSrc, rightSrc);
 
 		//* Don't set up hide timer if _inPersistShowing_ is true
-		if (persist) {
-			this.resetAutoTimer();
-		} else {
-			this.setAutoTimer();
-		}
+		if (persist) this.resetAutoTimer();
+		else this.setAutoTimer();
+
 		this.inPersistShowing = persist;
 	},
 
@@ -353,6 +347,9 @@ module.exports = kind(
 		} else {
 			this.$.rightIcon.hide();
 		}
+
+		var iconDir = leftSrc ? 'leftIcon' : 'rightIcon';
+		this.$[iconDir].addRemoveClass('moon-video-feedback-icon-only', !this.$.feedText.get('showing'));
 	},
 
 	/**
