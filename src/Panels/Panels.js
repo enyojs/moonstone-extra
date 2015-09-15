@@ -1188,7 +1188,7 @@ module.exports = kind(
 	* @private
 	*/
 	addBreadcrumb: function (forceRender) {
-		console.log('add crumb');
+
 		if (this.pattern == 'none' || !this.$.breadcrumbs) return;
 
 		// If we have 1 panel then we don't need breadcrumb.
@@ -1216,9 +1216,7 @@ module.exports = kind(
 	* @private
 	*/
 	removeBreadcrumb: function () {
-		
-		console.log('remove crumb');
-		
+
 		if (this.pattern == 'none' || !this.$.breadcrumbs) return;
 
 		// If we have 1 panel then we don't need breadcrumb.
