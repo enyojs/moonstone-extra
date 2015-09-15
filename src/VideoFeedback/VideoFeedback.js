@@ -260,8 +260,7 @@ module.exports = kind(
 		// Don't show feedback if we are showing custom feedback already, unless this is a new custom message
 		if (!customMessage && this._showingFeedback) return;
 		// If msg is '', we do not need to show
-		if (msg !== '') this.$.feedText.show();
-		else this.$.feedText.hide();
+		this.$.feedText.set('showing', !!msg);
 		// Set content as _inMessage_
 		this.$.feedText.setContent( this.get('uppercase') ? util.toUpperCase(msg) : msg);
 
@@ -334,10 +333,13 @@ module.exports = kind(
 	* @private
 	*/
 	updateIcons: function(leftSrc, rightSrc) {
+		var iconDir;
 		if (leftSrc) {
+			iconDir = 'leftIcon';
 			this.$.leftIcon.show();
 			this.displayIconSrcOrFont(this.$.leftIcon, leftSrc);
 		} else {
+			iconDir = 'rightIcon';
 			this.$.leftIcon.hide();
 		}
 
@@ -348,7 +350,6 @@ module.exports = kind(
 			this.$.rightIcon.hide();
 		}
 
-		var iconDir = leftSrc ? 'leftIcon' : 'rightIcon';
 		this.$[iconDir].addRemoveClass('moon-video-feedback-icon-only', !this.$.feedText.get('showing'));
 	},
 
