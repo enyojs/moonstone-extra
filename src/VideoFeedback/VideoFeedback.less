@@ -4,7 +4,6 @@
 
 	.moon-video-feedback-text {
 		display: inline-block;
-		color: @moon-accent;
 		margin: 0;
 	}
 
@@ -20,8 +19,8 @@
 		font-size: @moon-video-feedback-icon-font-size;
 		line-height: @moon-video-feedback-icon-line-height; /* use line-height to middle align the icon, the defaut 32px from moon-icon will make it too low */
 
-		.enyo-locale-non-latin & {
-			margin-bottom: 3px;
+		&.moon-video-feedback-icon-only {
+			margin: 0;
 		}
 	}
 
