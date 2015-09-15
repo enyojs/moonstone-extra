@@ -821,22 +821,6 @@ module.exports = kind(
 			}
 		}
 	},
-		
-	popAndWait: function(cb) {
-		console.log('is processing', EnyoHistory.isProcessing());
-		setTimeout(this.bindSafely(function () {
-				cb();
-		}), 500);
-		
-		
-//		if(EnyoHistory.isProcessing()) {
-//			setTimeout(this.bindSafely(function () {
-//				this.popAndWait();
-//			}), 1000);
-//		} else {
-//			cb();
-//		}
-	},
 
 	/**
 	* @private
