@@ -409,11 +409,8 @@ module.exports = kind(
 		Slider.prototype.spotFocused.apply(this, arguments);
 		// this.knobPosValue will be used for knob positioning.
 		if (!Spotlight.getPointerMode()) {
-			this._isPointerMode = false;
 			this.knobPosValue = this.get('value');
 			this.spotSelect();
-		} else {
-			this._isPointerMode = true;
 		}
 
 		if (!this.disabled) {
