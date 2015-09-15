@@ -45,14 +45,13 @@
 			height: @moon-icon-button-size;
 		}
 		.moon-video-player-more-controls {
-			body:not(.enyo-locale-right-to-left) &
-			{
-				border-left: 3px solid white;
-				padding-left: 6px;
-			}
-			body.enyo-locale-right-to-left &
-			{
+			border-left: 3px solid white;
+			padding-left: 6px;
+
+			.enyo-locale-right-to-left & {
+				border-left-style: none;
 				border-right: 3px solid white;
+				padding-left: 0;
 				padding-right: 6px;
 				direction: rtl;
 			}
