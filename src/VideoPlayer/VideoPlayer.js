@@ -21,7 +21,7 @@ var
 
 var
 	FittableColumns = require('layout/FittableColumns'),
-	Panels = require('layout/Panels'),
+	Panels = require('enyo/LightPanels'),
 	CarouselArranger = require('layout/CarouselArranger');
 
 var
@@ -644,7 +644,7 @@ module.exports = kind(
 	* @private
 	*/
 	components: [
-		{kind: Signals, onPanelsShown: 'panelsShown', onPanelsHidden: 'panelsHidden', onPanelsHandleFocused: 'panelsHandleFocused', onPanelsHandleBlurred: 'panelsHandleBlurred', onFullscreenChange: 'fullscreenChanged', onkeyup:'remoteKeyHandler', onSpotlightModeChanged: "resetPreviewMode"},
+		{kind: Signals, onPanelsShown: 'panelsShown', onPanelsHidden: 'panelsHidden', onPanelsHandleFocused: 'panelsHandleFocused', onPanelsHandleBlurred: 'panelsHandleBlurred', onFullscreenChange: 'fullscreenChanged', onkeyup:'remoteKeyHandler', onSpotlightModeChanged: "resetPreviewMode", onlocalechange: 'updateMoreButton'},
 		{name: 'videoContainer', kind: Control, classes: 'moon-video-player-container', components: [
 			{name: 'video', kind: Video, classes: 'moon-video-player-video',
 				ontimeupdate: 'timeUpdate', onloadedmetadata: 'metadataLoaded', durationchange: 'durationUpdate', onloadeddata: 'dataloaded', onprogress: '_progress', onPlay: '_play', onpause: '_pause', onStart: '_start',  onended: '_stop',
@@ -660,21 +660,23 @@ module.exports = kind(
 			{name: 'videoInfoHeaderClient', kind: Control, showing: false, classes: 'moon-video-player-top'},
 
 			{name: 'playerControl', kind: Control, classes: 'moon-video-player-bottom', showing: false, components: [
-				{name: 'controls', kind: FittableColumns, rtl:false, classes: 'moon-video-player-controls-frame', ontap: 'resetAutoTimeout', components: [
+				{name: 'controls', kind: FittableColumns, classes: 'moon-video-player-controls-frame', ontap: 'resetAutoTimeout', components: [
 
 					{name: 'leftPremiumPlaceHolder', kind: Control, classes: 'moon-video-player-premium-placeholder-left'},
+					{classes: 'moon-video-player-controls-frame-center', fit: true, components: [
 
-					{name: 'controlsContainer', kind: Panels, arrangerKind: CarouselArranger, fit: true, draggable: false, classes: 'moon-video-player-controls-container', components: [
-						{name: 'trickPlay', kind: Control, ontap:'playbackControlsTapped', components: [
-							{name: 'playbackControls', kind: Control, classes: 'moon-video-player-control-buttons', components: [
-								{name: 'jumpBack',		kind: IconButton, small: false, backgroundOpacity: 'translucent', onholdpulse: 'onHoldPulseBackHandler', ontap: 'onjumpBackward', onrelease: 'onReleaseHandler', accessibilityLabel: $L('Previous')},
-								{name: 'rewind',		kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'rewind', accessibilityLabel: $L('Rewind')},
-								{name: 'fsPlayPause',	kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'playPause'},
-								{name: 'fastForward',	kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'fastForward', accessibilityLabel: $L('Fast Forward')},
-								{name: 'jumpForward',	kind: IconButton, small: false, backgroundOpacity: 'translucent', onholdpulse: 'onHoldPulseForwardHandler', ontap: 'onjumpForward', onrelease: 'onReleaseHandler', accessibilityLabel: $L('Next')}
-							]}
-						]},
-						{name: 'client', kind: Control, classes: 'moon-video-player-more-controls'}
+						{name: 'controlsContainer', kind: Panels, index: 0, popOnBack: false, cacheViews: false, classes: 'moon-video-player-controls-container', components: [
+							{name: 'trickPlay', kind: Control, ontap:'playbackControlsTapped', components: [
+								{name: 'playbackControls', kind: Control, rtl: false, classes: 'moon-video-player-control-buttons', components: [
+									{name: 'jumpBack',		kind: IconButton, small: false, backgroundOpacity: 'translucent', onholdpulse: 'onHoldPulseBackHandler', ontap: 'onjumpBackward', onrelease: 'onReleaseHandler', accessibilityLabel: $L('Previous')},
+									{name: 'rewind',		kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'rewind', accessibilityLabel: $L('Rewind')},
+									{name: 'fsPlayPause',	kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'playPause'},
+									{name: 'fastForward',	kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'fastForward', accessibilityLabel: $L('Fast Forward')},
+									{name: 'jumpForward',	kind: IconButton, small: false, backgroundOpacity: 'translucent', onholdpulse: 'onHoldPulseForwardHandler', ontap: 'onjumpForward', onrelease: 'onReleaseHandler', accessibilityLabel: $L('Next')}
+								]}
+							]},
+							{name: 'client', kind: Control, rtl: false,  classes: 'moon-video-player-more-controls'}
+						]}
 					]},
 
 					{name: 'rightPremiumPlaceHolder', kind: Control, classes: 'moon-video-player-premium-placeholder-right', components: [
@@ -697,7 +699,7 @@ module.exports = kind(
 			{kind: Control, classes: 'moon-video-player-inline-control-text', components: [
 				{name: 'currTime', kind: Control, content: '00:00 / 00:00'}
 			]},
-			{name: 'ilPlayPause', kind: IconButton, ontap: 'playPause'},
+			{name: 'ilPlayPause', kind: IconButton, ontap: 'playPause', classes: 'moon-icon-playpause'},
 			{name: 'ilFullscreen', kind: VideoFullscreenToggleButton, small: true}
 		]}
 	],
@@ -1269,7 +1271,7 @@ module.exports = kind(
 			this.$.playerControl.resize();
 			if (!this.showPlaybackControls) {
 				//* Fixed index
-				this.$.controlsContainer.setIndex(1);
+				this.$.controlsContainer.set('index', 1);
 			}
 
 			//* Initial spot
@@ -1292,7 +1294,7 @@ module.exports = kind(
 	*/
 	spotFSBottomControls: function() {
 		if (this.showPlaybackControls) {
-			if (this.$.controlsContainer.getIndex() === 0) {
+			if (this.$.controlsContainer.get('index') === 0) {
 				if (Spotlight.spot(this.$.fsPlayPause) === false) {
 					if(Spotlight.spot(this.$.fastForward) === false){
 						if(Spotlight.spot(this.$.jumpForward) === false) {
@@ -1301,7 +1303,7 @@ module.exports = kind(
 					}
 				}
 			} else {
-				Spotlight.spot(Spotlight.getFirstChild(this.$.controlsContainer.getActive()));
+				Spotlight.spot(Spotlight.getFirstChild(this.$.controlsContainer.getActivePanel()));
 			}
 		} else {
 			var oTarget = Spotlight.getFirstChild(this.$.leftPremiumPlaceHolder);
@@ -1886,24 +1888,26 @@ module.exports = kind(
 	* @private
 	*/
 	moreButtonTapped: function(sender, e) {
-		var index = this.$.controlsContainer.getIndex();
+		var index = this.$.controlsContainer.get('index');
 		if (index === 0) {
-			this.retrieveIconsSrcOrFont(this.$.moreButton, this.lessControlsIcon, 'moon-icon-video-more-controls-font-style');
+			this.retrieveIconsSrcOrFont(this.$.moreButton, this.rtl?this.moreControlsIcon:this.lessControlsIcon, 'moon-icon-video-more-controls-font-style');
 			this.toggleSpotlightForMoreControls(true);
 			this.$.controlsContainer.next();
 		} else {
-			this.retrieveIconsSrcOrFont(this.$.moreButton, this.moreControlsIcon, 'moon-icon-video-more-controls-font-style');
+			this.retrieveIconsSrcOrFont(this.$.moreButton, this.rtl?this.lessControlsIcon:this.moreControlsIcon, 'moon-icon-video-more-controls-font-style');
 			this.toggleSpotlightForMoreControls(false);
 			this.$.controlsContainer.previous();
 		}
 	},
 	updateMoreButton: function() {
-		var index = this.$.controlsContainer.getIndex();
+		var index = this.$.controlsContainer.get('index');
 		if (index === 0) {
-			this.retrieveIconsSrcOrFont(this.$.moreButton, this.moreControlsIcon, 'moon-icon-video-round-controls-style moon-icon-video-more-controls-font-style');
+			this.retrieveIconsSrcOrFont(this.$.moreButton, this.rtl?this.lessControlsIcon:this.moreControlsIcon, 'moon-icon-video-round-controls-style moon-icon-video-more-controls-font-style');
 		} else {
-			this.retrieveIconsSrcOrFont(this.$.moreButton, this.lessControlsIcon, 'moon-icon-video-round-controls-style moon-icon-video-more-controls-font-style');
+			this.retrieveIconsSrcOrFont(this.$.moreButton, this.rtl?this.moreControlsIcon:this.lessControlsIcon, 'moon-icon-video-round-controls-style moon-icon-video-more-controls-font-style');
 		}
+		// Change paneld direction based on locale and more button configuration
+		this.$.controlsContainer.set('direction', !this.rtl ? Panels.Direction.FORWARDS : Panels.Direction.BACKWARDS);
 	},
 	toggleSpotlightForMoreControls: function(moreControlsSpottable) {
 		this.$.playbackControls.spotlightDisabled = moreControlsSpottable;
