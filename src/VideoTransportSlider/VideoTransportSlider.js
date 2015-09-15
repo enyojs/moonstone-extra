@@ -23,7 +23,7 @@ var
 	Slider = require('../Slider'),
 	VideoFeedback = require('../VideoFeedback');
 
-var 
+var
 	defaultKnobIncrement = '5%';
 
 /**
@@ -400,7 +400,7 @@ module.exports = kind(
 			this.playCurrentKnobPosition(e);
  			return true;
  		}
- 	},	
+ 	},
 
 	/**
 	* @private
@@ -447,7 +447,7 @@ module.exports = kind(
 			var v = this.clampValue(this.min, this.max, this.knobPosValue || this.getValue());
 			v = (v - this._knobIncrement < this.min) ? this.min : v - this._knobIncrement;
 			this._updateKnobPosition(v);
-			this.set('knobPosValue', v);			
+			this.set('knobPosValue', v);
 		}
 		return true;
 	},
@@ -658,7 +658,7 @@ module.exports = kind(
 	*/
 	_updateKnobPosition: function (val) {
 		// If knob is visible, we need update its current position
-		if (this.hasClass('visible') && !this._isPointerMode) {
+		if (this.hasClass('visible')) {
 			var p = this.clampValue(this.min, this.max, val);
 			p = this._calcPercent(p);
 			var slider = this.inverseToSlider(p);
