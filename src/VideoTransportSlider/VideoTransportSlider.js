@@ -409,9 +409,13 @@ module.exports = kind(
 		Slider.prototype.spotFocused.apply(this, arguments);
 		// this.knobPosValue will be used for knob positioning.
 		if (!Spotlight.getPointerMode()) {
+			this._isPointerMode = false;
 			this.knobPosValue = this.get('value');
 			this.spotSelect();
+		} else {
+			this._isPointerMode = true;
 		}
+
 		if (!this.disabled) {
 			// Todo: visible does not mean slider is visible. it means knob is visible
 			// we'd better change its name to preview or more intuitive name
@@ -654,7 +658,7 @@ module.exports = kind(
 	*/
 	_updateKnobPosition: function (val) {
 		// If knob is visible, we need update its current position
-		if (this.hasClass('visible') && this.isInPreview()) {
+		if (this.hasClass('visible') && !this._isPointerMode) {
 			var p = this.clampValue(this.min, this.max, val);
 			p = this._calcPercent(p);
 			var slider = this.inverseToSlider(p);
