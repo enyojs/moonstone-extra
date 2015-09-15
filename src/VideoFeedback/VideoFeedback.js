@@ -169,7 +169,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	retriveImgOrIconPath:function(icon){
+	retrieveImgOrIconPath:function(icon){
 		return this.checkIconType(icon) == 'image' ? this._imagePath + icon : icon;
 	},
 
@@ -197,52 +197,52 @@ module.exports = kind(
 		switch (msg) {
 		case 'Play':
 			msg = '';
-			rightSrc = this.retriveImgOrIconPath(this._playImg);
+			rightSrc = this.retrieveImgOrIconPath(this._playImg);
 			break;
 
 		case 'Pause':
 			msg = '';
-			rightSrc = this.retriveImgOrIconPath(this._pauseImg);
+			rightSrc = this.retrieveImgOrIconPath(this._pauseImg);
 			break;
 
 		case 'Rewind':
 			msg = Math.abs(params.playbackRate) + 'x';
-			leftSrc = this.retriveImgOrIconPath(this._rewindImg);
+			leftSrc = this.retrieveImgOrIconPath(this._rewindImg);
 			break;
 
 		case 'Slowrewind':
 			msg = params.playbackRate.split('-')[1] + 'x';
-			leftSrc = this.retriveImgOrIconPath(this._pauseBackImg);
+			leftSrc = this.retrieveImgOrIconPath(this._pauseBackImg);
 			break;
 
 		case 'Fastforward':
 			msg = params.playbackRate + 'x';
-			rightSrc = this.retriveImgOrIconPath(this._fastForwardImg);
+			rightSrc = this.retrieveImgOrIconPath(this._fastForwardImg);
 			break;
 
 		case 'Slowforward':
 			msg = params.playbackRate + 'x';
-			rightSrc = this.retriveImgOrIconPath(this._pauseForwardImg);
+			rightSrc = this.retrieveImgOrIconPath(this._pauseForwardImg);
 			break;
 
 		case 'JumpBackward':
 			msg = '';
-			leftSrc = this.retriveImgOrIconPath(this._pauseJumpBackImg);
+			leftSrc = this.retrieveImgOrIconPath(this._pauseJumpBackImg);
 			break;
 
 		case 'JumpForward':
 			msg = '';
-			rightSrc = this.retriveImgOrIconPath(this._pauseJumpForwardImg);
+			rightSrc = this.retrieveImgOrIconPath(this._pauseJumpForwardImg);
 			break;
 
 		case 'JumpToStart':
 			msg = '';
-			leftSrc = this.retriveImgOrIconPath(this._pauseJumpBackImg);
+			leftSrc = this.retrieveImgOrIconPath(this._pauseJumpBackImg);
 			break;
 
 		case 'JumpToEnd':
 			msg = '';
-			rightSrc = this.retriveImgOrIconPath(this._pauseJumpForwardImg);
+			rightSrc = this.retrieveImgOrIconPath(this._pauseJumpForwardImg);
 			break;
 
 		case 'Stop':
@@ -333,24 +333,22 @@ module.exports = kind(
 	* @private
 	*/
 	updateIcons: function(leftSrc, rightSrc) {
-		var iconDir;
 		if (leftSrc) {
-			iconDir = 'leftIcon';
 			this.$.leftIcon.show();
 			this.displayIconSrcOrFont(this.$.leftIcon, leftSrc);
+			this.$.leftIcon.addRemoveClass('moon-video-feedback-icon-only', !this.$.feedText.get('showing'));
 		} else {
-			iconDir = 'rightIcon';
 			this.$.leftIcon.hide();
 		}
 
 		if (rightSrc) {
 			this.$.rightIcon.show();
 			this.displayIconSrcOrFont(this.$.rightIcon, rightSrc);
+			this.$.rightIcon.addRemoveClass('moon-video-feedback-icon-only', !this.$.feedText.get('showing'));
 		} else {
 			this.$.rightIcon.hide();
 		}
 
-		this.$[iconDir].addRemoveClass('moon-video-feedback-icon-only', !this.$.feedText.get('showing'));
 	},
 
 	/**
