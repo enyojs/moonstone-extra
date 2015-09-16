@@ -839,16 +839,16 @@ module.exports = kind(
 		} else {
 			// If tapped on breadcrumb, go to that panel
 			if (oEvent.breadcrumbTap && oEvent.index !== this.getIndex()) {
-				
-				//when clicking on a breadcrumb it should popoff the history of 
-				var popOff = this.getIndex() - oEvent.index + 1; //current index - event index + 1 for current panel history	
-                
+
+				//when clicking on a breadcrumb it should popoff the history of
+				var popOff = this.getIndex() - oEvent.index + 1; //current index - event index + 1 for current panel history
+
 				this.setIndex(oEvent.index);
-                
-                //stack pops behind panel navigation
-                util.asyncMethod(function(){
-                    EnyoHistory.pop(popOff);
-                });
+
+				//stack pops behind panel navigation
+				util.asyncMethod(function(){
+					EnyoHistory.pop(popOff);
+				});
 			}
 		}
 	},
