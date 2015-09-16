@@ -8,6 +8,7 @@ require('moonstone-extra');
 var
 	dispatcher = require('enyo/dispatcher'),
 	dom = require('enyo/dom'),
+	gesture = require('enyo/gesture'),
 	kind = require('enyo/kind'),
 	util = require('enyo/utils'),
 	Animator = require('enyo/Animator'),
@@ -466,6 +467,16 @@ module.exports = kind(
 		handleRemoteControlKey: true,
 
 		/**
+		* Sliders will increase or decrease as much as this percentage value in either direction
+		* when left or right key is pressed in 5-Way mode.
+		*
+		* @type {Number} or {String}
+		* @default '5%'
+		* @public
+		*/
+		knobIncrement: '5%',
+
+		/**
 		* Base URL for icons
 		*
 		* @private
@@ -574,13 +585,15 @@ module.exports = kind(
 	handlers: {
 		onRequestTimeChange: 'timeChange',
 		onRequestToggleFullscreen: 'toggleFullscreen',
-		onSpotlightKeyUp: 'resetAutoTimeout',
+		onSpotlightKeyUp: 'spotlightKeyUpHandler',
 		onSpotlightKeyDown: 'spotlightKeyDownHandler',
 		onSpotlightUp: 'spotlightUpHandler',
 		onSpotlightDown: 'spotlightDownHandler',
 		onSpotlightLeft: 'spotlightLeftRightFilter',
 		onSpotlightRight: 'spotlightLeftRightFilter',
-		onresize: 'handleResize'
+		onresize: 'handleResize',
+		onholdpulse: 'onHoldPulseHandler',
+		onrelease: 'onReleaseHandler'
 	},
 
 	/**
@@ -600,6 +613,7 @@ module.exports = kind(
 		{from: 'poster',					to:'$.video.poster'},
 		{from: 'constrainToBgProgress',		to:'$.slider.constrainToBgProgress'},
 		{from: 'elasticEffect',				to:'$.slider.elasticEffect'},
+		{from: 'knobIncrement',				to:'$.slider.knobIncrement'},
 		{from: 'showJumpControls',			to:'$.jumpForward.showing'},
 		{from: 'showJumpControls',			to:'$.jumpBack.showing'},
 		{from: 'showFFRewindControls',		to:'$.fastForward.showing'},
@@ -664,18 +678,17 @@ module.exports = kind(
 
 					{name: 'leftPremiumPlaceHolder', kind: Control, classes: 'moon-video-player-premium-placeholder-left'},
 					{classes: 'moon-video-player-controls-frame-center', fit: true, components: [
-
-						{name: 'controlsContainer', kind: Panels, index: 0, popOnBack: false, cacheViews: false, classes: 'moon-video-player-controls-container', components: [
+						{name: 'controlsContainer', kind: Panels, arrangerKind: CarouselArranger, fit: true, draggable: false, classes: 'moon-video-player-controls-container', components: [
 							{name: 'trickPlay', kind: Control, ontap:'playbackControlsTapped', components: [
-								{name: 'playbackControls', kind: Control, rtl: false, classes: 'moon-video-player-control-buttons', components: [
-									{name: 'jumpBack',		kind: IconButton, small: false, backgroundOpacity: 'translucent', onholdpulse: 'onHoldPulseBackHandler', ontap: 'onjumpBackward', onrelease: 'onReleaseHandler', accessibilityLabel: $L('Previous')},
+								{name: 'playbackControls', kind: Control, classes: 'moon-video-player-control-buttons', components: [
+									{name: 'jumpBack',		kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'onjumpBackward', accessibilityLabel: $L('Previous')},
 									{name: 'rewind',		kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'rewind', accessibilityLabel: $L('Rewind')},
 									{name: 'fsPlayPause',	kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'playPause'},
 									{name: 'fastForward',	kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'fastForward', accessibilityLabel: $L('Fast Forward')},
-									{name: 'jumpForward',	kind: IconButton, small: false, backgroundOpacity: 'translucent', onholdpulse: 'onHoldPulseForwardHandler', ontap: 'onjumpForward', onrelease: 'onReleaseHandler', accessibilityLabel: $L('Next')}
+									{name: 'jumpForward',	kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'onjumpForward', accessibilityLabel: $L('Next')}
 								]}
 							]},
-							{name: 'client', kind: Control, rtl: false,  classes: 'moon-video-player-more-controls'}
+							{name: 'client', kind: Control, classes: 'moon-video-player-more-controls'}
 						]}
 					]},
 
@@ -707,7 +720,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	create: function() {
+	create: function () {
 		Control.prototype.create.apply(this, arguments);
 		this.durfmt = new DurationFmt({length: 'medium', style: 'clock', useNative: false});
 		this.updateSource();
@@ -734,7 +747,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	checkIconType: function(icon) {
+	checkIconType: function (icon) {
 		var imagesrcRegex=/\.(jpg|jpeg|png|gif)$/i;
 		var iconType=imagesrcRegex.test(icon)?'image':'iconfont';
 		return iconType;
@@ -743,21 +756,21 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	disablePlaybackControlsChanged: function() {
+	disablePlaybackControlsChanged: function () {
 		this.updatePlaybackControlState();
 	},
 
 	/**
 	* @private
 	*/
-	disablePlaybackControlsOnUnloadChanged: function() {
+	disablePlaybackControlsOnUnloadChanged: function () {
 		this.updatePlaybackControlState();
 	},
 
 	/**
 	* @private
 	*/
-	updatePlaybackControlState: function() {
+	updatePlaybackControlState: function () {
 		var disabled = this.disablePlaybackControls ||
 			this._panelsShowing ||
 			(this.disablePlaybackControlsOnUnload && (this._errorCode || (!this.getSrc() && !this.getSources()) ));
@@ -782,7 +795,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	playbackControlsTapped: function() {
+	playbackControlsTapped: function () {
 		if (this.disablePlaybackControls) {
 			this.bubble('onPlaybackControlsTapped');
 		}
@@ -790,7 +803,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	resetPreviewMode: function(){
+	resetPreviewMode: function (){
 		if(!Spotlight.getPointerMode() && this.$.slider.isInPreview() && !this.inline) {
 			this.$.controls.setShowing(true);
 			this.$.slider.endPreview();
@@ -800,7 +813,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	rendered: function() {
+	rendered: function () {
 		Control.prototype.rendered.apply(this, arguments);
 		//* Change aspect ratio based on initialAspectRatio
 		this.aspectRatioChanged();
@@ -809,7 +822,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	showPlaybackControlsChanged: function(was) {
+	showPlaybackControlsChanged: function (was) {
 		this.$.trickPlay.set('showing', this.showPlaybackControls);
 		this.$.moreButton.set('showing', this.showPlaybackControls && this.clientComponentsCount > 2);
 		this.toggleSpotlightForMoreControls(!this.showPlaybackControls);
@@ -819,14 +832,14 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	showProgressBarChanged: function(was) {
+	showProgressBarChanged: function (was) {
 		this.$.sliderContainer.setShowing(this.showProgressBar);
 	},
 
 	/**
 	* @private
 	*/
-	updateSource: function(old, value, source) {
+	updateSource: function (old, value, source) {
 		this._canPlay = false;
 		this.set('_isPlaying', this.autoplay);
 		this._errorCode = null;
@@ -850,14 +863,14 @@ module.exports = kind(
 	* @returns {enyo/Video~Video} - An {@link module:enyo/Video~Video} control.
 	* @public
 	*/
-	getVideo: function() {
+	getVideo: function () {
 		return this.$.video;
 	},
 
 	/**
 	* @private
 	*/
-	createInfoControls: function() {
+	createInfoControls: function () {
 		var owner = this.hasOwnProperty('infoComponents') ? this.getInstanceOwner() : this;
 		this.$.videoInfoHeaderClient.createComponents(this.infoComponents, {owner: owner});
 	},
@@ -865,7 +878,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	createClientComponents: function(comps) {
+	createClientComponents: function (comps) {
 		comps = (comps) ? util.clone(comps) : [];
 		this.clientComponentsCount = comps.length;
 		if (!this._buttonsSetup) {
@@ -894,49 +907,49 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	playIconChanged: function() {
+	playIconChanged: function () {
 		this.updatePlayPauseButtons();
 	},
 
 	/**
 	* @private
 	*/
-	pauseIconChanged: function() {
+	pauseIconChanged: function () {
 		this.updatePlayPauseButtons();
 	},
 
 	/**
 	* @private
 	*/
-	inlinePlayIconChanged: function() {
+	inlinePlayIconChanged: function () {
 		this.updatePlayPauseButtons();
 	},
 
 	/**
 	* @private
 	*/
-	inlinePauseIconChanged: function() {
+	inlinePauseIconChanged: function () {
 		this.updatePlayPauseButtons();
 	},
 
 	/**
 	* @private
 	*/
-	moreControlsIconChanged: function() {
+	moreControlsIconChanged: function () {
 		this.updateMoreButton();
 	},
 
 	/**
 	* @private
 	*/
-	lessControlsIconChanged: function() {
+	lessControlsIconChanged: function () {
 		this.updateMoreButton();
 	},
 
 	/**
 	* @private
 	*/
-	autoplayChanged: function() {
+	autoplayChanged: function () {
 		this.$.video.setAutoplay(this.autoplay);
 		this.set('_isPlaying', this.autoplay);
 		this.updatePlayPauseButtons();
@@ -946,21 +959,21 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	jumpSecChanged: function() {
+	jumpSecChanged: function () {
 		this.$.video.setJumpSec(this.jumpSec);
 	},
 
 	/**
 	* @private
 	*/
-	disableSliderChanged: function() {
+	disableSliderChanged: function () {
 		this.updateSliderState();
 	},
 
 	/**
 	* @private
 	*/
-	updateSliderState: function() {
+	updateSliderState: function () {
 		//* this should be be called on create because default slider status should be disabled.
 		var disabled =
 			this.disableSlider ||
@@ -981,7 +994,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	autoShowOverlayChanged: function() {
+	autoShowOverlayChanged: function () {
 		this.autoShowInfoChanged();
 		this.autoShowControlsChanged();
 		if (this.autoShowOverlay) {
@@ -992,7 +1005,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	autoShowInfoChanged: function() {
+	autoShowInfoChanged: function () {
 		if (this.$.videoInfoHeaderClient.getShowing() && !this.autoShowInfo && !this.showInfo) {
 			this.$.videoInfoHeaderClient.hide();
 		}
@@ -1004,7 +1017,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	autoShowControlsChanged: function() {
+	autoShowControlsChanged: function () {
 		if (this.$.playerControl.getShowing() && !this.autoShowControls) {
 			this.$.playerControl.hide();
 		}
@@ -1016,7 +1029,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	showInfoChanged: function() {
+	showInfoChanged: function () {
 		this.$.videoInfoHeaderClient.setShowing(this.showInfo);
 
 		if (this.showInfo) {
@@ -1028,7 +1041,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	inlineChanged: function() {
+	inlineChanged: function () {
 		// Force fullscreen
 		this.addRemoveClass('enyo-fullscreen enyo-fit', !this.inline);
 		// Padding-bottom contains inline controls
@@ -1047,7 +1060,7 @@ module.exports = kind(
 	*
 	* @public
 	*/
-	unload: function() {
+	unload: function () {
 		this.$.video.unload();
 		this._resetTime();
 		this._loaded = false;
@@ -1059,14 +1072,14 @@ module.exports = kind(
 		this.updatePlaybackControlState();
 		this.updateSpinner();
 	},
-	showScrim: function(show) {
+	showScrim: function (show) {
 		this.$.fullscreenControl.addRemoveClass('scrim', !show);
 	},
 
 	/**
 	* @private
 	*/
-	updateSpotability: function() {
+	updateSpotability: function () {
 		var spotState = this._panelsShowing ? false : (this._controlsShowing ? 'container' : true);
 		this.updatePlaybackControlState();
 		this.set('spotlight', spotState);
@@ -1077,7 +1090,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	panelsShown: function(sender, e) {
+	panelsShown: function (sender, e) {
 		this._panelsShowing = true;
 		this._controlsShowing = false;
 		this._infoShowing = false;
@@ -1095,7 +1108,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	panelsHidden: function(sender, e) {
+	panelsHidden: function (sender, e) {
 		var current;
 
 		this._panelsShowing = false;
@@ -1110,7 +1123,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	panelsHandleFocused: function(sender, e) {
+	panelsHandleFocused: function (sender, e) {
 		this._infoShowing = this.$.videoInfoHeaderClient.getShowing();
 		this._controlsShowing = this.$.playerControl.getShowing();
 		this.hideFSControls(true);
@@ -1119,7 +1132,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	panelsHandleBlurred: function(sender, e) {
+	panelsHandleBlurred: function (sender, e) {
 		if (this.isLarge() && !this.isOverlayShowing()) {
 			if (this._infoShowing) {
 				this.showFSInfo();
@@ -1133,60 +1146,11 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	isLarge: function() {
+	isLarge: function () {
 		return this.isFullscreen() || !this.get('inline');
 	},
 
-	/**
-	* @private
-	*/
-	spotlightLeftRightFilter: function(sender, e) {
-		return this.spotlightModal && e.originator === this;
-	},
-
-	/**
-	* @private
-	*/
-	spotlightUpHandler: function(sender, e) {
-		if (this._shouldHandleUpDown) {
-			// Toggle info header on 'up' press
-			if (e.originator !== this.$.slider) {
-				if (!this.$.videoInfoHeaderClient.getShowing()) {
-					this.showFSInfo();
-				} else {
-					if (this.allowBackKey) EnyoHistory.drop();
-					this.hideFSInfo();
-				}
-			}
-			return true;
-		}
-	},
-
-	/**
-	* @private
-	*/
-	spotlightDownHandler: function(sender, e) {
-		if (this._shouldHandleUpDown) {
-			// Toggle info header on 'down' press
-			if (!this.$.playerControl.getShowing()) {
-				this.showFSBottomControls();
-			} else {
-				if (this.allowBackKey) EnyoHistory.drop();
-				this.hideFSBottomControls();
-			}
-			return true;
-		}
-	},
-
-	/**
-	* @private
-	*/
-	spotlightKeyDownHandler: function(sender, e) {
-		this._shouldHandleUpDown = this.isLarge() && (e.originator === this || Spotlight.getParent(e.originator) === this);
-	},
-
 	///// Fullscreen controls /////
-
 
 	/**
 	* @private
@@ -1204,11 +1168,83 @@ module.exports = kind(
 	_sentHold: false,
 
 	/**
+	* @private
+	*/
+	spotlightLeftRightFilter: function (sender, e) {
+		return this.spotlightModal && e.originator === this;
+	},
+
+	/**
+	* @private
+	*/
+	spotlightUpHandler: function (sender, e) {
+		if (this._sentHold) return;
+		if (!Spotlight.Accelerator.isAccelerating()) {
+			gesture.drag.beginHold(e);
+		}
+		if (this.hasClass('spotlight-5way-mode')) this.removeClass('spotlight-5way-mode');
+		if (this._shouldHandleUpDown) {
+			var current = Spotlight.getCurrent();
+
+			if (current.isDescendantOf(this.$.slider)) Spotlight.spot(this.$.fsPlayPause);
+			else if (current == this || current.isDescendantOf(this.$.controls)) {
+				// Toggle info header on 'up' press
+				if (!this.$.videoInfoHeaderClient.getShowing()) {
+					this.showFSInfo();
+				} else {
+					if (this.allowBackKey) EnyoHistory.drop();
+					this.hideFSInfo();
+				}
+			}
+			return true;
+		}
+	},
+
+	/**
+	* @private
+	*/
+	spotlightKeyUpHandler: function(sender, e) {
+		this.resetAutoTimeout();
+		gesture.drag.endHold();
+	},
+
+	/**
+	* @private
+	*/
+	spotlightDownHandler: function (sender, e) {
+		if (this._sentHold) return;
+		if (!Spotlight.Accelerator.isAccelerating()) {
+			gesture.drag.beginHold(e);
+		}
+		if (this._shouldHandleUpDown) {
+			var current = Spotlight.getCurrent();
+
+			if (current == this) this.showFSBottomControls();
+			else if (current.isDescendantOf(this.$.controls)) {
+				this.addClass('spotlight-5way-mode');
+				Spotlight.spot(this.$.slider);
+			}
+			else if (current.isDescendantOf(this.$.slider)) {
+				if (this.allowBackKey) EnyoHistory.drop();
+				this.hideFSBottomControls();
+			}
+			return true;
+		}
+	},
+
+	/**
+	* @private
+	*/
+	spotlightKeyDownHandler: function (sender, e) {
+		this._shouldHandleUpDown = this.isLarge() && (e.originator === this || Spotlight.getParent(e.originator) === this);
+	},
+
+	/**
 	* Returns `true` if any piece of the overlay is showing.
 	*
 	* @private
 	*/
-	isOverlayShowing: function() {
+	isOverlayShowing: function () {
 		return this.$.videoInfoHeaderClient.getShowing() || this.$.playerControl.getShowing();
 	},
 
@@ -1217,7 +1253,7 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	mousemove: function(sender, e) {
+	mousemove: function (sender, e) {
 		if (this.isOverlayShowing()) {
 			this.resetAutoTimeout();
 		} else if (this.shakeAndWake) {
@@ -1230,7 +1266,7 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	showFSControls: function(sender, e) {
+	showFSControls: function (sender, e) {
 		this.showFSInfo();
 		this.showFSBottomControls();
 	},
@@ -1238,7 +1274,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	hideFSControls: function(spottingHandled) {
+	hideFSControls: function (spottingHandled) {
 		var dropCount;
 		if (this.isOverlayShowing()) {
 			if (this.allowBackKey) {
@@ -1263,7 +1299,7 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	showFSBottomControls: function(sender, e) {
+	showFSBottomControls: function (sender, e) {
 		if (this.autoShowOverlay && this.autoShowControls) {
 			this.resetAutoTimeout();
 			this.showScrim(true);
@@ -1292,7 +1328,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	spotFSBottomControls: function() {
+	spotFSBottomControls: function () {
 		if (this.showPlaybackControls) {
 			if (this.$.controlsContainer.get('index') === 0) {
 				if (Spotlight.spot(this.$.fsPlayPause) === false) {
@@ -1316,11 +1352,13 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	hideFSBottomControls: function() {
+	hideFSBottomControls: function () {
 		// When controls are hidden, set as just a spotlight true component,
 		// so that it is spottable (since it won't have any spottable children),
 		// and then spot itself
 		this.set('spotlight', true);
+		// when FSBottomControls is closed with timeout, we should recover to get mouse event
+		if (this.hasClass('spotlight-5way-mode')) this.removeClass('spotlight-5way-mode');
 		// Only spot the player if hiding is triggered from player control
 		if (Spotlight.hasCurrent() && Spotlight.getParent(Spotlight.getCurrent()) === this) {
 			Spotlight.spot(this);
@@ -1340,7 +1378,7 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	showFSInfo: function() {
+	showFSInfo: function () {
 		if (this.autoShowOverlay && this.autoShowInfo) {
 			this.resetAutoTimeout();
 			this.$.videoInfoHeaderClient.setShowing(true);
@@ -1359,7 +1397,7 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	hideFSInfo: function() {
+	hideFSInfo: function () {
 		if (!this.showInfo) {
 			this.$.videoInfoHeaderClient.setShowing(false);
 		}
@@ -1368,7 +1406,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	resetAutoTimeout: function() {
+	resetAutoTimeout: function () {
 		if (this.isFullscreen() || !this.getInline()) {
 			this.startJob('autoHide', this.bindSafely('hideFSControls'), this.getAutoCloseTimeout());
 		}
@@ -1379,7 +1417,7 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	playPause: function(sender, e) {
+	playPause: function (sender, e) {
 		if (this._isPlaying) {
 			this.pause(sender, e);
 		} else {
@@ -1391,39 +1429,29 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	onHoldPulseBackHandler: function(sender, e) {
+	onHoldPulseHandler: function (sender, e) {
 		if (!this.jumpStartEnd) {
 			if (e.holdTime > this._holdPulseThreadhold) {
 				if (sender._sentHold !== true) {
-					this.jumpToStart(sender, e);
-					sender._sentHold = true;
+					if (sender == this.$.jumpBack) {
+						this.jumpToStart(sender, e);
+						sender._sentHold = true;
+					}
+					else if (sender == this.$.jumpForward) {
+						this.jumpToEnd(sender, e);
+						sender._sentHold = true;
+					}
+					else this._sentHold = true;
 					return true;
 				}
 			} else {
-				sender._holding = true;
-				sender._sentHold = false;
-			}
-		}
-	},
-
-	onReleaseHandler: function(sender, e) {
-		if (sender._sentHold && sender._sentHold === true) sender._sentHold = false;
-	},
-
-	/**
-	* @private
-	*/
-	onHoldPulseForwardHandler: function(sender, e) {
-		if (!this.jumpStartEnd) {
-			if (e.holdTime > this._holdPulseThreadhold) {
-				if (sender._sentHold !== true) {
-					this.jumpToEnd(sender, e);
-					sender._sentHold = true;
-					return true;
+				if (sender == this.$.jumpBack || sender == this.$.jumpForward) {
+					sender._holding = true;
+					sender._sentHold = false;
+				} else {
+					this._holding = true;
+					this._sentHold = false;
 				}
-			} else {
-				sender._holding = true;
-				sender._sentHold = false;
 			}
 		}
 	},
@@ -1431,7 +1459,18 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	onEnterSlider: function(sender, e) {
+	onReleaseHandler: function (sender, e) {
+		if (sender == this.$.jumpBack || sender == this.$.jumpForward) {
+			if (sender._sentHold && sender._sentHold === true) sender._sentHold = false;
+		} else {
+			if (this._sentHold && this._sentHold === true) this._sentHold = false;
+		}
+	},
+
+	/**
+	* @private
+	*/
+	onEnterSlider: function (sender, e) {
 		if (this.hideButtonsOnSlider) {
 			this.$.controls.setShowing(false);
 		}
@@ -1440,16 +1479,17 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	onLeaveSlider: function(sender, e) {
+	onLeaveSlider: function (sender, e) {
 		if (this.hideButtonsOnSlider && !this.$.slider.isDragging()) {
 			this.$.controls.setShowing(true);
 		}
+		if (this.hasClass('spotlight-5way-mode')) this.removeClass('spotlight-5way-mode');
 	},
 
 	/**
 	* @private
 	*/
-	onjumpBackward: function(sender, e) {
+	onjumpBackward: function (sender, e) {
 		if (this.jumpStartEnd) {
 			this.jumpToStart(sender, e);
 		} else {
@@ -1463,7 +1503,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	onjumpForward: function(sender, e) {
+	onjumpForward: function (sender, e) {
 		if (this.jumpStartEnd) {
 			this.jumpToEnd(sender, e);
 		} else {
@@ -1477,7 +1517,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	sendFeedback: function(msg, params, persist, leftSrc, rightSrc) {
+	sendFeedback: function (msg, params, persist, leftSrc, rightSrc) {
 		params = params || {};
 		this.$.slider.feedback(msg, params, persist, leftSrc, rightSrc);
 	},
@@ -1489,7 +1529,7 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	sliderSeekStart: function(sender, e) {
+	sliderSeekStart: function (sender, e) {
 		this._isPausedBeforeDrag = this.$.video.isPaused();
 		this.pause();
 		return true;
@@ -1500,7 +1540,7 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	sliderSeekFinish: function(sender, e) {
+	sliderSeekFinish: function (sender, e) {
 		if (e.value < this.duration - 1) {
 			if (!this._isPausedBeforeDrag) {
 				this.play();
@@ -1521,7 +1561,7 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	sliderSeek: function(sender, e) {
+	sliderSeek: function (sender, e) {
 		this.setCurrentTime(e.value);
 		return true;
 	},
@@ -1531,7 +1571,7 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	updateFullscreenPosition: function() {
+	updateFullscreenPosition: function () {
 		if (this.$.slider.isDragging()) {
 			return;
 		}
@@ -1565,7 +1605,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	updateInlinePosition: function() {
+	updateInlinePosition: function () {
 		var percentComplete = this.duration ? Math.round(this._currentTime * 1000 / this.duration) / 10 : 0;
 		this.$.progressStatus.applyStyle('width', percentComplete + '%');
 		this.$.currTime.setContent(this.formatTime(this._currentTime) + ' / ' + this.formatTime(this.duration));
@@ -1574,7 +1614,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	videoTapped: function() {
+	videoTapped: function () {
 		if (this.getInline() && !this.isFullscreen()) {
 			this.playPause();
 		}
@@ -1585,7 +1625,7 @@ module.exports = kind(
 	*
 	* @public
 	*/
-	toggleFullscreen: function() {
+	toggleFullscreen: function () {
 		if (this.isFullscreen()) {
 			this.cancelFullscreen();
 		} else {
@@ -1596,7 +1636,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	fullscreenChanged: function(sender, e) {
+	fullscreenChanged: function (sender, e) {
 		Spotlight.unspot();
 		if (this.isFullscreen()) {
 			this.$.ilFullscreen.undepress();
@@ -1627,7 +1667,7 @@ module.exports = kind(
 	*
 	* @public
 	*/
-	play: function() {
+	play: function () {
 		this.currTimeSync = true;
 		this.set('_isPlaying', true);
 		this.$.video.play();
@@ -1640,7 +1680,7 @@ module.exports = kind(
 	*
 	* @public
 	*/
-	pause: function() {
+	pause: function () {
 		this.set('_isPlaying', false);
 		this.$.video.pause();
 		this.updatePlayPauseButtons();
@@ -1653,7 +1693,7 @@ module.exports = kind(
 	*
 	* @public
 	*/
-	rewind: function() {
+	rewind: function () {
 		this.set('_isPlaying', false);
 		this.$.video.rewind();
 		this.updatePlayPauseButtons();
@@ -1666,7 +1706,7 @@ module.exports = kind(
 	*
 	* @public
 	*/
-	jumpToStart: function() {
+	jumpToStart: function () {
 		this.$.video.jumpToStart();
 		this.updatePlayPauseButtons();
 		this.updateSpinner();
@@ -1680,7 +1720,7 @@ module.exports = kind(
 	*
 	* @public
 	*/
-	jumpBackward: function() {
+	jumpBackward: function () {
 		this.$.video.jumpBackward();
 		this.updatePlayPauseButtons();
 		this.updateSpinner();
@@ -1692,7 +1732,7 @@ module.exports = kind(
 	*
 	* @public
 	*/
-	fastForward: function() {
+	fastForward: function () {
 		this.set('_isPlaying', false);
 		this.$.video.fastForward();
 		this.updatePlayPauseButtons();
@@ -1705,7 +1745,7 @@ module.exports = kind(
 	*
 	* @public
 	*/
-	jumpToEnd: function() {
+	jumpToEnd: function () {
 		this.set('_isPlaying', false);
 		if ( this.$.video.isPaused() ) {
 			//* Make video able to go futher than the buffer
@@ -1721,7 +1761,7 @@ module.exports = kind(
 	*
 	* @public
 	*/
-	jumpForward: function() {
+	jumpForward: function () {
 		this.$.video.jumpForward();
 		this.updatePlayPauseButtons();
 		this.updateSpinner();
@@ -1733,7 +1773,7 @@ module.exports = kind(
 	* @param {Number} val - The current time to set the video to, in seconds.
 	* @public
 	*/
-	setCurrentTime: function(val) {
+	setCurrentTime: function (val) {
 		this.$.video.setCurrentTime(val);
 	},
 
@@ -1742,7 +1782,7 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	timeChange: function(sender, e) {
+	timeChange: function (sender, e) {
 		this.setCurrentTime(e.value);
 	},
 
@@ -1751,7 +1791,7 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	handleResize: function() {
+	handleResize: function () {
 		this.aspectRatioChanged();
 	},
 
@@ -1760,7 +1800,7 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	aspectRatioChanged: function() {
+	aspectRatioChanged: function () {
 		// Case 5: Fixed size provided by user
 		if (!this.inline || this.aspectRatio == 'none' || !this.aspectRatio) { return; }
 
@@ -1789,7 +1829,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	updatePosition: function() {
+	updatePosition: function () {
 		if (this.isFullscreen() || !this.getInline()) {
 			this.updateFullscreenPosition();
 		} else {
@@ -1802,7 +1842,7 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	formatTime: function(val) {
+	formatTime: function (val) {
 		var hour = Math.floor(val / (60*60));
 		var min = Math.floor((val / 60) % 60);
 		var sec = Math.floor(val % 60);
@@ -1818,7 +1858,7 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	padDigit: function(val) {
+	padDigit: function (val) {
 		return (val) ? (String(val).length < 2) ? '0'+val : val : '00';
 	},
 
@@ -1827,7 +1867,7 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	updatePlayPauseButtons: function() {
+	updatePlayPauseButtons: function () {
 		if (this._isPlaying) {
 			this.retrieveIconsSrcOrFont(this.$.fsPlayPause, this.pauseIcon, 'moon-icon-main-control-font-size');
 		} else {
@@ -1845,7 +1885,7 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	retrieveIconsSrcOrFont:function(src, icon, classes){
+	retrieveIconsSrcOrFont:function (src, icon, classes){
 		var iconType = this.checkIconType(icon);
 
 		if (iconType == 'image') {
@@ -1863,7 +1903,7 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	updateSpinner: function() {
+	updateSpinner: function () {
 		var spinner = this.$.spinner;
 		if (this.autoShowSpinner && this._isPlaying && !this._canPlay && !this._errorCode) {
 			spinner.start();
@@ -1877,7 +1917,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	autoShowSpinnerChanged: function() {
+	autoShowSpinnerChanged: function () {
 		this.updateSpinner();
 	},
 
@@ -1887,7 +1927,7 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	moreButtonTapped: function(sender, e) {
+	moreButtonTapped: function (sender, e) {
 		var index = this.$.controlsContainer.get('index');
 		if (index === 0) {
 			this.retrieveIconsSrcOrFont(this.$.moreButton, this.rtl?this.moreControlsIcon:this.lessControlsIcon, 'moon-icon-video-more-controls-font-style');
@@ -1899,7 +1939,7 @@ module.exports = kind(
 			this.$.controlsContainer.previous();
 		}
 	},
-	updateMoreButton: function() {
+	updateMoreButton: function () {
 		var index = this.$.controlsContainer.get('index');
 		if (index === 0) {
 			this.retrieveIconsSrcOrFont(this.$.moreButton, this.rtl?this.lessControlsIcon:this.moreControlsIcon, 'moon-icon-video-round-controls-style moon-icon-video-more-controls-font-style');
@@ -1909,7 +1949,7 @@ module.exports = kind(
 		// Change paneld direction based on locale and more button configuration
 		this.$.controlsContainer.set('direction', !this.rtl ? Panels.Direction.FORWARDS : Panels.Direction.BACKWARDS);
 	},
-	toggleSpotlightForMoreControls: function(moreControlsSpottable) {
+	toggleSpotlightForMoreControls: function (moreControlsSpottable) {
 		this.$.playbackControls.spotlightDisabled = moreControlsSpottable;
 		this.$.client.spotlightDisabled = !moreControlsSpottable;
 	},
@@ -1921,7 +1961,7 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	timeUpdate: function(sender, e) {
+	timeUpdate: function (sender, e) {
 		//* Update _this.duration_ and _this.currentTime_
 		if (!e && e.srcElement || e.currentTime === null) {
 			return;
@@ -1940,7 +1980,7 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	metadataLoaded: function(sender, e) {
+	metadataLoaded: function (sender, e) {
 		//* Update aspect ratio based on actual video aspect ratio when autoResize is true.
 		if (this.autoResize && this.$.video) {
 			this.setAspectRatio(this.$.video.getAspectRatio());
@@ -1951,7 +1991,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	durationUpdate: function(sender, e) {
+	durationUpdate: function (sender, e) {
 		this.duration = this.$.video.getDuration();
 		this._currentTime = this.$.video.getCurrentTime();
 
@@ -1971,7 +2011,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	dataloaded: function(sender, e) {
+	dataloaded: function (sender, e) {
 		this._loaded = true;
 		this.updateSliderState();
 		this.durationUpdate(sender, e);
@@ -1980,7 +2020,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	_getBufferedProgress: function(node) {
+	_getBufferedProgress: function (node) {
 		var bufferData = node.buffered,
 			numberOfBuffers = bufferData.length,
 			highestBufferPoint = 0,
@@ -2006,7 +2046,7 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	_progress: function(sender, e) {
+	_progress: function (sender, e) {
 		var buffered = this._getBufferedProgress(e.srcElement);
 		if (this.isFullscreen() || !this.getInline()) {
 			this.$.slider.setBgProgress(buffered.value);
@@ -2018,7 +2058,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	_resetTime: function() {
+	_resetTime: function () {
 		this._currentTime = 0;
 		this.duration = 0;
 		this.updatePosition();
@@ -2029,7 +2069,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	_play: function(sender, e) {
+	_play: function (sender, e) {
 		if(e.playbackRate != this.playbackRateHash.slowRewind[0] && e.playbackRate != this.playbackRateHash.slowForward[0]){
 			this.sendFeedback('Play');
 		}
@@ -2038,7 +2078,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	_pause: function(sender, e) {
+	_pause: function (sender, e) {
 		// Don't send pause feedback if we are rewinding
 		if (e.srcElement.playbackRate < 0) {
 			return;
@@ -2053,7 +2093,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	_stop: function(sender, e) {
+	_stop: function (sender, e) {
 		this.pause();
 		this.updatePlayPauseButtons();
 		this.updateSpinner();
@@ -2063,49 +2103,49 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	_fastforward: function(sender, e) {
+	_fastforward: function (sender, e) {
 		this.sendFeedback('Fastforward', {playbackRate: e.playbackRate}, true);
 	},
 
 	/**
 	* @private
 	*/
-	_slowforward: function(sender, e) {
+	_slowforward: function (sender, e) {
 		this.sendFeedback('Slowforward', {playbackRate: e.playbackRate}, true);
 	},
 
 	/**
 	* @private
 	*/
-	_rewind: function(sender, e) {
+	_rewind: function (sender, e) {
 		this.sendFeedback('Rewind', {playbackRate: e.playbackRate}, true);
 	},
 
 	/**
 	* @private
 	*/
-	_slowrewind: function(sender, e) {
+	_slowrewind: function (sender, e) {
 		this.sendFeedback('Slowrewind', {playbackRate: e.playbackRate}, true);
 	},
 
 	/**
 	* @private
 	*/
-	_jumpForward: function(sender, e) {
+	_jumpForward: function (sender, e) {
 		this.sendFeedback('JumpForward', {jumpSize: e.jumpSize}, false);
 	},
 
 	/**
 	* @private
 	*/
-	_jumpBackward: function(sender, e) {
+	_jumpBackward: function (sender, e) {
 		this.sendFeedback('JumpBackward', {jumpSize: e.jumpSize}, false);
 	},
 
 	/**
 	* @private
 	*/
-	_waiting: function(sender, e) {
+	_waiting: function (sender, e) {
 		this._canPlay = false;
 		this.updateSpinner();
 	},
@@ -2113,7 +2153,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	_setCanPlay: function(sender, e) {
+	_setCanPlay: function (sender, e) {
 		this._canPlay = true;
 		this.updateSpinner();
 	},
@@ -2121,7 +2161,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	_error: function(sender, e) {
+	_error: function (sender, e) {
 		// Error codes in e.currentTarget.error.code
 		// 1: MEDIA_ERR_ABORTED, 2: MEDIA_ERR_NETWORK, 3: MEDIA_ERR_DECODE,
 		// 4: MEDIA_ERR_SRC_NOT_SUPPORTED
@@ -2138,7 +2178,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	remoteKeyHandler: function(sender, e) {
+	remoteKeyHandler: function (sender, e) {
 		if (this.handleRemoteControlKey && !this.disablePlaybackControls) {
 			var showControls = false;
 			switch (e.keySymbol) {
