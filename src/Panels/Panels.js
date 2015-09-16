@@ -842,9 +842,13 @@ module.exports = kind(
 				
 				//when clicking on a breadcrumb it should popoff the history of 
 				var popOff = this.getIndex() - oEvent.index + 1; //current index - event index + 1 for current panel history	
-				EnyoHistory.pop(popOff);
-				
+                
 				this.setIndex(oEvent.index);
+                
+                //stack pops behind panel navigation
+                util.asyncMethod(function(){
+                    EnyoHistory.pop(popOff);
+                });
 			}
 		}
 	},
