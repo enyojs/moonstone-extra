@@ -22,8 +22,7 @@ var
 
 var
 	FittableColumns = require('layout/FittableColumns'),
-	Panels = require('enyo/LightPanels'),
-	CarouselArranger = require('layout/CarouselArranger');
+	Panels = require('enyo/LightPanels');
 
 var
 	DurationFmt = require('enyo-ilib/DurationFmt');
@@ -678,9 +677,10 @@ module.exports = kind(
 
 					{name: 'leftPremiumPlaceHolder', kind: Control, classes: 'moon-video-player-premium-placeholder-left'},
 					{classes: 'moon-video-player-controls-frame-center', fit: true, components: [
-						{name: 'controlsContainer', kind: Panels, arrangerKind: CarouselArranger, fit: true, draggable: false, classes: 'moon-video-player-controls-container', components: [
+
+						{name: 'controlsContainer', kind: Panels, index: 0, popOnBack: false, cacheViews: false, classes: 'moon-video-player-controls-container', components: [
 							{name: 'trickPlay', kind: Control, ontap:'playbackControlsTapped', components: [
-								{name: 'playbackControls', kind: Control, classes: 'moon-video-player-control-buttons', components: [
+								{name: 'playbackControls', kind: Control, rtl: false, classes: 'moon-video-player-control-buttons', components: [
 									{name: 'jumpBack',		kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'onjumpBackward', accessibilityLabel: $L('Previous')},
 									{name: 'rewind',		kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'rewind', accessibilityLabel: $L('Rewind')},
 									{name: 'fsPlayPause',	kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'playPause'},
@@ -688,10 +688,10 @@ module.exports = kind(
 									{name: 'jumpForward',	kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'onjumpForward', accessibilityLabel: $L('Next')}
 								]}
 							]},
-							{name: 'client', kind: Control, classes: 'moon-video-player-more-controls'}
+							{name: 'client', kind: Control, rtl: false,  classes: 'moon-video-player-more-controls'}
 						]}
 					]},
-
+					
 					{name: 'rightPremiumPlaceHolder', kind: Control, classes: 'moon-video-player-premium-placeholder-right', components: [
 						{name: 'moreButton', kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'moreButtonTapped', accessibilityLabel: $L('More')}
 					]}
