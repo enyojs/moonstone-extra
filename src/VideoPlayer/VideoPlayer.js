@@ -1171,6 +1171,10 @@ module.exports = kind(
 	* @private
 	*/
 	spotlightLeftRightFilter: function (sender, e) {
+		if (this._sentHold) return;
+		if (!Spotlight.Accelerator.isAccelerating()) {
+			gesture.drag.beginHold(e);
+		}
 		return this.spotlightModal && e.originator === this;
 	},
 
@@ -1430,6 +1434,7 @@ module.exports = kind(
 	* @private
 	*/
 	onHoldPulseHandler: function (sender, e) {
+		this.stopJob('autoHide');
 		if (!this.jumpStartEnd) {
 			if (e.holdTime > this._holdPulseThreadhold) {
 				if (sender._sentHold !== true) {
@@ -1465,6 +1470,7 @@ module.exports = kind(
 		} else {
 			if (this._sentHold && this._sentHold === true) this._sentHold = false;
 		}
+		this.resetAutoTimeout();
 	},
 
 	/**
