@@ -1190,7 +1190,13 @@ module.exports = kind(
 		if (this._shouldHandleUpDown) {
 			var current = Spotlight.getCurrent();
 
-			if (current.isDescendantOf(this.$.slider)) Spotlight.spot(this.$.fsPlayPause);
+			if (current.isDescendantOf(this.$.slider)) {
+				if (this.$.controlsContainer.index == 0) {
+					Spotlight.spot(this.$.fsPlayPause);
+				} else {
+					Spotlight.spot(this.$.controlsContainer);
+				}	
+			}
 			else if (current == this || current.isDescendantOf(this.$.controls)) {
 				// Toggle info header on 'up' press
 				if (!this.$.videoInfoHeaderClient.getShowing()) {
