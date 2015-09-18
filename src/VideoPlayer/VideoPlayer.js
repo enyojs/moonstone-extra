@@ -1172,9 +1172,7 @@ module.exports = kind(
 	*/
 	spotlightLeftRightFilter: function (sender, e) {
 		if (this._sentHold) return;
-		if (!Spotlight.Accelerator.isAccelerating()) {
-			gesture.drag.beginHold(e);
-		}
+		
 		return this.spotlightModal && e.originator === this;
 	},
 
@@ -1183,19 +1181,14 @@ module.exports = kind(
 	*/
 	spotlightUpHandler: function (sender, e) {
 		if (this._sentHold) return;
-		if (!Spotlight.Accelerator.isAccelerating()) {
-			gesture.drag.beginHold(e);
-		}
+		
 		if (this.hasClass('spotlight-5way-mode')) this.removeClass('spotlight-5way-mode');
 		if (this._shouldHandleUpDown) {
 			var current = Spotlight.getCurrent();
 
 			if (current.isDescendantOf(this.$.slider)) {
-				if (this.$.controlsContainer.index == 0) {
-					Spotlight.spot(this.$.fsPlayPause);
-				} else {
-					Spotlight.spot(this.$.controlsContainer);
-				}	
+				if (this.$.controlsContainer.get('index')) return false;
+				else Spotlight.spot(this.$.fsPlayPause);
 			}
 			else if (current == this || current.isDescendantOf(this.$.controls)) {
 				// Toggle info header on 'up' press
@@ -1223,9 +1216,7 @@ module.exports = kind(
 	*/
 	spotlightDownHandler: function (sender, e) {
 		if (this._sentHold) return;
-		if (!Spotlight.Accelerator.isAccelerating()) {
-			gesture.drag.beginHold(e);
-		}
+		
 		if (this._shouldHandleUpDown) {
 			var current = Spotlight.getCurrent();
 
@@ -1246,6 +1237,9 @@ module.exports = kind(
 	* @private
 	*/
 	spotlightKeyDownHandler: function (sender, e) {
+		if (!Spotlight.Accelerator.isAccelerating()) {
+			gesture.drag.beginHold(e);
+		}
 		this._shouldHandleUpDown = this.isLarge() && (e.originator === this || Spotlight.getParent(e.originator) === this);
 	},
 
