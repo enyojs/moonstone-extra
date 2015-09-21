@@ -208,15 +208,6 @@ module.exports = kind(
 		knobClasses: 'knob',
 
 		/**
-		* CSS classes to apply to tap area.
-		*
-		* @type {String}
-		* @default 'taparea'
-		* @public
-		*/
-		tapAreaClasses: 'taparea',
-
-		/**
 		* Color of value popup
 		*
 		* @type {String}
@@ -536,7 +527,7 @@ module.exports = kind(
 		this.setRangeStart(this.min);
 		this.setRangeEnd(this.max);
 
-		this.updateKnobPosition(this.value);
+		this.updatePopupPosition(this.value);
 	},
 
 	/**
@@ -644,7 +635,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	updateKnobPosition: function (val) {
+	updatePopupPosition: function (val) {
 		if (!this.dragging && this.isInPreview()) { return; }
 		this._updateKnobPosition(val);
 	},
@@ -782,7 +773,7 @@ module.exports = kind(
 				this.elasticFrom = this.elasticTo = v;
 			}
 			this.currentTime = v;
-			this.updateKnobPosition(this.elasticFrom);
+			this.updatePopupPosition(this.elasticFrom);
 
 			if (this.lockBar) {
 				this.setProgress(this.elasticFrom);
@@ -897,6 +888,22 @@ module.exports = kind(
 	feedback: function (msg, params, persist, leftSrc, rightSrc) {
 		this.showKnobStatus();
 		this.$.feedback.feedback(msg, params, persist, leftSrc, rightSrc, this.isInPreview());
+	},
+
+	/**
+	* Override of [updatePopup]{@link module:moonstone/ProgressBar~ProgressBar#updatePopup}
+	* In case of videoTransportSlider, popup does not need to flip.
+	* and it cannot update popup position everytime.
+	*
+	* @private
+	*/
+	updatePopup: function (val) {
+		var usePercentage = this.showPercentage && this.popupContent === null,
+			percent = this.calcPercent(val),
+			popupLabel = usePercentage ? percent : this.progress;
+
+		this.updatePopupPosition(percent);
+		this.updatePopupLabel(popupLabel);
 	},
 
 	/**
