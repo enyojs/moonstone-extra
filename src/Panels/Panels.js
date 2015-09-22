@@ -791,6 +791,8 @@ module.exports = kind(
 		// we need to ensure our handler has the opportunity to modify the flow during
 		// initialization
 		this.showingChanged();
+		// make other panel to spotlightDisabled without the initialPanel;
+		this.notifyPanels('initPanel');
 	},
 
 	/**
