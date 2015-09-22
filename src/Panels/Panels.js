@@ -841,7 +841,16 @@ module.exports = kind(
 		} else {
 			// If tapped on breadcrumb, go to that panel
 			if (oEvent.breadcrumbTap && oEvent.index !== this.getIndex()) {
+
+				//when clicking on a breadcrumb it should popoff the history of
+				var popOff = this.getIndex() - oEvent.index + 1; //current index - event index + 1 for current panel history
+
 				this.setIndex(oEvent.index);
+
+				//stack pops behind panel navigation
+				util.asyncMethod(function(){
+					EnyoHistory.pop(popOff);
+				});
 			}
 		}
 	},
@@ -852,6 +861,7 @@ module.exports = kind(
 	spotlightLeft: function (oSender, oEvent) {
 		if (this.toIndex !== null) {
 			this.queuedIndex = this.toIndex - 1;
+			EnyoHistory.pop(1);
 			//queuedIndex could have out boundary value. It will be managed in setIndex()
 		}
 		var orig = oEvent.originator,
@@ -867,6 +877,7 @@ module.exports = kind(
 			else {
 				if (!this.leftKeyToBreadcrumb) {
 					this.previous();
+					EnyoHistory.pop(2);
 					return true;
 				}
 			}
@@ -1183,6 +1194,7 @@ module.exports = kind(
 	* @private
 	*/
 	addBreadcrumb: function (forceRender) {
+
 		if (this.pattern == 'none' || !this.$.breadcrumbs) return;
 
 		// If we have 1 panel then we don't need breadcrumb.
@@ -1210,6 +1222,7 @@ module.exports = kind(
 	* @private
 	*/
 	removeBreadcrumb: function () {
+
 		if (this.pattern == 'none' || !this.$.breadcrumbs) return;
 
 		// If we have 1 panel then we don't need breadcrumb.
@@ -1220,6 +1233,7 @@ module.exports = kind(
 
 		// If we have more than the number of necessary breadcrumb then destroy.
 		while (this.getBreadcrumbs().length > len) {
+			EnyoHistory.pop(1);
 			this.getBreadcrumbs()[this.getBreadcrumbs().length-1].destroy();
 		}
 	},
