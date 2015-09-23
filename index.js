@@ -1,2 +1,5 @@
 // require moonstone so its style will load before ours
-module.exports = require('moonstone');
+require('moonstone');
+module.exports = {
+	version: '2.6.0-pre.16'
+};

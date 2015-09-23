@@ -1,10 +1,20 @@
 {
   "name": "moonstone-extra",
-  "main": "index.js",
+  "assets": [
+    "resources/**/*.*"
+  ],
+  "devAssets": [],
   "styles": [
     "css/moonstone-variables.less"
   ],
-  "assets": [
-    "resources/**/*.*"
-  ]
+  "main": "index.js",
+  "moduleDir": "src",
+  "scripts": {
+    "test": "./node_modules/.bin/gulp"
+  },
+  "devDependencies": {
+    "gulp": "^3.8.11",
+    "gulp-jshint": "^1.10.0",
+    "jshint-stylish": "^1.0.1"
+  }
 }
