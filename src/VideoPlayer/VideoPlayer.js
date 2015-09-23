@@ -69,7 +69,7 @@ var
 * transport [controls]{@link module:enyo/Control~Control}, optional app-specific controls, and an information
 * bar for displaying video information and player feedback.
 *
-* All of the standard HTML5 media [events]{@glossary event} bubbled from `enyo.Video` will
+* All of the standard HTML5 media [events]{@glossary event} bubbled from `enyo/Video` will
 * also bubble from this control.
 *
 * Client [components]{@link module:enyo/Component~Component} added to the `components` block are rendered into
@@ -169,8 +169,8 @@ module.exports = kind(
 		/**
 		* A [component]{@link module:enyo/Component~Component} definition block describing components to
 		* be created as an information block above the video. Usually, this contains a
-		* [moon.VideoInfoBackground]{@link module:moonstone-extra/VideoInfoBackground~VideoInfoBackground} with a
-		* [moon.VideoInfoHeader]{@link module:moonstone-extra/VideoInfoHeader~VideoInfoHeader} in it.
+		* [moon/VideoInfoBackground]{@link module:moonstone-extra/VideoInfoBackground~VideoInfoBackground} with a
+		* [moon/VideoInfoHeader]{@link module:moonstone-extra/VideoInfoHeader~VideoInfoHeader} in it.
 		*
 		* @type {Object}
 		* @default null
@@ -1364,9 +1364,9 @@ module.exports = kind(
 			Spotlight.spot(this);
 		}
 		if (this.autoHidePopups) {
-			// Hide enyo.Popup-based popups (including moon.Popup)
+			// Hide enyo/Popup-based popups (including moon/Popup)
 			this.$.playerControl.waterfall('onRequestHide');
-			// Hide moon.ContextualPopups
+			// Hide moon/ContextualPopups
 			this.$.playerControl.waterfall('onRequestHidePopup');
 		}
 		this.showScrim(false);
