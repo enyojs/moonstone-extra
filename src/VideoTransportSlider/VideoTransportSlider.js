@@ -527,7 +527,7 @@ module.exports = kind(
 		this.setRangeStart(this.min);
 		this.setRangeEnd(this.max);
 
-		this.updatePopupPosition(this.value);
+		this.updateKnobPosition(this.value);
 	},
 
 	/**
@@ -635,7 +635,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	updatePopupPosition: function (val) {
+	updateKnobPosition: function (val) {
 		if (!this.dragging && this.isInPreview()) { return; }
 		this._updateKnobPosition(val);
 	},
@@ -693,7 +693,7 @@ module.exports = kind(
 	},
 
 	/**
-	* If user presses `this.$.tapArea`, seeks to that point.
+	* If user presses `slider`, seeks to that point.
 	*
 	* @private
 	*/
@@ -773,7 +773,7 @@ module.exports = kind(
 				this.elasticFrom = this.elasticTo = v;
 			}
 			this.currentTime = v;
-			this.updatePopupPosition(this.elasticFrom);
+			this.updateKnobPosition(this.elasticFrom);
 
 			if (this.lockBar) {
 				this.setProgress(this.elasticFrom);
@@ -892,18 +892,12 @@ module.exports = kind(
 
 	/**
 	* Override of [updatePopup]{@link module:moonstone/ProgressBar~ProgressBar#updatePopup}
-	* In case of videoTransportSlider, popup does not need to flip.
-	* and it cannot update popup position everytime.
+	* this method is called when progess updated but from Slider, we use value instead of progress
 	*
 	* @private
 	*/
 	updatePopup: function (val) {
-		var usePercentage = this.showPercentage && this.popupContent === null,
-			percent = this.calcPercent(val),
-			popupLabel = usePercentage ? percent : this.progress;
-
-		this.updatePopupPosition(percent);
-		this.updatePopupLabel(popupLabel);
+		return true;
 	},
 
 	/**
