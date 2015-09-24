@@ -353,18 +353,6 @@ module.exports = kind(
 	narrowFit: false,
 
 	/**
-	* Hierachical stack.
-	* When we call setIndex or pushPanel, new object is pushed to this stack.
-	* When we call popPanel or back key handler, lasted object is removed.
-	* To save memory, it is initiated when this.allowBackKey is true.
-	*
-	* @type {Array}
-	* @default null
-	* @private
-	*/
-	panelStack: null,
-
-	/**
 	* @private
 	*/
 	fractions: {panel: 1, breadcrumb: 1},
@@ -628,17 +616,13 @@ module.exports = kind(
 	popPanels: function (index) {
 		if (this.transitioning || this.isModifyingPanels) return;
 
-		var panels = this.getPanels(),
-			panelStack = this.panelStack;
+		var panels = this.getPanels();
 
 		index = index || panels.length - 1;
 		this.isModifyingPanels = true;
 
 		while (panels.length > index && index >= 0) {
 			panels[panels.length - 1].destroy();
-			if (panelStack && panels.length == panelStack.length) {
-				panelStack.pop();
-			}
 		}
 		this.removeBreadcrumb();
 		this.recalcLayout();
@@ -805,7 +789,6 @@ module.exports = kind(
 		this.addBreadcrumb();
 		this.initializeShowHideHandle();
 		this.handleShowingChanged();
-		this.allowBackKeyChanged();
 	},
 
 	/**
@@ -1055,14 +1038,6 @@ module.exports = kind(
 		// Ensure any VKB is closed when transitioning panels
 		this.blurActiveElementIfHiding(index);
 
-		// if back key feature is enabled and setIndex is not called from back key handler
-		if (this.allowBackKey && !EnyoHistory.isProcessing()) {
-			if(!this.popOnBack || (this.popOnBack && this.fromIndex < this.toIndex)){
-				this.panelStack.push(this.index);
-				this.pushBackHistory();
-			}
-		}
-
 		// If panels will move for this index change, kickoff animation. Otherwise skip it.
 		if (this.shouldAnimate()) {
 			Spotlight.mute(this);
@@ -1265,7 +1240,9 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	indexChanged: function (old) {
+	indexChanged: function (was) {
+		var current, delta, deltaAbs, idx;
+
 		this.assignBreadcrumbIndex();
 
 		// Set animation direction to use proper timing function before start animation
@@ -1273,6 +1250,27 @@ module.exports = kind(
 		this.$.animator.direction = this.getDirection();
 
 		this.adjustFirstPanelBeforeTransition();
+
+		// Push or drop history, based on the direction of the index change
+		if (this.allowBackKey) {
+			was = was || 0;
+			delta = this.index - was;
+			deltaAbs = Math.abs(delta);
+
+			if (delta > 0) {
+				for (idx = 0; idx < deltaAbs; idx++) {
+					this.pushBackHistory(idx + was);
+				}
+			} else {
+				current = EnyoHistory.peek();
+
+				// ensure we have history to drop - if the first history entry's index corresponds
+				// to the index prior to our current index, we assume the other entries exist
+				if (current && current.index + 1 == was) {
+					EnyoHistory.drop(deltaAbs);
+				}
+			}
+		}
 
 		Panels.prototype.indexChanged.apply(this, arguments);
 	},
@@ -1521,23 +1519,26 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	backKeyHandler: function () {
-		if (this.panelStack.length) {
-			this.setIndex(this.panelStack.pop());
-		}
+	backKeyHandler: function (entry) {
+		var index = entry.index;
+
+		if (this.transitioning) this.queuedIndex = index;
+		else this.setIndex(index);
+
 		return true;
 	},
 
 	/**
 	* @private
 	*/
-	allowBackKeyChanged: function () {
-		if (this.allowBackKey) {
-			//initialize stack
-			this.panelStack = [];
-		} else if(this.panelStack) {
-			this.panelStack = null;
-		}
+	pushBackHistory: function (index) {
+		EnyoHistory.push({
+			context: this,
+			handler: this.backKeyHandler,
+			index: index
+		});
+
+		return true;
 	},
 
 	// Accessibility
