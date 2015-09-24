@@ -89,6 +89,13 @@
 				
 			}
 		}
+		&:not(.first) {
+			.moon-application-close-button {
+				.enyo-locale-right-to-left & {
+					left: (@moon-breadcrumb-width + @moon-spotlight-outset);
+				}
+			}
+		}
 	}
 
 	&.alwaysviewing {
