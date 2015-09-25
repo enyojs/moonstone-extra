@@ -13,7 +13,8 @@ var
 	Control = require('enyo/Control'),
 	EnyoHistory = require('enyo/History'),
 	Signals = require('enyo/Signals'),
-	ri = require('enyo/resolution');
+	ri = require('enyo/resolution'),
+	ViewPreloadSupport = require('enyo/ViewPreloadSupport');
 
 var
 	Panels = require('layout/Panels');
@@ -245,7 +246,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	mixins : [HistorySupport],
+	mixins : [HistorySupport, ViewPreloadSupport],
 
 	/**
 	* @private
@@ -344,7 +345,16 @@ module.exports = kind(
 		* @default false
 		* @public
 		*/
-		leftKeyToBreadcrumb: false
+		leftKeyToBreadcrumb: false,
+
+		/**
+		* When `true`, existing views are cached for reuse; otherwise, they are destroyed.
+		*
+		* @type {Boolean}
+		* @default false
+		* @public
+		*/
+		cacheViews: false
 	},
 
 	/**
@@ -529,6 +539,57 @@ module.exports = kind(
 	},
 
 	/**
+	* Determines the id of the given view.
+	*
+	* @param {Object} view - The view whose id we will determine.
+	* @return {String} The id of the given view.
+	* @public
+	*/
+	getViewId: function (view) {
+		return view.id;
+	},
+
+	/**
+	* Retrieves an array of either cached panels, if found, or creates a new array of panels
+	*
+	* @param {Object[]} info - The declarative {@glossary kind} definitions.
+	* @param {Object} moreInfo - Additional properties to be applied (defaults).
+	* @return {Array} List of found or created controls
+	* @private
+	*/
+	createPanels: function (info, moreInfo) {
+		var newPanels = [],
+			newPanel, idx;
+
+		for (idx = 0; idx < info.length; idx++) {
+			newPanel = this.createPanel(info[idx], moreInfo);
+			newPanels.push(newPanel);
+		}
+
+		return newPanels;
+	},
+
+	/**
+	* Retrieves a cached panel or, if not found, creates a new panel
+	*
+	* @param {Object} info - The declarative {@glossary kind} definition.
+	* @param {Object} moreInfo - Additional properties to be applied (defaults).
+	* @return {Object} - Found or created control
+	* @private
+	*/
+	createPanel: function (info, moreInfo) {
+		var panel,
+			panelId = this.getViewId(info);
+
+		if (this.cacheViews && panelId) {
+			panel = this.restoreView(panelId);
+		}
+
+		panel = panel || this.createComponent(info, moreInfo);
+		return panel;
+	},
+
+	/**
 	* Creates a panel on top of the stack and increments index to select that component.
 	*
 	* @param {Object} info - The declarative {@glossary kind} definition.
@@ -540,7 +601,8 @@ module.exports = kind(
 		if (this.transitioning || this.isModifyingPanels) {return null;}
 		this.isModifyingPanels = true;
 		var lastIndex = this.getPanels().length - 1,
-			oPanel = this.createComponent(info, moreInfo);
+			oPanel = this.createPanel(info, moreInfo);
+
 		oPanel.render();
 		this.addBreadcrumb(true);
 		this.recalcLayout();
@@ -581,7 +643,7 @@ module.exports = kind(
 
 		if (!options) { options = {}; }
 		var lastIndex = this.getPanels().length,
-			oPanels = this.createComponents(info, commonInfo),
+			oPanels = this.createPanels(info, commonInfo),
 			nPanel;
 
 		for (nPanel = 0; nPanel < oPanels.length; ++nPanel) {
@@ -610,23 +672,57 @@ module.exports = kind(
 	/**
 	* Destroys panels whose index is greater than or equal to a specified value.
 	*
-	* @param {Number} index - Index at which to start destroying panels.
+	* @param {Number} index - Index at which to start removing panels.
+	* @param {Number} [direction] - The direction in which we are changing indices. A negative
+	*	value signifies that we are moving backwards, and want to remove panels whose indices are
+	*	greater than the current index. Conversely, a positive value signifies that we are moving
+	*	forwards, and panels whose indices are less than the current index should be removed. To
+	*	maintain backwards-compatibility with the existing API, this parameter is optional and, if
+	*	not specified, will default to the popOnBack behavior.
 	* @public
 	*/
-	popPanels: function (index) {
+	popPanels: function (index, direction) {
 		if (this.transitioning || this.isModifyingPanels) return;
 
-		var panels = this.getPanels();
+		var panels = this.getPanels(),
+			i;
 
-		index = index || panels.length - 1;
 		this.isModifyingPanels = true;
 
-		while (panels.length > index && index >= 0) {
-			panels[panels.length - 1].destroy();
+		if (direction > 0) {
+			for (i = 0; i <= index; ++i) {
+				this.removePanel(panels[i], true);
+			}
+		} else {
+			index = index || panels.length - 1;
+
+			for (i = panels.length - 1; i >= index; i--) {
+				this.removePanel(panels[i]);
+			}
 		}
+
 		this.removeBreadcrumb();
 		this.recalcLayout();
 		this.isModifyingPanels = false;
+	},
+
+	/**
+	* Removes an individual panel.
+	*
+	* @param {Object} panel - The panel to remove.
+	* @param {Boolean} [preserve] - If {@link module:moonstone/Panels~Panels#cacheViews} is `true`,
+	*	this value is used to determine whether or not to preserve the current panel's position in
+	*	the component hierarchy and on the screen, when caching.
+	* @private
+	*/
+	removePanel: function (panel, preserve) {
+		if (panel) {
+			if (this.cacheViews) {
+				this.cacheView(panel, preserve);
+			} else {
+				panel.destroy();
+			}
+		}
 	},
 
 	/**
@@ -648,7 +744,7 @@ module.exports = kind(
 				moreInfo = util.mixin({addBefore: this.getPanels()[index]}, moreInfo);
 			}
 		}
-		oPanel = this.createComponent(info, moreInfo);
+		oPanel = this.createPanel(info, moreInfo);
 		oPanel.render();
 		this.resize();
 		this.isModifyingPanels = false;
@@ -1025,6 +1121,8 @@ module.exports = kind(
 			return;
 		}
 
+		var panels, toPanel;
+
 		// Clear before start
 		this.queuedIndex = null;
 		this._willMove = null;
@@ -1037,6 +1135,16 @@ module.exports = kind(
 
 		// Ensure any VKB is closed when transitioning panels
 		this.blurActiveElementIfHiding(index);
+
+		if (this.cacheViews) {
+			panels = this.getPanels();
+			toPanel = panels[this.toIndex];
+
+			if (!toPanel.generated) {
+				if (this.toIndex < this.fromIndex) toPanel.addBefore = panels[this.fromIndex];
+				toPanel.render();
+			}
+		}
 
 		// If panels will move for this index change, kickoff animation. Otherwise skip it.
 		if (this.shouldAnimate()) {
@@ -1292,21 +1400,14 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	processPopOnBack: function(fromIndex, toIndex) {
-		var panels = this.getPanels(),
-			i, panel, info, popFrom;
-		// Automatically pop off panels that are no longer on screen
-		if (this.popOnBack && (toIndex < fromIndex)) {
-			popFrom = toIndex + 1;
-			for (i = 0; (panel = panels[i]); i++) {
-				info = this.getTransitionInfo(i);
-				// If a panel is onscreen, don't pop it
-				if ((i > toIndex) && !info.isOffscreen) {
-					popFrom++;
-				}
-			}
+	processPanelsToRemove: function(fromIndex, toIndex) {
+		var direction = toIndex < fromIndex ? -1 : 1,
+			removeFrom;
 
-			this.popPanels(popFrom);
+		// Remove panels that are no longer on screen
+		if (this.cacheViews || (direction < 0 && this.popOnBack)) {
+			removeFrom = toIndex - direction;
+			this.popPanels(removeFrom, direction);
 		}
 	},
 
@@ -1331,7 +1432,7 @@ module.exports = kind(
 		this.adjustFirstPanelAfterTransition();
 		this.notifyPanels('transitionFinished');
 		Panels.prototype.finishTransition.apply(this, arguments);
-		this.processPopOnBack(fromIndex, toIndex);
+		this.processPanelsToRemove(fromIndex, toIndex);
 		this.processQueuedKey();
 		Spotlight.unmute(this);
 		Spotlight.spot(this.getActive());
