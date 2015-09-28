@@ -390,9 +390,9 @@ module.exports = kind(
 	spotlightKeyDownHandler: function (sender, e) {
 		if (this.tappable && !this.disabled && event.keyCode == 13) {
 			this.playCurrentKnobPosition(e);
- 			return true;
- 		}
- 	},
+			return true;
+		}
+	},
 
 	/**
 	* @private
@@ -527,7 +527,9 @@ module.exports = kind(
 		this.setRangeStart(this.min);
 		this.setRangeEnd(this.max);
 
-		this.updateKnobPosition(this.value);
+		if (this.dragging || !this.isInPreview()) {
+			this._updateKnobPosition(this.value);
+		}
 	},
 
 	/**
@@ -633,11 +635,10 @@ module.exports = kind(
 	},
 
 	/**
+	* Override Slider.updateKnobPosition to prevent updating the knob
 	* @private
 	*/
-	updateKnobPosition: function (val) {
-		if (!this.dragging && this.isInPreview()) { return; }
-		this._updateKnobPosition(val);
+	updateKnobPosition: function () {
 	},
 
 	/**
@@ -657,8 +658,8 @@ module.exports = kind(
 		if (Spotlight.getCurrent() === this) {
 			this.$.popupLabelText.setContent(this.formatTime(val));
 		} else if (this.currentTime !== undefined) {
- 			this.$.popupLabelText.setContent(this.formatTime(this.currentTime));
- 		}
+			this.$.popupLabelText.setContent(this.formatTime(this.currentTime));
+		}
 	},
 
 	/**
@@ -676,7 +677,7 @@ module.exports = kind(
 		return (val - this.rangeStart) / this.scaleFactor;
 	},
 
- 	/**
+	/**
 	* Using mouse cursor or 5-way key, you can point some spot of video
 	* If you tap or press enter on slider, video will play that part.
 	*
@@ -773,7 +774,7 @@ module.exports = kind(
 				this.elasticFrom = this.elasticTo = v;
 			}
 			this.currentTime = v;
-			this.updateKnobPosition(this.elasticFrom);
+			this._updateKnobPosition(this.elasticFrom);
 
 			if (this.lockBar) {
 				this.setProgress(this.elasticFrom);
