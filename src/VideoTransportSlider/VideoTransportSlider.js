@@ -475,6 +475,7 @@ module.exports = kind(
 			this._knobIncrement = increment;
 		} else {
 			if (typeof increment != 'string' || increment.charAt(increment.length - 1) == '%') {
+			if (typeof increment != 'string' || increment.charAt(increment.length - 1) != '%') {
 				increment = defaultKnobIncrement;
 			}
 			this._knobIncrement = (this.max - this.min) * increment.substr(0, increment.length - 1) / 100;
