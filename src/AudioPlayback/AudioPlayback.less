@@ -88,6 +88,12 @@
 		.moon-progress-bar.moon-video-player-transport-slider .bg-bar;
 	}
 	.moon-audio-slider-taparea {
-		.moon-progress-bar.moon-video-player-transport-slider .taparea;
+		position: absolute;
+		height: 100%;
+		width: 100%;
+		&.pressed {
+			position: fixed;
+			top: 0;
+		}
 	}
 }

@@ -20,7 +20,7 @@ var
 	Locale = require('enyo-ilib/Locale');
 
 var
-	Slider = require('../Slider'),
+	Slider = require('moonstone/Slider'),
 	VideoFeedback = require('../VideoFeedback');
 
 var
@@ -208,15 +208,6 @@ module.exports = kind(
 		knobClasses: 'knob',
 
 		/**
-		* CSS classes to apply to tap area.
-		*
-		* @type {String}
-		* @default 'taparea'
-		* @public
-		*/
-		tapAreaClasses: 'taparea',
-
-		/**
 		* Color of value popup
 		*
 		* @type {String}
@@ -270,7 +261,10 @@ module.exports = kind(
 	*/
 	handlers: {
 		onresize: 'handleResize',
-		onSpotlightKeyDown: 'spotlightKeyDownHandler'
+		onSpotlightKeyDown: 'spotlightKeyDownHandler',
+		onmove: 'preview',
+		onmousedown: 'mouseDownTapArea',
+		onmouseup: 'mouseUpTapArea'
 	},
 
 	/**
@@ -320,7 +314,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	createPopupComponents: function () {
+	createPopup: function () {
 		this.createComponents(this.popupComponents);
 	},
 
@@ -331,9 +325,7 @@ module.exports = kind(
 		Slider.prototype.create.apply(this, arguments);
 		this.$.popup.setAutoDismiss(false);		//* Always showing popup
 		this.$.popup.captureEvents = false;		//* Hot fix for bad originator on tap, drag ...
-		this.$.tapArea.onmove = 'preview';
-		this.$.tapArea.onmousedown = 'mouseDownTapArea';
-		this.$.tapArea.onmouseup = 'mouseUpTapArea';
+		
 		//* Extend components
 		this.createTickComponents();
 		this.createPopupLabelComponents();
@@ -360,10 +352,20 @@ module.exports = kind(
 	},
 
 	/**
+	* Ugly to need to do this but avoid the overhead of calculations used wastefully by this
+	* method in ProgressBar (not needed since this kind overloads the child components).
+	*
+	* @private
+	*/
+	drawToCanvas: function () {
+		// nop
+	},
+
+	/**
 	* @private
 	*/
 	createTickComponents: function () {
-		this.createComponents(this.tickComponents, {owner: this, addBefore: this.$.tapArea});
+		this.createComponents(this.tickComponents, {owner: this, addBefore: this.$.knob});
 	},
 
 	/**
@@ -398,9 +400,9 @@ module.exports = kind(
 	spotlightKeyDownHandler: function (sender, e) {
 		if (this.tappable && !this.disabled && event.keyCode == 13) {
 			this.playCurrentKnobPosition(e);
- 			return true;
- 		}
- 	},
+			return true;
+		}
+	},
 
 	/**
 	* @private
@@ -535,7 +537,9 @@ module.exports = kind(
 		this.setRangeStart(this.min);
 		this.setRangeEnd(this.max);
 
-		this.updateKnobPosition(this.value);
+		if (this.dragging || !this.isInPreview()) {
+			this._updateKnobPosition(this.value);
+		}
 	},
 
 	/**
@@ -641,11 +645,10 @@ module.exports = kind(
 	},
 
 	/**
+	* Override Slider.updateKnobPosition to prevent updating the knob
 	* @private
 	*/
-	updateKnobPosition: function (val) {
-		if (!this.dragging && this.isInPreview()) { return; }
-		this._updateKnobPosition(val);
+	updateKnobPosition: function () {
 	},
 
 	/**
@@ -665,8 +668,8 @@ module.exports = kind(
 		if (Spotlight.getCurrent() === this) {
 			this.$.popupLabelText.setContent(this.formatTime(val));
 		} else if (this.currentTime !== undefined) {
- 			this.$.popupLabelText.setContent(this.formatTime(this.currentTime));
- 		}
+			this.$.popupLabelText.setContent(this.formatTime(this.currentTime));
+		}
 	},
 
 	/**
@@ -684,7 +687,7 @@ module.exports = kind(
 		return (val - this.rangeStart) / this.scaleFactor;
 	},
 
- 	/**
+	/**
 	* Using mouse cursor or 5-way key, you can point some spot of video
 	* If you tap or press enter on slider, video will play that part.
 	*
@@ -701,7 +704,7 @@ module.exports = kind(
 	},
 
 	/**
-	* If user presses `this.$.tapArea`, seeks to that point.
+	* If user presses `slider`, seeks to that point.
 	*
 	* @private
 	*/
@@ -781,7 +784,7 @@ module.exports = kind(
 				this.elasticFrom = this.elasticTo = v;
 			}
 			this.currentTime = v;
-			this.updateKnobPosition(this.elasticFrom);
+			this._updateKnobPosition(this.elasticFrom);
 
 			if (this.lockBar) {
 				this.setProgress(this.elasticFrom);
@@ -896,6 +899,16 @@ module.exports = kind(
 	feedback: function (msg, params, persist, leftSrc, rightSrc) {
 		this.showKnobStatus();
 		this.$.feedback.feedback(msg, params, persist, leftSrc, rightSrc, this.isInPreview());
+	},
+
+	/**
+	* Override of [updatePopup]{@link module:moonstone/ProgressBar~ProgressBar#updatePopup}
+	* this method is called when progess updated but from Slider, we use value instead of progress
+	*
+	* @private
+	*/
+	updatePopup: function (val) {
+		return true;
 	},
 
 	/**
