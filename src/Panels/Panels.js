@@ -28,6 +28,7 @@ var
 	HistorySupport = require('moonstone/HistorySupport');
 
 var
+	ApplicationCloseButton = require('moonstone-extra/ApplicationCloseButton'),
 	Panel = require('moonstone-extra/Panel'),
 	MoonArranger = require('moonstone-extra/MoonArranger'),
 	MoonAnimator = require('moonstone-extra/MoonAnimator');
@@ -339,6 +340,15 @@ module.exports = kind(
 		popOnBack: false,
 
 		/**
+		* When `true`, an ApplicationCloseButton is added to ActivityPanels arranger's Panel Headers.
+		*
+		* @type {Boolean}
+		* @default true
+		* @public
+		*/
+		hasCloseButton: true,
+
+		/**
 		* When `true`, focus can move from panel to breadcrumb when press left key. (Experimental)
 		*
 		* @type {Boolean}
@@ -376,8 +386,16 @@ module.exports = kind(
 		onSpotlightLeft:			'spotlightLeft',
 		onSpotlightFocus:			'spotlightFocus',
 		onSpotlightContainerLeave:	'onSpotlightPanelLeave',
-		onSpotlightContainerEnter:	'onSpotlightPanelEnter'
+		onSpotlightContainerEnter:	'onSpotlightPanelEnter',
+		onCustomizeCloseButton:		'handleCustomizeCloseButton'
 	},
+
+	/**
+	* @private
+	*/
+	applicationTools: [
+		{name: 'appClose', kind: ApplicationCloseButton, onSpotlightUp: 'spotlightFromCloseButton', onSpotlightDown: 'spotlightFromCloseButton', onSpotlightRight: 'spotlightFromCloseButton', onSpotlightLeft: 'spotlightFromCloseButton'}
+	],
 
 	/**
 	* @private
@@ -457,7 +475,7 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	breadcrumbWidth: ri.scale(96),
+	breadcrumbWidth: 96,
 
 	/**
 	* Checks the state of panel transitions.
@@ -499,7 +517,7 @@ module.exports = kind(
 	getBreadcrumbMax: function () {
 		if (this.pattern == 'activity') return 1;
 		// Always viewing pattern is using half screen to show breadcrumbs
-		return Math.round(window.innerWidth / 2 / this.breadcrumbWidth);
+		return Math.round(window.innerWidth / 2 / ri.scale(this.breadcrumbWidth));
 	},
 
 	/**
@@ -868,6 +886,7 @@ module.exports = kind(
 		Panels.prototype.create.apply(this, arguments);
 		this.set('animate', this.animate && options.accelerate, true);
 
+		this.hasCloseButtonChanged();
 		// we need to ensure our handler has the opportunity to modify the flow during
 		// initialization
 		this.showingChanged();
@@ -926,17 +945,65 @@ module.exports = kind(
 	},
 
 	/**
+	* This takes action when the CustomizeCloseButton event is received. It accepts several event
+	* properties, and in their absense resets each to its original value.
+	*
+	* Values:
+	*   x - (Number|String), positive or negative measurement to offset the X from its natural position.
+	*       This value is automatically inverted in RtL mode.
+	*   y - (Number|String), positive or negative measurement to offset the X from its natural position.
+	*   opacity - Float value between 0 and 1, direct access to the CSS property `opacity`. Defaults to 1.
+	*   showing - Boolean, whether to show or hide the button. Defaults to true.
+	*
+	* Ex:
+	*    this.doCustomizeCloseButton({showing: false)});
+	*
 	* @private
 	*/
-	spotlightLeft: function (oSender, oEvent) {
+	handleCustomizeCloseButton: function (sender, ev) {
+		if (this.$.appClose) {
+			var shiftX = ev.x,
+				shiftY = typeof ev.y == 'number' ? ev.y + 'px' : ev.y;
+
+			switch (typeof shiftX) {
+				case 'number':
+					shiftX = dom.unit(ri.scale( this.rtl ? shiftX * -1 : shiftX ), 'rem');
+					break;
+				case 'string':
+					if (this.rtl) {
+						if (shiftX.indexOf('-') >= 0) {
+							shiftX = shiftX.subString(1);
+						} else {
+							shiftX = '-' + shiftX;
+						}
+					}
+					break;
+			}
+
+			dom.transform(this.$.appClose, {translateX: shiftX, translateY: shiftY});
+			this.$.appClose.applyStyle('opacity', ev.opacity);
+			// Set showing false only if we explicitly say showing false. True and show in undef/null cases, like styles.
+			this.$.appClose.set('showing', (ev.showing === false || ev.showing === 0) ? false : true);
+		}
+	},
+
+	/**
+	* @private
+	*/
+	spotlightLeft: function (sender, ev) {
 		if (this.toIndex !== null) {
 			this.queuedIndex = this.toIndex - 1;
 			//queuedIndex could have out boundary value. It will be managed in setIndex()
 		}
-		var orig = oEvent.originator,
-			idx = this.getPanelIndex(orig);
+		var orig = ev.originator,
+			idx = this.getPanelIndex(orig),
+			preferredTarget = Spotlight.NearestNeighbor.getNearestNeighbor('LEFT', orig),
+			secondaryTarget = !preferredTarget ? Spotlight.NearestNeighbor.getNearestNeighbor('LEFT', orig, {root: this}) : null;
 
-		if (orig instanceof Panel) {
+		if (secondaryTarget && secondaryTarget.parent instanceof ApplicationCloseButton) {
+			Spotlight.spot(secondaryTarget);
+			return true;
+		} else if (orig instanceof Panel) {
 			if (idx === 0) {
 				if (this.showing && (this.useHandle === true) && this.handleShowing) {
 					this.hide();
@@ -955,22 +1022,50 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	spotlightRight: function (oSender, oEvent) {
+	spotlightRight: function (sender, ev) {
 		if (this.toIndex !== null) {
 			this.queuedIndex = this.toIndex + 1;
 			//queuedIndex could have out boundary value. It will be managed in setIndex()
 		}
-		var orig = oEvent.originator,
+		var orig = ev.originator,
 			idx = this.getPanelIndex(orig),
-			next = this.getPanels()[idx + 1];
+			next = this.getPanels()[idx + 1],
+			preferredTarget = Spotlight.NearestNeighbor.getNearestNeighbor('RIGHT', orig),
+			secondaryTarget = !preferredTarget ? Spotlight.NearestNeighbor.getNearestNeighbor('RIGHT', orig, {root: this}) : null;
 
-		if (next && orig instanceof Panel) {
+		if (secondaryTarget && secondaryTarget.parent instanceof ApplicationCloseButton) {
+			Spotlight.spot(secondaryTarget);
+			return true;
+		} else if (next && orig instanceof Panel) {
 			if (this.useHandle === true && this.handleShowing && idx == this.index) {
 				Spotlight.spot(this.$.showHideHandle);
 			}
 			else {
 				this.next();
 			}
+			return true;
+		}
+	},
+
+	/**
+	* @private
+	*/
+	spotlightFromCloseButton: function (sender, ev) {
+		var p = this.getActive(),
+			idx = this.getPanelIndex(p),
+			direction = ev.type.substring(11).toUpperCase(),		// Derive direction from type
+			target = Spotlight.NearestNeighbor.getNearestNeighbor(direction, ev.originator, {root: p});
+
+		if (target) {
+			Spotlight.spot(target);
+			return true;
+		} else if (direction == 'RIGHT') {
+			if (this.useHandle === true && this.handleShowing && idx == this.index) {
+				Spotlight.spot(this.$.showHideHandle);
+				return true;
+			}
+		} else if (direction == 'LEFT') {
+			this.spotlightLeft(sender, {originator: p});
 			return true;
 		}
 	},
@@ -1456,6 +1551,8 @@ module.exports = kind(
 			this.$.backgroundScrim.addRemoveClass('visible', this.showing);
 		}
 		if (this.useHandle === true) {
+			if (this.$.appClose) this.$.appClose.set('showing', this.showing);
+
 			if (this.showing) {
 				this.unstashHandle();
 				this._show();
@@ -1479,6 +1576,9 @@ module.exports = kind(
 	* @private
 	*/
 	applyPattern: function () {
+		if (this.pattern == 'activity') {
+			this.createChrome(this.applicationTools);
+		}
 		switch (this.pattern) {
 		case 'alwaysviewing':
 		case 'activity':
@@ -1627,6 +1727,15 @@ module.exports = kind(
 		else this.setIndex(index);
 
 		return true;
+	},
+
+	/**
+	* @private
+	*/
+	hasCloseButtonChanged: function () {
+		if (!this.$.appClose) return;
+		this.$.appClose.set('showing', this.hasCloseButton);
+		this.addRemoveClass('has-close-button', this.hasCloseButton);
 	},
 
 	/**
