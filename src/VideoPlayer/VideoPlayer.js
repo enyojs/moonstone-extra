@@ -678,7 +678,7 @@ module.exports = kind(
 					{name: 'leftPremiumPlaceHolder', kind: Control, classes: 'moon-video-player-premium-placeholder-left'},
 					{classes: 'moon-video-player-controls-frame-center', fit: true, components: [
 
-						{name: 'controlsContainer', kind: Panels, index: 0, popOnBack: false, cacheViews: false, classes: 'moon-video-player-controls-container', components: [
+						{name: 'controlsContainer', kind: Panels, reverseForRtl: true, index: 0, popOnBack: false, cacheViews: false, classes: 'moon-video-player-controls-container', components: [
 							{name: 'trickPlay', kind: Control, ontap:'playbackControlsTapped', components: [
 								{name: 'playbackControls', kind: Control, rtl: false, classes: 'moon-video-player-control-buttons', components: [
 									{name: 'jumpBack',		kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'onjumpBackward', accessibilityLabel: $L('Previous')},
@@ -691,7 +691,7 @@ module.exports = kind(
 							{name: 'client', kind: Control, rtl: false,  classes: 'moon-video-player-more-controls'}
 						]}
 					]},
-					
+
 					{name: 'rightPremiumPlaceHolder', kind: Control, classes: 'moon-video-player-premium-placeholder-right', components: [
 						{name: 'moreButton', kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'moreButtonTapped', accessibilityLabel: $L('More')}
 					]}
@@ -1946,8 +1946,6 @@ module.exports = kind(
 		} else {
 			this.retrieveIconsSrcOrFont(this.$.moreButton, this.rtl?this.moreControlsIcon:this.lessControlsIcon, 'moon-icon-video-round-controls-style moon-icon-video-more-controls-font-style');
 		}
-		// Change paneld direction based on locale and more button configuration
-		this.$.controlsContainer.set('direction', !this.rtl ? Panels.Direction.FORWARDS : Panels.Direction.BACKWARDS);
 	},
 	toggleSpotlightForMoreControls: function (moreControlsSpottable) {
 		this.$.playbackControls.spotlightDisabled = moreControlsSpottable;
