@@ -325,7 +325,7 @@ module.exports = kind(
 		Slider.prototype.create.apply(this, arguments);
 		this.$.popup.setAutoDismiss(false);		//* Always showing popup
 		this.$.popup.captureEvents = false;		//* Hot fix for bad originator on tap, drag ...
-		
+
 		//* Extend components
 		this.createTickComponents();
 		this.createPopupLabelComponents();
@@ -547,6 +547,7 @@ module.exports = kind(
 	*/
 	setMin: function () {
 		Slider.prototype.setMin.apply(this, arguments);
+		this.knobIncrementChanged();
 		this.updateSliderRange();
 	},
 
@@ -555,6 +556,7 @@ module.exports = kind(
 	*/
 	setMax: function () {
 		Slider.prototype.setMax.apply(this, arguments);
+		this.knobIncrementChanged();
 		this.updateSliderRange();
 	},
 
