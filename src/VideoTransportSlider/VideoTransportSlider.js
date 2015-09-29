@@ -352,6 +352,16 @@ module.exports = kind(
 	},
 
 	/**
+	* Ugly to need to do this but avoid the overhead of calculations used wastefully by this
+	* method in ProgressBar (not needed since this kind overloads the child components).
+	*
+	* @private
+	*/
+	drawToCanvas: function () {
+		// nop
+	},
+
+	/**
 	* @private
 	*/
 	createTickComponents: function () {
