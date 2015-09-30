@@ -1,5 +1,10 @@
 require('moonstone-extra');
 
+/**
+* Contains the declaration for the {@link module:moonstone-extra/ApplicationCloseButton~ApplicationCloseButton} kind.
+* @module moonstone-extra/ApplicationCloseButton
+*/
+
 var
 	kind = require('enyo/kind');
 
@@ -14,7 +19,7 @@ var buttonDescription = $L('Close this application');
 /**
 * `ApplicationCloseButton` may be added to {@link module:moonstone-extra/Panels~Panels}, or other
 * full-screen controls. It includes basic positioning styles which may require adjustment for your
-* particular usage. When activated, an event "onApplicationClose" is emitted. On its own, it has no
+* particular usage. When activated, an `onApplicationClose` event is emitted. On its own, it has no
 * function; you must provide your own event handler to close your application. The recommended
 * action to take with the event is `window.close()`, but you may also want to also do operations
 * like save user work or close database connections.
