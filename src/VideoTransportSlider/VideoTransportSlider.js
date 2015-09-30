@@ -474,7 +474,6 @@ module.exports = kind(
 		if (typeof increment == 'number' && increment > 0) {
 			this._knobIncrement = increment;
 		} else {
-			if (typeof increment != 'string' || increment.charAt(increment.length - 1) == '%') {
 			if (typeof increment != 'string' || increment.charAt(increment.length - 1) != '%') {
 				increment = defaultKnobIncrement;
 			}
