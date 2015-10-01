@@ -750,13 +750,11 @@ module.exports = kind(
 		if (this.disabled) {
 			return; // return nothing
 		}
-		if (e.horizontal) {
-			// the call to the super class freezes spotlight, so it needs to be unfrozen in dragfinish
-			var dragstart = Slider.prototype.dragstart.apply(this, arguments);
-			if (dragstart) {
-				this.doSeekStart();
-			}
-			return true;
+
+		// the call to the super class freezes spotlight, so it needs to be unfrozen in dragfinish
+		var dragstart = Slider.prototype.dragstart.apply(this, arguments);
+		if (dragstart) {
+			this.doSeekStart();
 		}
 
 		return true;
