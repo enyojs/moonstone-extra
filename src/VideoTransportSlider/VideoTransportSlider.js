@@ -537,9 +537,7 @@ module.exports = kind(
 		this.setRangeStart(this.min);
 		this.setRangeEnd(this.max);
 
-		if (this.dragging || !this.isInPreview()) {
-			this._updateKnobPosition(this.value);
-		}
+		this.updateKnobPosition(this.value);
 	},
 
 	/**
@@ -647,10 +645,12 @@ module.exports = kind(
 	},
 
 	/**
-	* Override Slider.updateKnobPosition to prevent updating the knob
+	* Override Slider.updateKnobPosition to add more features
 	* @private
 	*/
 	updateKnobPosition: function () {
+		if (!this.dragging && this.isInPreview()) { return; }
+		this._updateKnobPosition(val);
 	},
 
 	/**
