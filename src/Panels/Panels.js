@@ -349,6 +349,18 @@ module.exports = kind(
 		hasCloseButton: true,
 
 		/**
+		* When `true`, navigating the panel-stack (forward and backward) is disabled. This feature
+		* may be helpful in "wizard" interface scenarios where the user must take explicit action to
+		* advance or regress in a linear flow of panels, and accidentally navigate to a next or
+		* previous panel with the 5-way keys.
+		*
+		* @type {Boolean}
+		* @default false
+		* @public
+		*/
+		preventKeyNavigation: false,
+
+		/**
 		* When `true`, focus can move from panel to breadcrumb when press left key. (Experimental)
 		*
 		* @type {Boolean}
@@ -1011,7 +1023,7 @@ module.exports = kind(
 				}
 			}
 			else {
-				if (!this.leftKeyToBreadcrumb) {
+				if (!this.preventKeyNavigation && !this.leftKeyToBreadcrumb) {
 					this.previous();
 					return true;
 				}
@@ -1039,11 +1051,14 @@ module.exports = kind(
 		} else if (next && orig instanceof Panel) {
 			if (this.useHandle === true && this.handleShowing && idx == this.index) {
 				Spotlight.spot(this.$.showHideHandle);
+				return true;
 			}
 			else {
-				this.next();
+				if (!this.preventKeyNavigation) {
+					this.next();
+					return true;
+				}
 			}
-			return true;
 		}
 	},
 
