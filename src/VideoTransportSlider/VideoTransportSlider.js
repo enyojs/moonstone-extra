@@ -647,10 +647,14 @@ module.exports = kind(
 	},
 
 	/**
-	* Override Slider.updateKnobPosition to prevent updating the knob
+	* Override Slider.updateKnobPosition to only update the popupLabelText
+	*
 	* @private
 	*/
-	updateKnobPosition: function () {
+	updateKnobPosition: function (val) {
+		if (this.dragging || !this.isInPreview()) {
+			this.updatePopupLabel(val);
+		}
 	},
 
 	/**
@@ -667,8 +671,17 @@ module.exports = kind(
 			this.$.knob.applyStyle('left', slider + '%');
 		}
 
+		this.updatePopupLabel(val);
+	},
+
+	/**
+	* Override default behavior
+	*
+	* @private
+	*/
+	updatePopupLabel: function (timeVal) {
 		if (Spotlight.getCurrent() === this) {
-			this.$.popupLabelText.setContent(this.formatTime(val));
+			this.$.popupLabelText.setContent(this.formatTime(timeVal));
 		} else if (this.currentTime !== undefined) {
 			this.$.popupLabelText.setContent(this.formatTime(this.currentTime));
 		}
