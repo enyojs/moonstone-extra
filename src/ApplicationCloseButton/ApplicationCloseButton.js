@@ -6,7 +6,9 @@ require('moonstone-extra');
 */
 
 var
-	kind = require('enyo/kind');
+	kind = require('enyo/kind'),
+	dom = require('enyo/dom'),
+	ri = require('enyo/resolution');
 
 var
 	$L = require('../i18n'),
@@ -58,8 +60,58 @@ module.exports = kind({
 	*/
 	components: [
 		{name: 'button', kind: IconButton, icon: 'closex', small: true, accessibilityLabel: buttonDescription, ontap: 'handleButtonTap'},
-		{kind: Tooltip, content: buttonDescription, position: 'below'}
+		{kind: Tooltip, content: buttonDescription, floating: true, position: 'below'}
 	],
+
+	handlers: {
+		onCustomizeCloseButton: 'handleCustomizeCloseButton'
+	},
+
+	/**
+	* @private
+	*/
+	customizeCloseButton: function (properties) {
+		var prop, style;
+
+		if (properties && typeof properties == 'object') {
+			for (prop in properties) {
+				if (prop == 'styles' && typeof properties[prop] == 'object') {
+					for (style in properties[prop]) {
+						this.$.button.applyStyle(style, properties[prop][style]);
+					}
+				} else {
+					this.$.button.set(prop, properties[prop]);
+				}
+			}
+		}
+	},
+
+	/**
+	* @private
+	*/
+	handleCustomizeCloseButton: function (sender, ev) {
+		var shiftX = ev.x,
+			shiftY = typeof ev.y == 'number' ? ev.y + 'px' : ev.y;
+
+		switch (typeof shiftX) {
+			case 'number':
+				shiftX = dom.unit(ri.scale( this.rtl ? shiftX * -1 : shiftX ), 'rem');
+				break;
+			case 'string':
+				if (this.rtl) {
+					if (shiftX.indexOf('-') >= 0) {
+						shiftX = shiftX.subString(1);
+					} else {
+						shiftX = '-' + shiftX;
+					}
+				}
+				break;
+		}
+		dom.transform(this, {translateX: shiftX, translateY: shiftY});
+
+		this.customizeCloseButton(ev.properties);
+		return true;
+	},
 
 	/**
 	* @private

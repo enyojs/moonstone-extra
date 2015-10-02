@@ -962,28 +962,7 @@ module.exports = kind(
 	*/
 	handleCustomizeCloseButton: function (sender, ev) {
 		if (this.$.appClose) {
-			var shiftX = ev.x,
-				shiftY = typeof ev.y == 'number' ? ev.y + 'px' : ev.y;
-
-			switch (typeof shiftX) {
-				case 'number':
-					shiftX = dom.unit(ri.scale( this.rtl ? shiftX * -1 : shiftX ), 'rem');
-					break;
-				case 'string':
-					if (this.rtl) {
-						if (shiftX.indexOf('-') >= 0) {
-							shiftX = shiftX.subString(1);
-						} else {
-							shiftX = '-' + shiftX;
-						}
-					}
-					break;
-			}
-
-			dom.transform(this.$.appClose, {translateX: shiftX, translateY: shiftY});
-			this.$.appClose.applyStyle('opacity', ev.opacity);
-			// Set showing false only if we explicitly say showing false. True and show in undef/null cases, like styles.
-			this.$.appClose.set('showing', (ev.showing === false || ev.showing === 0) ? false : true);
+			this.$.appClose.handleCustomizeCloseButton.apply(this.$.appClose, arguments);
 		}
 	},
 
@@ -1576,7 +1555,7 @@ module.exports = kind(
 	* @private
 	*/
 	applyPattern: function () {
-		if (this.pattern == 'activity') {
+		if (this.pattern != 'alwaysviewing') {
 			this.createChrome(this.applicationTools);
 		}
 		switch (this.pattern) {
@@ -1589,6 +1568,7 @@ module.exports = kind(
 			break;
 		default:
 			this.useHandle = false;
+			this.createChrome([{name: 'client', kind: Control, tag: null}]);
 			break;
 		}
 	},
