@@ -510,6 +510,7 @@ module.exports = kind(
 	*/
 	endPreview: function (sender, e) {
 		this._previewMode = false;
+		this.updatePopupLabel(this.value);
 		if (this.$.feedback.isPersistShowing()) {
 			this.$.feedback.setShowing(true);
 		}
