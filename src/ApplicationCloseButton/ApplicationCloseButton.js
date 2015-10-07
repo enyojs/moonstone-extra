@@ -14,7 +14,7 @@ var
 	Tooltip = require('moonstone/Tooltip'),
 	IconButton = require('moonstone/IconButton');
 
-var buttonDescription = $L('Close this application');
+var buttonDescription = $L('Exit app');
 
 /**
 * `ApplicationCloseButton` may be added to {@link module:moonstone-extra/Panels~Panels}, or other
