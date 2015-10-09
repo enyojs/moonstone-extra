@@ -398,8 +398,12 @@ module.exports = kind(
 	* @private
 	*/
 	spotlightKeyDownHandler: function (sender, e) {
-		if (this.tappable && !this.disabled && event.keyCode == 13) {
-			this.playCurrentKnobPosition(e);
+		var val;
+		if (this.tappable && !this.disabled && e.keyCode == 13) {
+			this.mouseDownTapArea();
+			this.startJob('simulateTapEnd', this.mouseUpTapArea, 200);
+			val = this.transformToVideo(this.knobPosValue);
+			this.sendSeekEvent(val);
 			return true;
 		}
 	},
@@ -704,29 +708,15 @@ module.exports = kind(
 	},
 
 	/**
-	* Using mouse cursor or 5-way key, you can point some spot of video
-	* If you tap or press enter on slider, video will play that part.
-	*
-	* @private
-	*/
-	playCurrentKnobPosition: function (e) {
-		var v = this.calcKnobPosition(e) || this.knobPosValue;
-
-		this.mouseDownTapArea();
-		this.startJob('simulateClick', this.mouseUpTapArea, 200);
-
-		v = this.transformToVideo(v);
-		this.sendSeekEvent(v);
-	},
-
-	/**
 	* If user presses `slider`, seeks to that point.
 	*
 	* @private
 	*/
 	tap: function (sender, e) {
+		var val;
 		if (this.tappable && !this.disabled) {
-			this.playCurrentKnobPosition(e);
+			val = this.transformToVideo(this.calcKnobPosition(e));
+			this.sendSeekEvent(val);
 			return true;
 		}
 	},
