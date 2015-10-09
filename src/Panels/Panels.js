@@ -349,6 +349,17 @@ module.exports = kind(
 		hasCloseButton: true,
 
 		/**
+		* When `true`, navigating the panel-stack (forward and backward) by 5-way key is disabled.
+		* This feature may be helpful to prevent accidental navigation in "wizard" interface
+		* scenarios where the user must take explicit action to advance or regress.
+		*
+		* @type {Boolean}
+		* @default false
+		* @public
+		*/
+		preventKeyNavigation: false,
+
+		/**
 		* When `true`, focus can move from panel to breadcrumb when press left key. (Experimental)
 		*
 		* @type {Boolean}
@@ -991,7 +1002,7 @@ module.exports = kind(
 	* @private
 	*/
 	spotlightLeft: function (sender, ev) {
-		if (this.toIndex !== null) {
+		if (!this.preventKeyNavigation && !this.leftKeyToBreadcrumb && this.toIndex !== null) {
 			this.queuedIndex = this.toIndex - 1;
 			//queuedIndex could have out boundary value. It will be managed in setIndex()
 		}
@@ -1004,17 +1015,17 @@ module.exports = kind(
 			Spotlight.spot(secondaryTarget);
 			return true;
 		} else if (orig instanceof Panel) {
-			if (idx === 0) {
-				if (this.showing && (this.useHandle === true) && this.handleShowing) {
-					this.hide();
-					return true;
-				}
-			}
-			else {
-				if (!this.leftKeyToBreadcrumb) {
+			if (idx === 0 && !this.preventKeyNavigation && this.showing && (this.useHandle === true)
+					&& this.handleShowing) {
+				this.hide();
+				return true;
+			} else if (!this.leftKeyToBreadcrumb) {
+				if (!this.preventKeyNavigation) {
 					this.previous();
-					return true;
+				} else {
+					Spotlight.spot(Spotlight.getLastControl());
 				}
+				return true;
 			}
 		}
 	},
@@ -1023,7 +1034,7 @@ module.exports = kind(
 	* @private
 	*/
 	spotlightRight: function (sender, ev) {
-		if (this.toIndex !== null) {
+		if (!this.preventKeyNavigation && this.toIndex !== null) {
 			this.queuedIndex = this.toIndex + 1;
 			//queuedIndex could have out boundary value. It will be managed in setIndex()
 		}
@@ -1039,11 +1050,14 @@ module.exports = kind(
 		} else if (next && orig instanceof Panel) {
 			if (this.useHandle === true && this.handleShowing && idx == this.index) {
 				Spotlight.spot(this.$.showHideHandle);
+				return true;
 			}
 			else {
-				this.next();
+				if (!this.preventKeyNavigation) {
+					this.next();
+					return true;
+				}
 			}
-			return true;
 		}
 	},
 
