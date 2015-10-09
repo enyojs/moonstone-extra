@@ -1002,7 +1002,7 @@ module.exports = kind(
 	* @private
 	*/
 	spotlightLeft: function (sender, ev) {
-		if (this.toIndex !== null) {
+		if (!this.preventKeyNavigation && this.toIndex !== null) {
 			this.queuedIndex = this.toIndex - 1;
 			//queuedIndex could have out boundary value. It will be managed in setIndex()
 		}
@@ -1015,21 +1015,17 @@ module.exports = kind(
 			Spotlight.spot(secondaryTarget);
 			return true;
 		} else if (orig instanceof Panel) {
-			if (idx === 0) {
-				if (this.showing && (this.useHandle === true) && this.handleShowing) {
-					this.hide();
-					return true;
+			if (idx === 0 && !this.preventKeyNavigation && this.showing && (this.useHandle === true)
+					&& this.handleShowing) {
+				this.hide();
+				return true;
+			} else if (!this.leftKeyToBreadcrumb) {
+				if (!this.preventKeyNavigation) {
+					this.previous();
+				} else {
+					Spotlight.spot(Spotlight.getLastControl());
 				}
-			}
-			else {
-				if(!this.leftKeyToBreadcrumb) {
-					if (!this.preventKeyNavigation) {
-						this.previous();
-					} else {
-						Spotlight.spot(Spotlight.getLastControl());
-					}
-					return true;
-				}
+				return true;
 			}
 		}
 	},
@@ -1038,7 +1034,7 @@ module.exports = kind(
 	* @private
 	*/
 	spotlightRight: function (sender, ev) {
-		if (this.toIndex !== null) {
+		if (!this.preventKeyNavigation && this.toIndex !== null) {
 			this.queuedIndex = this.toIndex + 1;
 			//queuedIndex could have out boundary value. It will be managed in setIndex()
 		}
