@@ -1002,7 +1002,7 @@ module.exports = kind(
 	* @private
 	*/
 	spotlightLeft: function (sender, ev) {
-		if (!this.preventKeyNavigation && this.toIndex !== null) {
+		if (!this.preventKeyNavigation && !this.leftKeyToBreadcrumb && this.toIndex !== null) {
 			this.queuedIndex = this.toIndex - 1;
 			//queuedIndex could have out boundary value. It will be managed in setIndex()
 		}
