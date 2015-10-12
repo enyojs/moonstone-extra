@@ -441,7 +441,7 @@ module.exports = kind(
 	spotBlur: function () {
 		this.selected = false;
 		this.removeClass('visible');
-		if (Spotlight.getCurrent() !== this) this.endPreview();
+		this.endPreview();
 		//fires enyo.VideoTransportSlider#onLeaveTapArea
 		this.doLeaveTapArea();
 	},
@@ -500,7 +500,7 @@ module.exports = kind(
 			if (!this._previewMode) {
 				this.startPreview();
 			}
-			var v = this.calcKnobPosition(e);
+			var v = this.knobPosValue = this.calcKnobPosition(e);
 			this.currentTime = this.transformToVideo(v);
 			this._updateKnobPosition(this.currentTime);
 		}
