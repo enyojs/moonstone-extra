@@ -1038,7 +1038,7 @@ module.exports = kind(
 	* @private
 	*/
 	panelsHiddenAsync: function () {
-		util.asyncMethod(Signals, 'send', 'onPanelsHidden');
+		util.asyncMethod(Signals, 'send', 'onPanelsHidden', {panels: this});
 	},
 
 	/**
@@ -1516,7 +1516,7 @@ module.exports = kind(
 			this.$.showHideHandle.addClass('right');
 			this.applyShowAnimation();
 		}
-		Signals.send('onPanelsShown', {initialization: init});
+		Signals.send('onPanelsShown', {initialization: init, panels: this});
 	},
 
 	/**
