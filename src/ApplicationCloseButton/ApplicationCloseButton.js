@@ -49,6 +49,11 @@ module.exports = kind({
 	/**
 	* @private
 	*/
+	autoShow: false,
+
+	/**
+	* @private
+	*/
 	events: {
 		onApplicationClose: ''
 	},
@@ -57,9 +62,25 @@ module.exports = kind({
 	* @private
 	*/
 	components: [
-		{name: 'button', kind: IconButton, icon: 'closex', small: true, accessibilityLabel: buttonDescription, ontap: 'handleButtonTap'},
+		{name: 'button', kind: IconButton, icon: 'closex', small: true, ontap: 'handleButtonTap'},
 		{kind: Tooltip, content: buttonDescription, position: 'below'}
 	],
+
+	/**
+	* @private
+	*/
+	create: function () {
+		this.inherited(arguments);
+		this.autoShowChanged();
+	},
+
+	/**
+	* @private
+	*/
+	autoShowChanged: function () {
+		// Only add an accessibilityLabel to the button if we aren't displaying a tooltip, so the
+		this.$.button.set('accessibilityLabel', this.autoShow ? null : buttonDescription);
+	},
 
 	/**
 	* @private
