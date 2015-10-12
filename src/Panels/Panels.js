@@ -946,17 +946,19 @@ module.exports = kind(
 
 	/**
 	* This takes action when the CustomizeCloseButton event is received. It accepts several event
-	* properties, and in their absense resets each to its original value.
+	* properties, and in their absence resets each to its original value.
 	*
 	* Values:
 	*   x - (Number|String), positive or negative measurement to offset the X from its natural position.
 	*       This value is automatically inverted in RtL mode.
 	*   y - (Number|String), positive or negative measurement to offset the X from its natural position.
-	*   opacity - Float value between 0 and 1, direct access to the CSS property `opacity`. Defaults to 1.
-	*   showing - Boolean, whether to show or hide the button. Defaults to true.
+	*   properties {Object} An object containing key/value pairs to be `set` on the close button.
+	*   For example, this can be used to set the `showing` property of the close button. If present
+	*   and an object, the `styles` member will be iterated through and each style will be applied
+	*   individually and those styles with a `null` value will be removed.
 	*
 	* Ex:
-	*    this.doCustomizeCloseButton({showing: false)});
+	*    this.doCustomizeCloseButton({parameters: {showing: false});
 	*
 	* @private
 	*/

@@ -87,6 +87,21 @@ module.exports = kind({
 	},
 
 	/**
+	* This takes action when the CustomizeCloseButton event is received. It accepts several event
+	* properties, and in their absence resets each to its original value.
+	*
+	* Possible `ev` object members:
+	*   x - (Number|String), positive or negative measurement to offset the X from its natural position.
+	*       This value is automatically inverted in RtL mode.
+	*   y - (Number|String), positive or negative measurement to offset the X from its natural position.
+	*   properties {Object} An object containing key/value pairs to be `set` on the close button.
+	*   For example, this can be used to set the `showing` property of the close button. If present
+	*   and an object, the `styles` member will be iterated through and each style will be applied
+	*   individually and those styles with a `null` value will be removed.
+	*
+	* Ex:
+	*    this.doCustomizeCloseButton({parameters: {showing: false});
+	*
 	* @private
 	*/
 	handleCustomizeCloseButton: function (sender, ev) {
