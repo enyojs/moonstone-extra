@@ -657,7 +657,7 @@ module.exports = kind(
 	* @private
 	*/
 	components: [
-		{kind: Signals, onPanelsShown: 'panelsShown', onPanelsHidden: 'panelsHidden', onPanelsHandleFocused: 'panelsHandleFocused', onPanelsHandleBlurred: 'panelsHandleBlurred', onFullscreenChange: 'fullscreenChanged', onkeyup:'remoteKeyHandler', onSpotlightModeChanged: "resetPreviewMode", onlocalechange: 'updateMoreButton'},
+		{kind: Signals, onPanelsShown: 'panelsShown', onPanelsHidden: 'panelsHidden', onPanelsHandleFocused: 'panelsHandleFocused', onPanelsHandleBlurred: 'panelsHandleBlurred', onFullscreenChange: 'fullscreenChanged', onkeyup:'remoteKeyHandler', onlocalechange: 'updateMoreButton'},
 		{name: 'videoContainer', kind: Control, classes: 'moon-video-player-container', components: [
 			{name: 'video', kind: Video, classes: 'moon-video-player-video',
 				ontimeupdate: 'timeUpdate', onloadedmetadata: 'metadataLoaded', durationchange: 'durationUpdate', onloadeddata: 'dataloaded', onprogress: '_progress', onPlay: '_play', onpause: '_pause', onStart: '_start',  onended: '_stop',
@@ -798,15 +798,6 @@ module.exports = kind(
 	playbackControlsTapped: function () {
 		if (this.disablePlaybackControls) {
 			this.bubble('onPlaybackControlsTapped');
-		}
-	},
-	/**
-	* @private
-	*/
-	resetPreviewMode: function (){
-		if(!Spotlight.getPointerMode() && this.$.slider.isInPreview() && !this.inline) {
-			this.$.controls.setShowing(true);
-			this.$.slider.endPreview();
 		}
 	},
 
