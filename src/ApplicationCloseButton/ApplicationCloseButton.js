@@ -106,7 +106,7 @@ module.exports = kind({
 	*/
 	handleCustomizeCloseButton: function (sender, ev) {
 		var shiftX = ev.x,
-			shiftY = typeof ev.y == 'number' ? ev.y + 'px' : ev.y;
+			shiftY = typeof ev.y == 'number' ? dom.unit(ri.scale(ev.y), 'rem') : ev.y;
 
 		switch (typeof shiftX) {
 			case 'number':
@@ -114,7 +114,7 @@ module.exports = kind({
 				break;
 			case 'string':
 				if (this.rtl) {
-					if (shiftX.indexOf('-') >= 0) {
+					if (shiftX.indexOf('-') === 0) {
 						shiftX = shiftX.subString(1);
 					} else {
 						shiftX = '-' + shiftX;
@@ -122,7 +122,9 @@ module.exports = kind({
 				}
 				break;
 		}
-		dom.transform(this, {translateX: shiftX, translateY: shiftY});
+		// Only apply changes that are present. (Undef means don't change me.) dom.transform preserves successive assignments.
+		if (typeof shiftX != 'undefined') dom.transform(this, {translateX: shiftX});
+		if (typeof shiftY != 'undefined') dom.transform(this, {translateY: shiftY});
 
 		this.customizeCloseButton(ev.properties);
 		return true;
