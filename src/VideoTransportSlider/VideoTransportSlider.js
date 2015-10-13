@@ -82,7 +82,7 @@ var
 */
 
 /**
-* {@link module:moonstone-extra/VideoTransportSlider~VideoTransportSlider} extends {@link module:moonstone-extra/Slider~Slider}, adding specialized
+* {@link module:moonstone-extra/VideoTransportSlider~VideoTransportSlider} extends {@link module:moonstone/Slider~Slider}, adding specialized
 * behavior related to video playback.
 *
 * ```javascript
@@ -98,7 +98,7 @@ var
 * when the position is set by tapping the bar.
 *
 * @class VideoTransportSlider
-* @extends module:moonstone-extra/Slider~Slider
+* @extends module:moonstone/Slider~Slider
 * @ui
 * @public
 */
