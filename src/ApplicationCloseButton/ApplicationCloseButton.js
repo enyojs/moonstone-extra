@@ -115,7 +115,7 @@ module.exports = kind({
 			case 'string':
 				if (this.rtl) {
 					if (shiftX.indexOf('-') === 0) {
-						shiftX = shiftX.subString(1);
+						shiftX = shiftX.substring(1);
 					} else {
 						shiftX = '-' + shiftX;
 					}
