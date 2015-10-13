@@ -971,18 +971,35 @@ module.exports = kind(
 	/**
 	* @private
 	*/
+	getSpotlightTarget: function (dir, control) {
+		var target,
+			ref;
+
+		// Look at all of the NearestNeighbors up the lineage chain, until we find a good one.
+		while (!target) {
+			ref = ref ? Spotlight.getParent(ref) : control;
+			if (!ref) break;
+			target = Spotlight.NearestNeighbor.getNearestNeighbor(dir, ref);
+		}
+
+		// If nothing is found, look within ourselves for a target.
+		return target || Spotlight.NearestNeighbor.getNearestNeighbor(dir, control, {root: this});
+	},
+
+	/**
+	* @private
+	*/
 	spotlightLeft: function (sender, ev) {
-		if (this.toIndex !== null) {
+		if (!this.preventKeyNavigation && !this.leftKeyToBreadcrumb && this.toIndex !== null) {
 			this.queuedIndex = this.toIndex - 1;
 			//queuedIndex could have out boundary value. It will be managed in setIndex()
 		}
 		var orig = ev.originator,
 			idx = this.getPanelIndex(orig),
-			preferredTarget = Spotlight.NearestNeighbor.getNearestNeighbor('LEFT', orig),
-			secondaryTarget = !preferredTarget ? Spotlight.NearestNeighbor.getNearestNeighbor('LEFT', orig, {root: this}) : null;
+			target = this.getSpotlightTarget('LEFT', orig);
 
-		if (secondaryTarget && secondaryTarget.parent instanceof ApplicationCloseButton) {
-			Spotlight.spot(secondaryTarget);
+		if (target && target.parent instanceof ApplicationCloseButton) {
+			Spotlight.spot(target);
 			return true;
 		} else if (orig instanceof Panel) {
 			if (idx === 0) {
@@ -1011,11 +1028,10 @@ module.exports = kind(
 		var orig = ev.originator,
 			idx = this.getPanelIndex(orig),
 			next = this.getPanels()[idx + 1],
-			preferredTarget = Spotlight.NearestNeighbor.getNearestNeighbor('RIGHT', orig),
-			secondaryTarget = !preferredTarget ? Spotlight.NearestNeighbor.getNearestNeighbor('RIGHT', orig, {root: this}) : null;
+			target = this.getSpotlightTarget('RIGHT', orig);
 
-		if (secondaryTarget && secondaryTarget.parent instanceof ApplicationCloseButton) {
-			Spotlight.spot(secondaryTarget);
+		if (target && target.parent instanceof ApplicationCloseButton) {
+			Spotlight.spot(target);
 			return true;
 		} else if (next && orig instanceof Panel) {
 			if (this.useHandle === true && this.handleShowing && idx == this.index) {
