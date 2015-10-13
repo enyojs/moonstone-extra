@@ -74,7 +74,7 @@ module.exports = kind({
 	* @private
 	*/
 	create: function () {
-		this.inherited(arguments);
+		TooltipDecorator.prototype.create.apply(this, arguments);
 		this.autoShowChanged();
 	},
 
@@ -84,6 +84,7 @@ module.exports = kind({
 	autoShowChanged: function () {
 		TooltipDecorator.prototype.autoShowChanged.apply(this, arguments);
 		// Only add an accessibilityLabel to the button if we aren't displaying a tooltip, so the
+		// accessibility system doesn't read the label twice, once for the button, and again for the tooltip.
 		this.$.button.set('accessibilityLabel', this.autoShow ? null : buttonDescription);
 	},
 
