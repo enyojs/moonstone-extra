@@ -349,6 +349,17 @@ module.exports = kind(
 		hasCloseButton: true,
 
 		/**
+		* When `true`, navigating the panel-stack (forward and backward) by 5-way key is disabled.
+		* This feature may be helpful to prevent accidental navigation in "wizard" interface
+		* scenarios where the user must take explicit action to advance or regress.
+		*
+		* @type {Boolean}
+		* @default false
+		* @public
+		*/
+		preventKeyNavigation: false,
+
+		/**
 		* When `true`, focus can move from panel to breadcrumb when press left key. (Experimental)
 		*
 		* @type {Boolean}
@@ -946,44 +957,25 @@ module.exports = kind(
 
 	/**
 	* This takes action when the CustomizeCloseButton event is received. It accepts several event
-	* properties, and in their absense resets each to its original value.
+	* properties, and in their absence resets each to its original value.
 	*
 	* Values:
 	*   x - (Number|String), positive or negative measurement to offset the X from its natural position.
 	*       This value is automatically inverted in RtL mode.
 	*   y - (Number|String), positive or negative measurement to offset the X from its natural position.
-	*   opacity - Float value between 0 and 1, direct access to the CSS property `opacity`. Defaults to 1.
-	*   showing - Boolean, whether to show or hide the button. Defaults to true.
+	*   properties {Object} An object containing key/value pairs to be `set` on the close button.
+	*   For example, this can be used to set the `showing` property of the close button. If present
+	*   and an object, the `styles` member will be iterated through and each style will be applied
+	*   individually and those styles with a `null` value will be removed.
 	*
 	* Ex:
-	*    this.doCustomizeCloseButton({showing: false)});
+	*    this.doCustomizeCloseButton({parameters: {showing: false});
 	*
 	* @private
 	*/
 	handleCustomizeCloseButton: function (sender, ev) {
 		if (this.$.appClose) {
-			var shiftX = ev.x,
-				shiftY = typeof ev.y == 'number' ? ev.y + 'px' : ev.y;
-
-			switch (typeof shiftX) {
-				case 'number':
-					shiftX = dom.unit(ri.scale( this.rtl ? shiftX * -1 : shiftX ), 'rem');
-					break;
-				case 'string':
-					if (this.rtl) {
-						if (shiftX.indexOf('-') >= 0) {
-							shiftX = shiftX.subString(1);
-						} else {
-							shiftX = '-' + shiftX;
-						}
-					}
-					break;
-			}
-
-			dom.transform(this.$.appClose, {translateX: shiftX, translateY: shiftY});
-			this.$.appClose.applyStyle('opacity', ev.opacity);
-			// Set showing false only if we explicitly say showing false. True and show in undef/null cases, like styles.
-			this.$.appClose.set('showing', (ev.showing === false || ev.showing === 0) ? false : true);
+			this.$.appClose.handleCustomizeCloseButton.apply(this.$.appClose, arguments);
 		}
 	},
 
@@ -991,7 +983,7 @@ module.exports = kind(
 	* @private
 	*/
 	spotlightLeft: function (sender, ev) {
-		if (this.toIndex !== null) {
+		if (!this.preventKeyNavigation && !this.leftKeyToBreadcrumb && this.toIndex !== null) {
 			this.queuedIndex = this.toIndex - 1;
 			//queuedIndex could have out boundary value. It will be managed in setIndex()
 		}
@@ -1004,17 +996,17 @@ module.exports = kind(
 			Spotlight.spot(secondaryTarget);
 			return true;
 		} else if (orig instanceof Panel) {
-			if (idx === 0) {
-				if (this.showing && (this.useHandle === true) && this.handleShowing) {
-					this.hide();
-					return true;
-				}
-			}
-			else {
-				if (!this.leftKeyToBreadcrumb) {
+			if (idx === 0 && !this.preventKeyNavigation && this.showing && (this.useHandle === true)
+					&& this.handleShowing) {
+				this.hide();
+				return true;
+			} else if (!this.leftKeyToBreadcrumb) {
+				if (!this.preventKeyNavigation) {
 					this.previous();
-					return true;
+				} else {
+					Spotlight.spot(Spotlight.getLastControl());
 				}
+				return true;
 			}
 		}
 	},
@@ -1023,7 +1015,7 @@ module.exports = kind(
 	* @private
 	*/
 	spotlightRight: function (sender, ev) {
-		if (this.toIndex !== null) {
+		if (!this.preventKeyNavigation && this.toIndex !== null) {
 			this.queuedIndex = this.toIndex + 1;
 			//queuedIndex could have out boundary value. It will be managed in setIndex()
 		}
@@ -1039,11 +1031,14 @@ module.exports = kind(
 		} else if (next && orig instanceof Panel) {
 			if (this.useHandle === true && this.handleShowing && idx == this.index) {
 				Spotlight.spot(this.$.showHideHandle);
+				return true;
 			}
 			else {
-				this.next();
+				if (!this.preventKeyNavigation) {
+					this.next();
+					return true;
+				}
 			}
-			return true;
 		}
 	},
 
@@ -1576,7 +1571,7 @@ module.exports = kind(
 	* @private
 	*/
 	applyPattern: function () {
-		if (this.pattern == 'activity') {
+		if (this.pattern != 'alwaysviewing') {
 			this.createChrome(this.applicationTools);
 		}
 		switch (this.pattern) {
@@ -1589,6 +1584,7 @@ module.exports = kind(
 			break;
 		default:
 			this.useHandle = false;
+			this.createChrome([{name: 'client', kind: Control, tag: null}]);
 			break;
 		}
 	},
