@@ -16,7 +16,7 @@ var
 	Tooltip = require('moonstone/Tooltip'),
 	IconButton = require('moonstone/IconButton');
 
-var buttonDescription = $L('Close this application');
+var buttonDescription = $L('Exit app');
 
 /**
 * `ApplicationCloseButton` may be added to {@link module:moonstone-extra/Panels~Panels}, or other
@@ -49,6 +49,15 @@ module.exports = kind({
 	classes: 'moon-application-close-button',
 
 	/**
+	* Boolean indicating whether the tooltip is shown soon after the button is focused.
+	*
+	* @type {Boolean}
+	* @default false
+	* @public
+	*/
+	autoShow: false,
+
+	/**
 	* @private
 	*/
 	events: {
@@ -59,7 +68,7 @@ module.exports = kind({
 	* @private
 	*/
 	components: [
-		{name: 'button', kind: IconButton, icon: 'closex', small: true, accessibilityLabel: buttonDescription, ontap: 'handleButtonTap'},
+		{name: 'button', kind: IconButton, icon: 'closex', small: true, ontap: 'handleButtonTap'},
 		{kind: Tooltip, content: buttonDescription, floating: true, position: 'below'}
 	],
 
@@ -128,6 +137,24 @@ module.exports = kind({
 
 		this.customizeCloseButton(ev.properties);
 		return true;
+	},
+
+	/**
+	* @private
+	*/
+	create: function () {
+		TooltipDecorator.prototype.create.apply(this, arguments);
+		this.autoShowChanged();
+	},
+
+	/**
+	* @private
+	*/
+	autoShowChanged: function () {
+		TooltipDecorator.prototype.autoShowChanged.apply(this, arguments);
+		// Only add an accessibilityLabel to the button if we aren't displaying a tooltip, so the
+		// accessibility system doesn't read the label twice, once for the button, and again for the tooltip.
+		this.$.button.set('accessibilityLabel', this.autoShow ? null : buttonDescription);
 	},
 
 	/**
