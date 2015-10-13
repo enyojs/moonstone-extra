@@ -47,7 +47,11 @@ module.exports = kind({
 	classes: 'moon-application-close-button',
 
 	/**
-	* @private
+	* Boolean indicating whether the tooltip is shown soon after the button is focused.
+	*
+	* @type {Boolean}
+	* @default false
+	* @public
 	*/
 	autoShow: false,
 
@@ -78,6 +82,7 @@ module.exports = kind({
 	* @private
 	*/
 	autoShowChanged: function () {
+		TooltipDecorator.prototype.autoShowChanged.apply(this, arguments);
 		// Only add an accessibilityLabel to the button if we aren't displaying a tooltip, so the
 		this.$.button.set('accessibilityLabel', this.autoShow ? null : buttonDescription);
 	},
