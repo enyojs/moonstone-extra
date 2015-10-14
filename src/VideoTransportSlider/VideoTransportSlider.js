@@ -413,21 +413,30 @@ module.exports = kind(
 	*/
 	spotFocused: function (sender, e) {
 		Slider.prototype.spotFocused.apply(this, arguments);
-		// this.knobPosValue will be used for knob positioning.
-		if (!Spotlight.getPointerMode()) {
-			this.knobPosValue = this.get('value');
-			this.spotSelect();
-		}
-
 		if (!this.disabled) {
+			this.spotSelect();
+			// this.knobPosValue will be used for knob positioning.
+			this.knobPosValue = this.get('value');
 			// Todo: visible does not mean slider is visible. it means knob is visible
 			// we'd better change its name to preview or more intuitive name
 			this.addClass('visible');
-			this._updateKnobPosition(this.knobPosValue);
 			//fires enyo.VideoTransportSlider#onEnterTapArea
 			this.doEnterTapArea();
 		}
+
+		// if slider is in preview mode, preview() will update knobPosition
+		if (!Spotlight.getPointerMode()) {
+			this._updateKnobPosition(this.knobPosValue);
+		}
 		this.startPreview();
+	},
+
+	/**
+	* @private
+	*/
+	spotSelect: function () {
+		this.selected = true;
+		return true;
 	},
 
 	/**
@@ -495,7 +504,7 @@ module.exports = kind(
 			if (!this._previewMode) {
 				this.startPreview();
 			}
-			var v = this.calcKnobPosition(e);
+			var v = this.knobPosValue = this.calcKnobPosition(e);
 			this.currentTime = this.transformToVideo(v);
 			this._updateKnobPosition(this.currentTime);
 		}
