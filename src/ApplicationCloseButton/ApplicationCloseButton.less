@@ -11,6 +11,12 @@
 		margin: 0;
 	}
 
+	.enyo-arranger-fit > & {
+		// This is disappointingly required to overcome an !important rule in enyo-arranger.
+		width: initial !important;
+		height: initial !important;
+	}
+
 	.enyo-locale-right-to-left & {
 		left: (@moon-spotlight-outset * 2);
 		right: auto;

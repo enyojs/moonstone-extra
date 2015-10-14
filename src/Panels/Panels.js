@@ -957,45 +957,44 @@ module.exports = kind(
 
 	/**
 	* This takes action when the CustomizeCloseButton event is received. It accepts several event
-	* properties, and in their absense resets each to its original value.
+	* properties, and in their absence resets each to its original value.
 	*
 	* Values:
 	*   x - (Number|String), positive or negative measurement to offset the X from its natural position.
 	*       This value is automatically inverted in RtL mode.
 	*   y - (Number|String), positive or negative measurement to offset the X from its natural position.
-	*   opacity - Float value between 0 and 1, direct access to the CSS property `opacity`. Defaults to 1.
-	*   showing - Boolean, whether to show or hide the button. Defaults to true.
+	*   properties {Object} An object containing key/value pairs to be `set` on the close button.
+	*   For example, this can be used to set the `showing` property of the close button. If present
+	*   and an object, the `styles` member will be iterated through and each style will be applied
+	*   individually and those styles with a `null` value will be removed.
 	*
 	* Ex:
-	*    this.doCustomizeCloseButton({showing: false)});
+	*    this.doCustomizeCloseButton({parameters: {showing: false});
 	*
 	* @private
 	*/
 	handleCustomizeCloseButton: function (sender, ev) {
 		if (this.$.appClose) {
-			var shiftX = ev.x,
-				shiftY = typeof ev.y == 'number' ? ev.y + 'px' : ev.y;
-
-			switch (typeof shiftX) {
-				case 'number':
-					shiftX = dom.unit(ri.scale( this.rtl ? shiftX * -1 : shiftX ), 'rem');
-					break;
-				case 'string':
-					if (this.rtl) {
-						if (shiftX.indexOf('-') >= 0) {
-							shiftX = shiftX.subString(1);
-						} else {
-							shiftX = '-' + shiftX;
-						}
-					}
-					break;
-			}
-
-			dom.transform(this.$.appClose, {translateX: shiftX, translateY: shiftY});
-			this.$.appClose.applyStyle('opacity', ev.opacity);
-			// Set showing false only if we explicitly say showing false. True and show in undef/null cases, like styles.
-			this.$.appClose.set('showing', (ev.showing === false || ev.showing === 0) ? false : true);
+			this.$.appClose.handleCustomizeCloseButton.apply(this.$.appClose, arguments);
 		}
+	},
+
+	/**
+	* @private
+	*/
+	getSpotlightTarget: function (dir, control) {
+		var target,
+			ref;
+
+		// Look at all of the NearestNeighbors up the lineage chain, until we find a good one.
+		while (!target) {
+			ref = ref ? Spotlight.getParent(ref) : control;
+			if (!ref) break;
+			target = Spotlight.NearestNeighbor.getNearestNeighbor(dir, ref);
+		}
+
+		// If nothing is found, look within ourselves for a target.
+		return target || Spotlight.NearestNeighbor.getNearestNeighbor(dir, control, {root: this});
 	},
 
 	/**
@@ -1008,11 +1007,10 @@ module.exports = kind(
 		}
 		var orig = ev.originator,
 			idx = this.getPanelIndex(orig),
-			preferredTarget = Spotlight.NearestNeighbor.getNearestNeighbor('LEFT', orig),
-			secondaryTarget = !preferredTarget ? Spotlight.NearestNeighbor.getNearestNeighbor('LEFT', orig, {root: this}) : null;
+			target = this.getSpotlightTarget('LEFT', orig);
 
-		if (secondaryTarget && secondaryTarget.parent instanceof ApplicationCloseButton) {
-			Spotlight.spot(secondaryTarget);
+		if (target && target.parent instanceof ApplicationCloseButton) {
+			Spotlight.spot(target);
 			return true;
 		} else if (orig instanceof Panel) {
 			if (idx === 0 && !this.preventKeyNavigation && this.showing && (this.useHandle === true)
@@ -1041,11 +1039,10 @@ module.exports = kind(
 		var orig = ev.originator,
 			idx = this.getPanelIndex(orig),
 			next = this.getPanels()[idx + 1],
-			preferredTarget = Spotlight.NearestNeighbor.getNearestNeighbor('RIGHT', orig),
-			secondaryTarget = !preferredTarget ? Spotlight.NearestNeighbor.getNearestNeighbor('RIGHT', orig, {root: this}) : null;
+			target = this.getSpotlightTarget('RIGHT', orig);
 
-		if (secondaryTarget && secondaryTarget.parent instanceof ApplicationCloseButton) {
-			Spotlight.spot(secondaryTarget);
+		if (target && target.parent instanceof ApplicationCloseButton) {
+			Spotlight.spot(target);
 			return true;
 		} else if (next && orig instanceof Panel) {
 			if (this.useHandle === true && this.handleShowing && idx == this.index) {
@@ -1590,7 +1587,7 @@ module.exports = kind(
 	* @private
 	*/
 	applyPattern: function () {
-		if (this.pattern == 'activity') {
+		if (this.pattern != 'alwaysviewing') {
 			this.createChrome(this.applicationTools);
 		}
 		switch (this.pattern) {
@@ -1603,6 +1600,7 @@ module.exports = kind(
 			break;
 		default:
 			this.useHandle = false;
+			this.createChrome([{name: 'client', kind: Control, tag: null}]);
 			break;
 		}
 	},

@@ -144,7 +144,7 @@ module.exports = kind(
 	],
 
 	/**
-	* Updates [IconButton]{@link module:moonstone/IconButton~IconButton} image and [Slider]{@link module:moonstone-extra/Slider~Slider}
+	* Updates [IconButton]{@link module:moonstone/IconButton~IconButton} image and [Slider]{@link module:moonstone/Slider~Slider}
 	* message with current state and playback rate when any of the playback controls are
 	* triggered.
 	*
