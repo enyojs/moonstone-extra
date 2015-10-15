@@ -1082,6 +1082,7 @@ module.exports = kind(
 	* @private
 	*/
 	panelsShown: function (sender, e) {
+		if (this.isDescendantOf(e.panels)) return;
 		this._panelsShowing = true;
 		this._controlsShowing = false;
 		this._infoShowing = false;
@@ -1101,6 +1102,7 @@ module.exports = kind(
 	*/
 	panelsHidden: function (sender, e) {
 		var current;
+		if (this.isDescendantOf(e.panels)) return;
 
 		this._panelsShowing = false;
 		this.updateSpotability();
