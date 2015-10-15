@@ -105,7 +105,6 @@ var PanelsHandle = kind(
 
 		return true;
 	}
-
 });
 
 /**
@@ -897,7 +896,6 @@ module.exports = kind(
 		Panels.prototype.create.apply(this, arguments);
 		this.set('animate', this.animate && options.accelerate, true);
 
-		this.hasCloseButtonChanged();
 		// we need to ensure our handler has the opportunity to modify the flow during
 		// initialization
 		this.showingChanged();
@@ -1564,7 +1562,7 @@ module.exports = kind(
 			this.$.backgroundScrim.addRemoveClass('visible', this.showing);
 		}
 		if (this.useHandle === true) {
-			if (this.$.appClose) this.$.appClose.set('showing', this.showing);
+			if (this.$.appClose) this.$.appClose.set('showing', (this.showing && this.hasCloseButton));
 
 			if (this.showing) {
 				this.unstashHandle();
@@ -1591,6 +1589,7 @@ module.exports = kind(
 	applyPattern: function () {
 		if (this.pattern != 'alwaysviewing') {
 			this.createChrome(this.applicationTools);
+			this.hasCloseButtonChanged();
 		}
 		switch (this.pattern) {
 		case 'alwaysviewing':
@@ -1748,7 +1747,7 @@ module.exports = kind(
 	*/
 	hasCloseButtonChanged: function () {
 		if (!this.$.appClose) return;
-		this.$.appClose.set('showing', this.hasCloseButton);
+		this.$.appClose.set('showing', (this.showing && this.hasCloseButton));
 		this.addRemoveClass('has-close-button', this.hasCloseButton);
 	},
 
