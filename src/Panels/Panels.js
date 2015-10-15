@@ -1013,10 +1013,12 @@ module.exports = kind(
 			Spotlight.spot(target);
 			return true;
 		} else if (orig instanceof Panel) {
-			if (idx === 0 && !this.preventKeyNavigation && this.showing && (this.useHandle === true)
-					&& this.handleShowing) {
-				this.hide();
-				return true;
+			if (idx === 0) {
+				if (!this.preventKeyNavigation && this.showing && (this.useHandle === true)
+						&& this.handleShowing) {
+					this.hide();
+					return true;
+				}
 			} else if (!this.leftKeyToBreadcrumb) {
 				if (!this.preventKeyNavigation) {
 					this.previous();
