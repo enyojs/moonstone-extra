@@ -1713,7 +1713,7 @@ module.exports = kind(
 	*/
 	hasCloseButtonChanged: function () {
 		if (!this.$.appClose) return;
-		this.$.appClose.set('showing', this.hasCloseButton);
+		this.$.appClose.set('showing', (this.showing && this.hasCloseButton));
 		this.addRemoveClass('has-close-button', this.hasCloseButton);
 	},
 
