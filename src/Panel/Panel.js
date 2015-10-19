@@ -229,18 +229,18 @@ module.exports = kind(
 	* @private
 	*/
 	bindings: [
-		{from: '.title', to: '.$.header.title'},
-		{from: '.title', to: '.$.breadcrumbText.content'},
-		{from: '.titleAbove', to: '.$.header.titleAbove'},
-		{from: '.titleAbove', to: '.$.breadcrumbTitleAbove.content'},
-		{from: '.titleBelow', to: '.$.header.titleBelow'},
-		{from: '.subTitleBelow', to: '.$.header.subTitleBelow'},
-		{from: '.allowHtmlHeader', to: '.$.header.allowHtml'},
-		{from: '.allowHtmlHeader', to: '.$.breadcrumbText.allowHtml'},
-		{from: '.headerBackgroundSrc', to: '.$.header.backgroundSrc'},
-		{from: '.headerBackgroundPosition', to: '.$.header.backgroundPosition'},
-		{from: '.titleUpperCase', to: '.$.header.titleUpperCase'},
-		{from: '.headerType', to: '.$.header.type', oneWay: false}
+		{from: 'title', to: '$.header.title'},
+		{from: 'title', to: '$.breadcrumbText.content'},
+		{from: 'titleAbove', to: '$.header.titleAbove'},
+		{from: 'titleAbove', to: '$.breadcrumbTitleAbove.content'},
+		{from: 'titleBelow', to: '$.header.titleBelow'},
+		{from: 'subTitleBelow', to: '$.header.subTitleBelow'},
+		{from: 'allowHtmlHeader', to: '$.header.allowHtml'},
+		{from: 'allowHtmlHeader', to: '$.breadcrumbText.allowHtml'},
+		{from: 'headerBackgroundSrc', to: '$.header.backgroundSrc'},
+		{from: 'headerBackgroundPosition', to: '$.header.backgroundPosition'},
+		{from: 'titleUpperCase', to: '$.header.titleUpperCase'},
+		{from: 'headerType', to: '$.header.type', oneWay: false}
 	],
 
 	/**
