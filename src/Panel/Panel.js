@@ -256,6 +256,14 @@ module.exports = kind(
 	/**
 	* @private
 	*/
+	events: {
+		onPanelOnscreen: '',
+		onPanelOffscreen: ''
+	},
+
+	/**
+	* @private
+	*/
 	create: function () {
 		Control.prototype.create.apply(this, arguments);
 		// FIXME: Need to determine whether headerComponents was passed on the instance or kind to get the ownership correct
@@ -450,6 +458,18 @@ module.exports = kind(
 	*/
 	transitionFinished: function (info) {
 		this.updatePanel(info);
+	},
+
+	/**
+	* @private
+	*/
+	isOffscreenChanged: function (sender, ev) {
+		// Tell the children we're on or off screen
+		if (this.isOffscreen) {
+			this.waterfallDown('onPanelOffscreen');
+		} else {
+			this.waterfallDown('onPanelOnscreen');
+		}
 	},
 
 	/**
