@@ -56,7 +56,7 @@
 			}
 			> *:first-child {
 				position: absolute;
-				left: -@moon-breadcrumb-width;
+				left: 0;
 				right: 0;
 				height: 100%;
 			}
@@ -75,12 +75,25 @@
 				background-position: bottom center;
 			}
 		}
-		.moon-panel + .moon-panel {
+		.moon-panel {
 			padding-left: 0;
 		}
 		&.first {
 			.moon-panels-viewport {
 				overflow: visible;
+				
+				> *:first-child {
+					left: -@moon-breadcrumb-width;
+					padding-left: @moon-spotlight-outset;
+				}
+				
+			}
+		}
+		&:not(.first) {
+			.moon-application-close-button {
+				.enyo-locale-right-to-left & {
+					left: (@moon-breadcrumb-width + @moon-spotlight-outset);
+				}
 			}
 		}
 	}

@@ -69,7 +69,7 @@ var
 * transport [controls]{@link module:enyo/Control~Control}, optional app-specific controls, and an information
 * bar for displaying video information and player feedback.
 *
-* All of the standard HTML5 media [events]{@glossary event} bubbled from `enyo.Video` will
+* All of the standard HTML5 media [events]{@glossary event} bubbled from `enyo/Video` will
 * also bubble from this control.
 *
 * Client [components]{@link module:enyo/Component~Component} added to the `components` block are rendered into
@@ -169,8 +169,8 @@ module.exports = kind(
 		/**
 		* A [component]{@link module:enyo/Component~Component} definition block describing components to
 		* be created as an information block above the video. Usually, this contains a
-		* [moon.VideoInfoBackground]{@link module:moonstone-extra/VideoInfoBackground~VideoInfoBackground} with a
-		* [moon.VideoInfoHeader]{@link module:moonstone-extra/VideoInfoHeader~VideoInfoHeader} in it.
+		* [moon/VideoInfoBackground]{@link module:moonstone-extra/VideoInfoBackground~VideoInfoBackground} with a
+		* [moon/VideoInfoHeader]{@link module:moonstone-extra/VideoInfoHeader~VideoInfoHeader} in it.
 		*
 		* @type {Object}
 		* @default null
@@ -573,7 +573,7 @@ module.exports = kind(
 		playbackRateHash: {
 			fastForward: ['2', '4', '8', '16'],
 			rewind: ['-2', '-4', '-8', '-16'],
-			slowForward: ['1/4', '1/2', '1'],
+			slowForward: ['1/4', '1/2'],
 			slowRewind: ['-1/2', '-1']
 		}
 	},
@@ -657,7 +657,7 @@ module.exports = kind(
 	* @private
 	*/
 	components: [
-		{kind: Signals, onPanelsShown: 'panelsShown', onPanelsHidden: 'panelsHidden', onPanelsHandleFocused: 'panelsHandleFocused', onPanelsHandleBlurred: 'panelsHandleBlurred', onFullscreenChange: 'fullscreenChanged', onkeyup:'remoteKeyHandler', onSpotlightModeChanged: "resetPreviewMode", onlocalechange: 'updateMoreButton'},
+		{kind: Signals, onPanelsShown: 'panelsShown', onPanelsHidden: 'panelsHidden', onPanelsHandleFocused: 'panelsHandleFocused', onPanelsHandleBlurred: 'panelsHandleBlurred', onFullscreenChange: 'fullscreenChanged', onkeyup:'remoteKeyHandler', onlocalechange: 'updateMoreButton'},
 		{name: 'videoContainer', kind: Control, classes: 'moon-video-player-container', components: [
 			{name: 'video', kind: Video, classes: 'moon-video-player-video',
 				ontimeupdate: 'timeUpdate', onloadedmetadata: 'metadataLoaded', durationchange: 'durationUpdate', onloadeddata: 'dataloaded', onprogress: '_progress', onPlay: '_play', onpause: '_pause', onStart: '_start',  onended: '_stop',
@@ -678,7 +678,7 @@ module.exports = kind(
 					{name: 'leftPremiumPlaceHolder', kind: Control, classes: 'moon-video-player-premium-placeholder-left'},
 					{classes: 'moon-video-player-controls-frame-center', fit: true, components: [
 
-						{name: 'controlsContainer', kind: Panels, index: 0, popOnBack: false, cacheViews: false, classes: 'moon-video-player-controls-container', components: [
+						{name: 'controlsContainer', kind: Panels, reverseForRtl: true, index: 0, popOnBack: false, cacheViews: false, classes: 'moon-video-player-controls-container', components: [
 							{name: 'trickPlay', kind: Control, ontap:'playbackControlsTapped', components: [
 								{name: 'playbackControls', kind: Control, rtl: false, classes: 'moon-video-player-control-buttons', components: [
 									{name: 'jumpBack',		kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'onjumpBackward', accessibilityLabel: $L('Previous')},
@@ -691,7 +691,7 @@ module.exports = kind(
 							{name: 'client', kind: Control, rtl: false,  classes: 'moon-video-player-more-controls'}
 						]}
 					]},
-					
+
 					{name: 'rightPremiumPlaceHolder', kind: Control, classes: 'moon-video-player-premium-placeholder-right', components: [
 						{name: 'moreButton', kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'moreButtonTapped', accessibilityLabel: $L('More')}
 					]}
@@ -798,15 +798,6 @@ module.exports = kind(
 	playbackControlsTapped: function () {
 		if (this.disablePlaybackControls) {
 			this.bubble('onPlaybackControlsTapped');
-		}
-	},
-	/**
-	* @private
-	*/
-	resetPreviewMode: function (){
-		if(!Spotlight.getPointerMode() && this.$.slider.isInPreview() && !this.inline) {
-			this.$.controls.setShowing(true);
-			this.$.slider.endPreview();
 		}
 	},
 
@@ -1091,6 +1082,7 @@ module.exports = kind(
 	* @private
 	*/
 	panelsShown: function (sender, e) {
+		if (this.isDescendantOf(e.panels)) return;
 		this._panelsShowing = true;
 		this._controlsShowing = false;
 		this._infoShowing = false;
@@ -1110,6 +1102,7 @@ module.exports = kind(
 	*/
 	panelsHidden: function (sender, e) {
 		var current;
+		if (this.isDescendantOf(e.panels)) return;
 
 		this._panelsShowing = false;
 		this.updateSpotability();
@@ -1368,9 +1361,9 @@ module.exports = kind(
 			Spotlight.spot(this);
 		}
 		if (this.autoHidePopups) {
-			// Hide enyo.Popup-based popups (including moon.Popup)
+			// Hide enyo/Popup-based popups (including moon/Popup)
 			this.$.playerControl.waterfall('onRequestHide');
-			// Hide moon.ContextualPopups
+			// Hide moon/ContextualPopups
 			this.$.playerControl.waterfall('onRequestHidePopup');
 		}
 		this.showScrim(false);
@@ -1952,8 +1945,6 @@ module.exports = kind(
 		} else {
 			this.retrieveIconsSrcOrFont(this.$.moreButton, this.rtl?this.moreControlsIcon:this.lessControlsIcon, 'moon-icon-video-round-controls-style moon-icon-video-more-controls-font-style');
 		}
-		// Change paneld direction based on locale and more button configuration
-		this.$.controlsContainer.set('direction', !this.rtl ? Panels.Direction.FORWARDS : Panels.Direction.BACKWARDS);
 	},
 	toggleSpotlightForMoreControls: function (moreControlsSpottable) {
 		this.$.playbackControls.spotlightDisabled = moreControlsSpottable;

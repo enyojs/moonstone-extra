@@ -1,5 +1,11 @@
 require('moonstone-extra');
 
+/**
+* Contains the declaration for the {@link module:moonstone-extra/AudioPlayback~AudioPlayback}
+* kind.
+* @module moonstone-extra/AudioPlayback
+*/
+
 var
 	kind = require('enyo/kind'),
 	utils = require('enyo/utils'),
@@ -18,7 +24,7 @@ var
 /**
 * Fires when an audio track is added to the list
 *
-* @event moon.AudioPlayback#onAddAudio
+* @event module:moonstone-extra/AudioPlayback~AudioPlayback#onAddAudio
 * @type {Object}
 * @property {Object} tracks - contains a reference to the collection of tracks
 * @public
@@ -28,34 +34,40 @@ var
 * Fires when an audio list item is to be removed. The list event data is passed through.
 * TODO: When fixed with right list component be sure to link to event data.
 *
-* @event moon.AudioPlayback#onRemove
+* @event module:moonstone-extra/AudioPlayback~AudioPlayback#onRemove
 * @type {Object}
 * @public
 */
 
 /**
-* `moon.AudioPlayback` is meant to be used with {@link moon.Drawers}.
-* This extends a {@link moon.Drawer} by adding an audio playback control
+* {@link module:moonstone-extra/AudioPlayback~AudioPlayback} is meant to be used
+* with {@link module:moonstone/Drawers~Drawers}. It extends
+* {@link module:moonstone/Drawers~Drawer} by adding an audio playback control
 * and playlist for the imported audio.
 *
 * ```
-* {kind: Drawers, drawers: [
-*	{
-*		kind: AudioPlayback,
-*	}
-* ],
-* components: [
-*	{content: 'Page Content'}
-* ]}
+* var
+* 	kind = require('enyo/kind'),
+* 	AudioPlayback = require('moonstone-extra/AudioPlayback'),
+* 	Drawers = require('moonstone/Drawers');
+*
+* {kind: Drawers,
+* 	drawers: [
+* 		{kind: AudioPlayback}
+* 	],
+* 	components: [
+*			{content: 'Page Content'}
+* 	]
+* }
 * ```
 *
-* @class moon.AudioPlayback
-* @extends moon.Drawer
+* @class AudioPlayback
+* @extends module:moonstone/Drawers~Drawer
 * @ui
 * @public
 */
 module.exports = kind(
-	/** @lends moon.AudioPlayback.prototype */ {
+	/** @lends module:moonstone-extra/AudioPlayback~AudioPlayback.prototype */ {
 
 	/**
 	* @private
@@ -114,7 +126,7 @@ module.exports = kind(
 
 	/**
 	* @private
-	* @lends moon.AudioPlayback.prototype
+	* @lends module:moonstone-extra/AudioPlayback~AudioPlayback.prototype
 	*/
 	published: {
 		/**
@@ -146,7 +158,8 @@ module.exports = kind(
 
 		/**
 		* Amount of time (in seconds) to jump in response to jump buttons. This value is ignored
-		* when [jumpStartEnd]{@link moon.VideoPlayer#jumpStartEnd} is `true`.
+		* when [jumpStartEnd]{@link module:moonstone-extra/VideoPlayer~VideoPlayer#jumpStartEnd}
+		* is `true`.
 		*
 		* @type {Number}
 		* @default 3
@@ -195,7 +208,7 @@ module.exports = kind(
 		/**
 		* If `true`, the slider and playback controls are disabled. If the user taps the
 		* controls, an
-		* [onPlaybackControlsTapped]{@link moon.VideoPlayer#onPlaybackControlsTapped}
+		* [onPlaybackControlsTapped]{@link module:moonstone-extra/VideoPlayer~VideoPlayer#onPlaybackControlsTapped}
 		* event will be bubbled.
 		*
 		* @type {Boolean}
@@ -658,8 +671,8 @@ module.exports = kind(
 	},
 
 	/**
-	* Jumps to beginning of media [source]{@link moon.VideoPlayer#src} and sets
-	* [playbackRate]{@link enyo.Video#playbackRate} to `1`.
+	* Jumps to beginning of media [source]{@link module:moonstone-extra/VideoPlayer~VideoPlayer#src}
+	* and sets [playbackRate]{@link module:enyo/Video~Video#playbackRate} to `1`.
 	*
 	* @public
 	*/
@@ -670,8 +683,8 @@ module.exports = kind(
 	},
 
 	/**
-	* Jumps to end of media [source]{@link moon.VideoPlayer#src} and sets
-	* [playbackRate]{@link enyo.Video#playbackRate} to `1`.
+	* Jumps to end of media [source]{@link module:moonstone-extra/VideoPlayer~VideoPlayer#src}
+	* and sets [playbackRate]{@link module:enyo/Video~Video#playbackRate} to `1`.
 	*
 	* @public
 	*/
