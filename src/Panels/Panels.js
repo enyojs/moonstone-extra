@@ -1541,7 +1541,7 @@ module.exports = kind(
 		this.processPanelsToRemove(fromIndex, toIndex);
 		this.processQueuedKey();
 		Spotlight.unmute(this);
-		Spotlight.spot(this.getActive());
+		this.spotActivePanel();
 	},
 
 	/**
@@ -1567,7 +1567,7 @@ module.exports = kind(
 			if (this.showing) {
 				this.unstashHandle();
 				this._show();
-				Spotlight.spot(this.getActive());
+				this.spotActivePanel();
 			}
 			else {
 				// in this case, our display flag will have been set to none so we need to clear
@@ -1581,6 +1581,17 @@ module.exports = kind(
 		else {
 			Panels.prototype.showingChanged.apply(this, arguments);
 		}
+	},
+
+	/**
+	* Defer spotting the active panel to allow time to read Panel title before the control
+	*
+	* @private
+	*/
+	spotActivePanel: function () {
+		this.startJob('spotActive', function () {
+			Spotlight.spot(this.getActive());
+		}, 32);
 	},
 
 	/**
