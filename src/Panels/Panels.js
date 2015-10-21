@@ -1237,6 +1237,8 @@ module.exports = kind(
 		this.fromIndex = this.index;
 		this.toIndex = index;
 
+		// Turn on the close-x so it's ready for the next panel
+		this.$.appClose.customizeCloseButton({showing: true});
 		this.notifyPanels('initPanel');
 
 		// Ensure any VKB is closed when transitioning panels

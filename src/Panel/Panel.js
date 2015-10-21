@@ -463,7 +463,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	isOffscreenChanged: function (sender, ev) {
+	isOffscreenChanged: function () {
 		// Tell the children we're on or off screen
 		if (this.isOffscreen) {
 			this.waterfallDown('onPanelOffscreen');
