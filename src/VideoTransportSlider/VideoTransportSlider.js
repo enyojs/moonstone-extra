@@ -448,7 +448,6 @@ module.exports = kind(
 		this.endPreview();
 		//fires enyo.VideoTransportSlider#onLeaveTapArea
 		this.doLeaveTapArea();
-		this._updateKnobPosition(this.getValue());
 	},
 
 	/**
