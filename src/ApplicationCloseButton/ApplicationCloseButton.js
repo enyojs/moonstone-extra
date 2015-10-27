@@ -31,8 +31,8 @@ var buttonDescription = $L('Exit app');
 * @ui
 * @public
 */
-module.exports = kind({
-
+module.exports = kind(
+	/** @lends module:moonstone-extra/ApplicationCloseButton~ApplicationCloseButton.prototype */ {
 	/**
 	* @private
 	*/
