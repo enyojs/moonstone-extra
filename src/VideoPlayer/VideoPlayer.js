@@ -1165,7 +1165,7 @@ module.exports = kind(
 	*/
 	spotlightLeftRightFilter: function (sender, e) {
 		if (this._sentHold) return;
-		
+
 		return this.spotlightModal && e.originator === this;
 	},
 
@@ -1174,7 +1174,7 @@ module.exports = kind(
 	*/
 	spotlightUpHandler: function (sender, e) {
 		if (this._sentHold) return;
-		
+
 		if (this.hasClass('spotlight-5way-mode')) this.removeClass('spotlight-5way-mode');
 		if (this._shouldHandleUpDown) {
 			var current = Spotlight.getCurrent();
@@ -1209,7 +1209,7 @@ module.exports = kind(
 	*/
 	spotlightDownHandler: function (sender, e) {
 		if (this._sentHold) return;
-		
+
 		if (this._shouldHandleUpDown) {
 			var current = Spotlight.getCurrent();
 
