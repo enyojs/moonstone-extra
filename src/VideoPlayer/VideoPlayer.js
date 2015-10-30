@@ -331,16 +331,6 @@ module.exports = kind(
 		jumpStartEnd: false,
 
 		/**
-		* When `true`, popups opened from the video player's client controls are automatically
-		* hidden.
-		*
-		* @type {Boolean}
-		* @default true
-		* @public
-		*/
-		autoHidePopups: true,
-
-		/**
 		* If `false`, the progress bar is removed and any additional controls are moved
 		* downward.
 		*
@@ -1355,12 +1345,6 @@ module.exports = kind(
 		// Only spot the player if hiding is triggered from player control
 		if (Spotlight.hasCurrent() && Spotlight.getParent(Spotlight.getCurrent()) === this) {
 			Spotlight.spot(this);
-		}
-		if (this.autoHidePopups) {
-			// Hide enyo/Popup-based popups (including moon/Popup)
-			this.$.playerControl.waterfall('onRequestHide');
-			// Hide moon/ContextualPopups
-			this.$.playerControl.waterfall('onRequestHidePopup');
 		}
 		this.showScrim(false);
 		this.$.playerControl.setShowing(false);

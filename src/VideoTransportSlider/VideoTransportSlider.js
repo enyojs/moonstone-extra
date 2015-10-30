@@ -939,6 +939,10 @@ module.exports = kind(
 		this.$.popup.applyStyle('top', dom.unit(-(ri.scale(this.getPopupHeight() + this.getPopupOffset())), 'rem'));
 	},
 
+	hideKnobStatus: function (sender, e) {
+		// block hide popup on new player ux
+	},
+
 	// Accessibility
 
 	/**
