@@ -1164,6 +1164,8 @@ module.exports = kind(
 	* @private
 	*/
 	spotlightLeftRightFilter: function (sender, e) {
+		if (this._sentHold) return;
+
 		return this.spotlightModal && e.originator === this;
 	},
 
@@ -1172,14 +1174,15 @@ module.exports = kind(
 	*/
 	spotlightUpHandler: function (sender, e) {
 		if (this._sentHold) return;
-		if (!Spotlight.Accelerator.isAccelerating()) {
-			gesture.drag.beginHold(e);
-		}
+
 		if (this.hasClass('spotlight-5way-mode')) this.removeClass('spotlight-5way-mode');
 		if (this._shouldHandleUpDown) {
 			var current = Spotlight.getCurrent();
 
-			if (current.isDescendantOf(this.$.slider)) Spotlight.spot(this.$.fsPlayPause);
+			if (current.isDescendantOf(this.$.slider)) {
+				if (this.$.controlsContainer.get('index')) return false;
+				else Spotlight.spot(this.$.fsPlayPause);
+			}
 			else if (current == this || current.isDescendantOf(this.$.controls)) {
 				// Toggle info header on 'up' press
 				if (!this.$.videoInfoHeaderClient.getShowing()) {
@@ -1206,9 +1209,7 @@ module.exports = kind(
 	*/
 	spotlightDownHandler: function (sender, e) {
 		if (this._sentHold) return;
-		if (!Spotlight.Accelerator.isAccelerating()) {
-			gesture.drag.beginHold(e);
-		}
+
 		if (this._shouldHandleUpDown) {
 			var current = Spotlight.getCurrent();
 
@@ -1229,6 +1230,9 @@ module.exports = kind(
 	* @private
 	*/
 	spotlightKeyDownHandler: function (sender, e) {
+		if (!Spotlight.Accelerator.isAccelerating()) {
+			gesture.drag.beginHold(e);
+		}
 		this._shouldHandleUpDown = this.isLarge() && (e.originator === this || Spotlight.getParent(e.originator) === this);
 	},
 
@@ -1423,6 +1427,7 @@ module.exports = kind(
 	* @private
 	*/
 	onHoldPulseHandler: function (sender, e) {
+		this.stopJob('autoHide');
 		if (!this.jumpStartEnd) {
 			if (e.holdTime > this._holdPulseThreadhold) {
 				if (sender._sentHold !== true) {
@@ -1458,6 +1463,7 @@ module.exports = kind(
 		} else {
 			if (this._sentHold && this._sentHold === true) this._sentHold = false;
 		}
+		this.resetAutoTimeout();
 	},
 
 	/**
