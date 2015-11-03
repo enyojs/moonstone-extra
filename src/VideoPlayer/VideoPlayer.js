@@ -1420,7 +1420,6 @@ module.exports = kind(
 		} else {
 			this.play(sender, e);
 		}
-		return true;
 	},
 
 	/**
