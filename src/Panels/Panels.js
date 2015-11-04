@@ -23,6 +23,9 @@ var
 	Spotlight = require('spotlight');
 
 var
+	$L = require('../i18n');
+
+var
 	options = require('moonstone/options'),
 	StyleAnimator = require('moonstone/StyleAnimator'),
 	HistorySupport = require('moonstone/HistorySupport');
@@ -1779,6 +1782,14 @@ module.exports = kind(
 				active = this.getActive(),
 				l = panels.length,
 				panel;
+
+			if (this.$.showHideHandle) {
+				if (active.title) {
+					this.$.showHideHandle.set('accessibilityLabel', (this.showing ? $L('Close') : $L('Open')) + ' ' + active.title);
+				} else {
+					this.$.showHideHandle.set('accessibilityLabel', this.showing ? $L('Close') : $L('Open'));
+				}
+			}
 
 			while (--l >= 0) {
 				panel = panels[l];
