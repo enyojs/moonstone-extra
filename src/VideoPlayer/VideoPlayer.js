@@ -11,6 +11,7 @@ var
 	gesture = require('enyo/gesture'),
 	kind = require('enyo/kind'),
 	util = require('enyo/utils'),
+	platform = require('enyo/platform'),
 	Animator = require('enyo/Animator'),
 	Control = require('enyo/Control'),
 	EnyoHistory = require('enyo/History'),
@@ -1420,6 +1421,7 @@ module.exports = kind(
 		} else {
 			this.play(sender, e);
 		}
+		if (platform.webos) this.resetAutoTimeout();
 		return true;
 	},
 
