@@ -1420,6 +1420,8 @@ module.exports = kind(
 		} else {
 			this.play(sender, e);
 		}
+		this.resetAutoTimeout();
+		return true;
 	},
 
 	/**
