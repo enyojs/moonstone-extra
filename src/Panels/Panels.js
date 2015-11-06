@@ -1540,8 +1540,7 @@ module.exports = kind(
 	*/
 	finishTransition: function () {
 		var fromIndex = this.fromIndex,
-			toIndex = this.toIndex,
-			active = this.getActive();
+			toIndex = this.toIndex;
 
 		this.adjustFirstPanelAfterTransition();
 		this.notifyPanels('transitionFinished');
@@ -1549,9 +1548,7 @@ module.exports = kind(
 		this.processPanelsToRemove(fromIndex, toIndex);
 		this.processQueuedKey();
 		Spotlight.unmute(this);
-		this.startJob('spot', function () {
-			Spotlight.spot(active);
-		}, 50);
+		Spotlight.spot(this.getActive());
 	},
 
 	/**
