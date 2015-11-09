@@ -37,8 +37,10 @@ var
 	MoonAnimator = require('moonstone-extra/MoonAnimator');
 
 /**
-* `PanelsHandle` is a helper kind for {@link module:moonstone-extra/Panels~Panels} which implements a spottable
-*  handle that the user can interact with to hide and show the `Panels` control.
+* {@link module:moonstone-extra/Panels~PanelsHandle} is a helper kind for
+* {@link module:moonstone-extra/Panels~Panels}. It implements a spottable handle
+* that the user may interact with to hide and show the `moonstone-extra/Panels`
+* control.
 *
 * @class PanelsHandle
 * @extends module:enyo/Control~Control
@@ -111,8 +113,9 @@ var PanelsHandle = kind(
 });
 
 /**
-* `Breadcrumb` is a helper kind for {@link module:moonstone-extra/Panels~Panels} which implements a breadcumb
-* which is display panel index on it.
+* {@link module:moonstone-extra/Panels~Breadcrumb} is a helper kind for
+* {@link module:moonstone-extra/Panels~Panels}. It implements a breadcrumb that
+* displays the panel index.
 *
 * @class Breadcrumb
 * @extends module:enyo/Control~Control
@@ -229,7 +232,7 @@ var Breadcrumb = kind(
 * to use one of two patterns designed for apps on Smart TV systems.
 *
 * @class Panels
-* @extends module:enyo/Panels~Panels
+* @extends module:layout/Panels~Panels
 * @ui
 * @public
 */
