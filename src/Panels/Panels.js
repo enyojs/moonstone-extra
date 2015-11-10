@@ -1265,6 +1265,7 @@ module.exports = kind(
 		// If panels will move for this index change, kickoff animation. Otherwise skip it.
 		if (this.shouldAnimate()) {
 			Spotlight.mute(this);
+			this.$.appClose && this.$.appClose.customizeCloseButton({'spotlight': false});  // Remove spottability of close button during transitions
 			this.startTransition();
 			this.addClass('transitioning');
 		}
@@ -1339,6 +1340,7 @@ module.exports = kind(
 	animationEnded: function () {
 		if (this.animate) {
 			this.removeClass('transitioning');
+			this.$.appClose && this.$.appClose.customizeCloseButton({'spotlight': true});  // Restore spotlightability of close button.
 			this.completed();
 		} else {
 			Panels.prototype.animationEnded.apply(this, arguments);
