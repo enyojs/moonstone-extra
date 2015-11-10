@@ -146,7 +146,7 @@ var Breadcrumb = kind(
 	/**
 	* @private
 	*/
-	spotlight: true,
+	spotlight: false,
 
 	/**
 	* @private
@@ -553,6 +553,7 @@ module.exports = kind(
 			start = start+1;
 			end = end+1;
 		}
+		if (start < 0) start = 0;
 		return {start: start, end: end};
 	},
 
@@ -1371,6 +1372,7 @@ module.exports = kind(
 			for (i=range.start; i<range.end; i++) {
 				control = this.getBreadcrumbForIndex(i);
 				control.set('index', i);
+				control.spotlight = true;
 			}
 		}
 	},
