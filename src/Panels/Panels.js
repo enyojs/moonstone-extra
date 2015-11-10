@@ -1136,13 +1136,13 @@ module.exports = kind(
 			if (!Spotlight.getPointerMode()) {
 				if (!this.showing) {
 					this.panelsHiddenAsync();
+					this.set('spotted', false);
 				}
 			}
 		}
 		this.resetHandleAutoHide();
 		if (!this.showing) {
 			Signals.send('onPanelsHandleBlurred');
-			this.set('spotted', false);
 		}
 	},
 
