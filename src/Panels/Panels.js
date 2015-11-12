@@ -1245,8 +1245,10 @@ module.exports = kind(
 
 		// Turn on the close-x so it's ready for the next panel; if hasCloseButton is true
 		// and remove spottability of close button during transitions.
-		this.$.appClose && this.$.appClose.customizeCloseButton({'spotlight': false, showing: this.hasCloseButton});
-
+		if (this.$.appClose) {
+			this.$.appClose.customizeCloseButton({'spotlight': false});
+			this.$.appClose.set('showing', this.hasCloseButton);
+		}
 		this.notifyPanels('initPanel');
 
 		// Ensure any VKB is closed when transitioning panels
