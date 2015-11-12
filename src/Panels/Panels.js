@@ -1244,9 +1244,9 @@ module.exports = kind(
 		this.toIndex = index;
 
 		// Turn on the close-x so it's ready for the next panel; if hasCloseButton is true
-		if (this.$.appClose) {
-			this.$.appClose.customizeCloseButton({showing: this.hasCloseButton});
-		}
+		// and remove spottability of close button during transitions.
+		this.$.appClose && this.$.appClose.customizeCloseButton({'spotlight': false, showing: this.hasCloseButton});
+
 		this.notifyPanels('initPanel');
 
 		// Ensure any VKB is closed when transitioning panels
@@ -1265,7 +1265,6 @@ module.exports = kind(
 		// If panels will move for this index change, kickoff animation. Otherwise skip it.
 		if (this.shouldAnimate()) {
 			Spotlight.mute(this);
-			this.$.appClose && this.$.appClose.customizeCloseButton({'spotlight': false});  // Remove spottability of close button during transitions
 			this.startTransition();
 			this.addClass('transitioning');
 		}
@@ -1340,7 +1339,6 @@ module.exports = kind(
 	animationEnded: function () {
 		if (this.animate) {
 			this.removeClass('transitioning');
-			this.$.appClose && this.$.appClose.customizeCloseButton({'spotlight': true});  // Restore spotlightability of close button.
 			this.completed();
 		} else {
 			Panels.prototype.animationEnded.apply(this, arguments);
@@ -1554,6 +1552,7 @@ module.exports = kind(
 		this.processQueuedKey();
 		Spotlight.unmute(this);
 		Spotlight.spot(this.getActive());
+		this.$.appClose && this.$.appClose.customizeCloseButton({'spotlight': true});  // Restore spotlightability of close button.
 	},
 
 	/**
