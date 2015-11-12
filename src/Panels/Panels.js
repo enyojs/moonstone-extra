@@ -1245,7 +1245,7 @@ module.exports = kind(
 
 		// Turn on the close-x so it's ready for the next panel; if hasCloseButton is true
 		if (this.$.appClose) {
-			this.$.appClose.customizeCloseButton({showing: this.hasCloseButton});
+			this.$.appClose.set('showing', this.hasCloseButton);
 		}
 		this.notifyPanels('initPanel');
 
