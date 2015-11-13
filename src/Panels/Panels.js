@@ -1244,7 +1244,9 @@ module.exports = kind(
 		this.toIndex = index;
 
 		// Turn on the close-x so it's ready for the next panel; if hasCloseButton is true
+		// and remove spottability of close button during transitions.
 		if (this.$.appClose) {
+			this.$.appClose.customizeCloseButton({'spotlight': false});
 			this.$.appClose.set('showing', this.hasCloseButton);
 		}
 		this.notifyPanels('initPanel');
@@ -1552,6 +1554,7 @@ module.exports = kind(
 		this.processQueuedKey();
 		Spotlight.unmute(this);
 		Spotlight.spot(this.getActive());
+		this.$.appClose && this.$.appClose.customizeCloseButton({'spotlight': true});  // Restore spotlightability of close button.
 	},
 
 	/**
