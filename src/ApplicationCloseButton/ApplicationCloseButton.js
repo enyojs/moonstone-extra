@@ -68,7 +68,7 @@ module.exports = kind(
 	* @private
 	*/
 	components: [
-		{name: 'button', kind: IconButton, icon: 'closex', small: true, backgroundOpacity: 'transparent', ontap: 'handleButtonTap'},
+		{name: 'button', kind: IconButton, icon: 'closex', small: true, backgroundOpacity: 'transparent', ontap: 'handleButtonTap', publish: true},
 		{kind: Tooltip, content: buttonDescription, floating: true, position: 'below'}
 	],
 

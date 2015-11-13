@@ -1093,6 +1093,9 @@ module.exports = kind(
 	spotlightFocus: function (oSender, oEvent) {
 		var orig = oEvent.originator;
 		var idx = this.getPanelIndex(orig);
+		if (oEvent.originator == this.$.appClose.button) {
+			Spotlight.Container.setLastFocusedChild(this.getActive(), this.$.appClose.button);
+		}
 		if (this.index !== idx && idx !== -1) {
 			this.setIndex(idx);
 		}
