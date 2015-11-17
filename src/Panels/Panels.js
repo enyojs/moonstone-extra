@@ -993,12 +993,11 @@ module.exports = kind(
 		// Look at all of the NearestNeighbors up the lineage chain, until we find a good one.
 		while (!target) {
 			ref = ref ? Spotlight.getParent(ref) : control;
-			if (!ref) break;
+			if (!ref || ref instanceof Panel) break;
 			target = Spotlight.NearestNeighbor.getNearestNeighbor(dir, ref);
 		}
 
-		// If nothing is found, look within ourselves for a target.
-		return target || Spotlight.NearestNeighbor.getNearestNeighbor(dir, control, {root: this});
+		return target;
 	},
 
 	/**
