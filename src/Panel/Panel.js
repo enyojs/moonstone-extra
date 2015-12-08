@@ -41,12 +41,13 @@ var
 */
 
 /**
-* {@link module:moonstone-extra/Panel~Panel} is the default kind for controls created inside a
-* [moon.Panels]{@link module:moonstone-extra/Panels~Panels} container. A `moon.Panels` will typically
-* contain several instances of `moon.Panel`.
+* {@link module:moonstone-extra/Panel~Panel} is the default kind for controls
+* created inside a {@link module:moonstone-extra/Panels~Panels} container. A
+* Panels container will typically contain several instances of Panel.
 *
-* The built-in features include an embedded {@link module:moonstone/Header~Header} and a
-* {@link module:layout/FittableRows~FittableRows} layout for the main body content.
+* The built-in features include an embedded {@link module:moonstone/Header~Header}
+* and a {@link module:layout/FittableRows~FittableRows} layout for the main body
+* content.
 *
 * @class Panel
 * @extends module:enyo/Control~Control

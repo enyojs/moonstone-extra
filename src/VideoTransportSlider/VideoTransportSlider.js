@@ -30,7 +30,7 @@ var
 * The parameter [object]{@glossary Object} used when displaying a {@link module:moonstone-extra/VideoFeedback~VideoFeedback}
 * control.
 *
-* @typedef {Object} moon.VideoTransportSlider~FeedbackParameterObject
+* @typedef {Object} module:moonstone-extra/VideoTransportSlider~VideoTransportSlider~FeedbackParameterObject
 * @property {Number} [playbackRate] - The playback rate.
 * @property {Number} [jumpSize] - The jump size.
 * @public
@@ -245,9 +245,9 @@ module.exports = kind(
 
 		/**
 		* Sliders will increase or decrease as much as knobIncrement in either direction
-		* when left or right key is pressed in 5-Way mode.
-		* If you'd like to use specific value instead of percentage,
-		* give value as number to this property when you instanciate moon.VideoPlayer.
+		* when left or right key is pressed in 5-way mode.
+		* If you'd like to use a specific value instead of a percentage,
+		* specify the value in this property when you instantiate the VideoPlayer.
 		*
 		* @type {Number|String}
 		* @default '5%'
@@ -898,8 +898,8 @@ module.exports = kind(
 	* Sends current status to [feedback]{@link module:moonstone-extra/VideoFeedback~VideoFeedback} control in response to
 	* user input.
 	*
-	* @param {String} - msg The string to display.
-	* @param {moon.VideoTransportSlider~FeedbackParameterObject} params - A
+	* @param {String} msg - The string to display.
+	* @param {module:moonstone-extra/VideoTransportSlider~VideoTransportSlider~FeedbackParameterObject} params - A
 	*	[hash]{@glossary Object} of parameters that accompany the message.
 	* @param {Boolean} persist - If `true`, the [feedback]{@link module:moonstone-extra/VideoFeedback~VideoFeedback} control will
 	*	not be automatically hidden.

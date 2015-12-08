@@ -19,12 +19,15 @@ var
 var buttonDescription = $L('Exit app');
 
 /**
-* `ApplicationCloseButton` may be added to {@link module:moonstone-extra/Panels~Panels}, or other
-* full-screen controls. It includes basic positioning styles which may require adjustment for your
-* particular usage. When activated, an `onApplicationClose` event is emitted. On its own, it has no
-* function; you must provide your own event handler to close your application. The recommended
-* action to take with the event is `window.close()`, but you may also want to also do operations
-* like save user work or close database connections.
+* {@link module:moonstone-extra/ApplicationCloseButton~ApplicationCloseButton}
+* may be added to {@link module:moonstone-extra/Panels~Panels}, or other
+* full-screen controls. It includes basic positioning styles that may require
+* adjustment for your particular usage. When activated, an `onApplicationClose`
+* event is emitted. On its own, an ApplicationCloseButton has no function; you
+* must provide your own event handler to close the application. The recommended
+* action to take in response to the event is `window.close()`, but you may also
+* want to also perform operations such as saving user work or closing database
+* connections.
 *
 * @class ApplicationCloseButton
 * @extends module:moonstone/TooltipDecorator~TooltipDecorator

@@ -223,13 +223,14 @@ var Breadcrumb = kind(
 
 
 /**
-* {@link module:moonstone-extra/Panels~Panels} extends {@link module:layout/Panels~Panels}, adding support for 5-way focus
-* (Spotlight) and pre-configured Moonstone panels design patterns. By default,
-* controls added to a `Panels` are instances of {@link module:moonstone-extra/Panel~Panel}.
+* {@link module:moonstone-extra/Panels~Panels} extends {@link module:layout/Panels~Panels},
+* adding support for 5-way focus (Spotlight) and pre-configured Moonstone panels
+* design patterns. By default, controls added to a Panels container are instances
+* of {@link module:moonstone-extra/Panel~Panel}.
 *
-* `Panels` introduces the concept of patterns for panel display. Set
-* [pattern]{@link module:moonstone-extra/Panels~Panels#pattern} to `'activity'` or `'alwaysViewing'`
-* to use one of two patterns designed for apps on Smart TV systems.
+* `moonstone-extra/Panels` introduces the concept of patterns for panel display.
+* Set [pattern]{@link module:moonstone-extra/Panels~Panels#pattern} to `'activity'`
+* or `'alwaysViewing'` to use one of two patterns designed for apps on Smart TV systems.
 *
 * @class Panels
 * @extends module:layout/Panels~Panels

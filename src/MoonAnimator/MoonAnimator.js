@@ -108,10 +108,12 @@ module.exports = kind(
 	* The config can be specified for each object that needs to be animated.
 	* Each config consists of two directions, forward and backward.
 	*
+	* ```javascript
 	* panel: {
-	*			forward: { startValue: 0, endValue: 1, delay: 0, duration: 430, bezier: [.69,.01,.97,.59]},
-	*			backward: { startValue: 0, endValue: 1, delay: 0, duration: 500, bezier: [.06,.53,.38,.99] }
-	*		}
+	* 	forward: { startValue: 0, endValue: 1, delay: 0, duration: 430, bezier: [.69,.01,.97,.59]},
+	* 	backward: { startValue: 0, endValue: 1, delay: 0, duration: 500, bezier: [.06,.53,.38,.99] }
+	* }
+	* ```
 	*
 	* @param {Object} config
 	* @public

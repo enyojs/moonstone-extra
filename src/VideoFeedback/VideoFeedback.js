@@ -177,7 +177,7 @@ module.exports = kind(
 	* Sets the current state for a {@link module:moonstone-extra/VideoFeedback~VideoFeedback} control.
 	*
 	* @param {String} msg - The string to display.
-	* @param {moon.VideoTransportSlider~FeedbackParameterObject} params - A
+	* @param {module:moonstone-extra/VideoTransportSlider~VideoTransportSlider~FeedbackParameterObject} params - A
 	*	[hash]{@glossary Object} of parameters accompanying the message.
 	* @param {Boolean} persist - If `true`, the [feedback]{@link module:moonstone-extra/VideoFeedback~VideoFeedback}
 	* control will not be automatically hidden.
