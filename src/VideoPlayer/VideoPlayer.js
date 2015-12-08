@@ -469,7 +469,7 @@ module.exports = kind(
 		* Sliders will increase or decrease as much as this percentage value in either direction
 		* when left or right key is pressed in 5-Way mode.
 		*
-		* @type {Number} or {String}
+		* @type {Number|String}
 		* @default '5%'
 		* @public
 		*/

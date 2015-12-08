@@ -1,29 +1,37 @@
 require('moonstone-extra');
 
+/**
+* Contains the declaration for the {@link module:moonstone-extra/PlaylistSupport}
+* mixin.
+* @module moonstone-extra/PlaylistSupport
+*/
+
 var
 	kind = require('enyo/kind');
 
 var exports = module.exports = {};
 
 /**
-* The {@link moon.PlaylistSupport} [mixin]{@glossary mixin} should be used with player controls
-* like audio player or video player whose play sequence should be decided by various options.
+* The {@link module:moonstone-extra/PlaylistSupport} {@glossary mixin}
+* should be used with player controls like audio player or video player, whose
+* playback order is determined by various options.
 *
-* @mixin moon.PlaylistSupport
+* @mixin
 * @public
 */
 
-/** @lends moon.PlaylistSupport.prototype */
-exports.Support = {
+exports = {
 
 	/**
 	* @private
 	*/
 	name: 'PlaylistSupport',
 
+	/** @lends module:moonstone-extra/PlaylistSupport.prototype */
 	/**
-	* When 'none', no repeat after play audio.
-	* Set 'one' for repeat one audio, 'all' for repeat all audio.
+	* Valid values are `'none'`, `'one'`, and `'all'`.  When `'none'`, audio is
+	* played back with no repeating; when `'one'`, one audio track is repeated;
+	* when `'all'`, the entire playlist is repeated.
 	*
 	* @type {String}
 	* @default 'none'
@@ -32,8 +40,8 @@ exports.Support = {
 	repeat: undefined,
 
 	/**
-	* When 'true', play audio in shuffle order.
-	* When 'false', play audio in queue order.
+	* When `true`, audio tracks are shuffled for playback;
+	* when `false`, audio tracks are played in queue order.
 	*
 	* @type {Boolean}
 	* @default false
@@ -42,7 +50,7 @@ exports.Support = {
 	shuffle: undefined,
 
 	/**
-	* After playPrevThreshold time, play from start
+	* After this amount of time, audio track is played from start.
 	*
 	* @type {Number}
 	* @default 2
@@ -60,7 +68,7 @@ exports.Support = {
 	collection: undefined,
 
 	/**
-	* Array of index that indicate play order of track.
+	* Array of indices indicating playback order of tracks.
 	*
 	* @type {Array}
 	* @default empty array
@@ -69,17 +77,17 @@ exports.Support = {
 	playOrder: [],
 
 	/**
-	* Show jump controls by default.
-	* And, we override default jump controls behavior on playlist.
+	* Whether to show jump controls by default.
+	* Default jump control behavior is overridden for playlist.
 	*
-	* @type {Bolean}
+	* @type {Boolean}
 	* @default true
 	* @private
 	*/
 	showJumpControls: true,
 
 	/**
-	* Disable jump controls default behavior of hold.
+	* When `true`, jump controls' default hold behavior is disabled.
 	*
 	* @type {Boolean}
 	* @default true
@@ -149,8 +157,9 @@ exports.Support = {
 	}),
 
 	/**
-	* Return a model contains next audio information.
-	* When decide next audio, repeat and shuffle flag are referenced.
+	* Returns a model containing information for next audio track.
+	* The `repeat` and `shuffle` flags are referenced when determining the next
+	* audio track to play.
 	*
 	* @public
 	*/
@@ -174,8 +183,9 @@ exports.Support = {
 	},
 
 	/**
-	* Return a model contains previous audio information.
-	* When decide next audio, repeat and shuffle flag are referenced.
+	* Returns a model containing information for previous audio track.
+	* The `repeat` and `shuffle` flags are referenced when determining the next
+	* audio track to play.
 	*
 	* @public
 	*/
@@ -199,7 +209,9 @@ exports.Support = {
 	},
 
 	/**
-	* Get track model at specifix index in play order
+	* Returns model containing information for audio track at specified index in
+	* play order.
+	*
 	* @public
 	*/
 	getTrackAt: function (order) {
@@ -208,7 +220,7 @@ exports.Support = {
 	},
 
 	/**
-	* Add audio into playlist.
+	* Adds audio track to playlist.
 	*
 	* @public
 	*/
@@ -225,7 +237,7 @@ exports.Support = {
 	},
 
 	/**
-	* Remote audio from playlist.
+	* Removes audio track from playlist.
 	*
 	* @public
 	*/
@@ -267,8 +279,9 @@ exports.Support = {
 	},
 
 	/**
-	* Called when press rewind or previous button.
-	* When currentTime is greater than playPrevThreshold then reset play position.
+	* Called when the Rewind or Previous button is pressed.
+	* If `currentTime` is greater than `playPrevThreshold`, the play position
+	* will be reset.
 	*
 	* @public
 	*/
@@ -289,7 +302,7 @@ exports.Support = {
 	},
 
 	/**
-	* Called when press fastforward or next button.
+	* Called when the Fast Forward or Next button is pressed.
 	*
 	* @public
 	*/
@@ -305,9 +318,10 @@ exports.Support = {
 	},
 
 	/**
-	* Called when press shuffle button and toggle shuffle flag.
-	* When shuffle is false, play in queue sequence.
-	* When shuffle is true, play in shuffled order.
+	* Called when the Shuffle button is pressed.  Toggles `shuffle` flag.
+	* When the flag is set to `false`, tracks are played in queue order;
+	* when it is set to `true`, tracks are played in shuffled order.
+	*
 	* @public
 	*/
 	toggleShuffle: function (shuffleOrder) {
@@ -318,7 +332,8 @@ exports.Support = {
 	},
 
 	/**
-	* Shuffle play sequence.
+	* Shuffles play sequence.
+	*
 	* @protected
 	*/
 	shufflePlayOrder: function () {
@@ -347,8 +362,9 @@ exports.Support = {
 	},
 
 	/**
-	* Repeat is an option referenced by getPrevious and getNext.
-	* Option sequence: 'none', 'one', 'all'
+	* Changes value of `repeat` option referenced by `getPrevious()` and `getNext()`.
+	* Valid values for `repeat`, in sequential order, are `'none'`, `'one'`, and `'all'`.
+	*
 	* @public
 	*/
 	toggleRepeat: function () {
@@ -366,8 +382,9 @@ exports.Support = {
 	},
 
 	/**
-	* Called when play is ended.
-	* Decide play next or not by referencing repeat flag.
+	* Called when playback of an audio track ends.
+	* Determines whether to play next track, referencing the `repeat` flag.
+	*
 	* @public
 	*/
 	onPlayEnd: function (sender, ev) {

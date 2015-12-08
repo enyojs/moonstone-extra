@@ -249,7 +249,7 @@ module.exports = kind(
 		* If you'd like to use specific value instead of percentage,
 		* give value as number to this property when you instanciate moon.VideoPlayer.
 		*
-		* @type {Number} or {String}
+		* @type {Number|String}
 		* @default '5%'
 		* @public
 		*/
