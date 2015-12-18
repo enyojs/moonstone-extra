@@ -3,6 +3,7 @@ require('moonstone-extra');
 /**
 * Contains the declaration for the {@link module:moonstone-extra/AudioPlayback~AudioPlayback}
 * kind.
+* @wip
 * @module moonstone-extra/AudioPlayback
 */
 
@@ -64,6 +65,7 @@ var
 * @class AudioPlayback
 * @extends module:moonstone/Drawers~Drawer
 * @ui
+* @wip
 * @public
 */
 module.exports = kind(
