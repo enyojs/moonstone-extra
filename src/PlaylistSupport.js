@@ -9,8 +9,6 @@ require('moonstone-extra');
 var
 	kind = require('enyo/kind');
 
-var exports = module.exports = {};
-
 /**
 * The {@link module:moonstone-extra/PlaylistSupport} {@glossary mixin}
 * should be used with player controls like audio player or video player, whose
@@ -20,14 +18,13 @@ var exports = module.exports = {};
 * @public
 */
 
-exports = {
+module.exports = {
 
 	/**
 	* @private
 	*/
 	name: 'PlaylistSupport',
 
-	/** @lends module:moonstone-extra/PlaylistSupport.prototype */
 	/**
 	* Valid values are `'none'`, `'one'`, and `'all'`.  When `'none'`, audio is
 	* played back with no repeating; when `'one'`, one audio track is repeated;
