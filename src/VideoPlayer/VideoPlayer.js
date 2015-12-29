@@ -618,7 +618,8 @@ module.exports = kind(
 		{from: 'showFFRewindControls',		to:'$.fastForward.showing'},
 		{from: 'showFFRewindControls',		to:'$.rewind.showing'},
 		{from: 'showPlayPauseControl',		to:'$.fsPlayPause.showing'},
-		{from: 'showVideo',					to:'$.videoContainer.showing'}
+		{from: 'showVideo',					to:'$.videoContainer.showing'},
+		{from: 'readoutDuration',			to:'$.slider._readoutDuration'}
 	],
 
 	/**
@@ -2242,9 +2243,25 @@ module.exports = kind(
 	// Accessibility
 
 	/**
+	* Accessibility: readout duration for video player progress.
+	* If readoutDuration is set to 3, it will read current progress every 3 seconds.
+	*
+	* @type {Number}
+	* @default 0
+	* @public
+	*/
+	readoutDuration: 0,
+
+
+	/**
 	* @private
 	*/
 	ariaObservers: [
+		{path: 'generated', method: function () {
+			if (this.readoutDuration != 0) {
+				this.$.slider.set('accessibilityDisabled', false);
+			}
+		}},
 		{path: '_isPlaying', method: function () {
 			var label = this._isPlaying ? $L('Pause') : $L('Play');
 			this.$.fsPlayPause.set('accessibilityLabel', label);
