@@ -944,5 +944,24 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	accessibilityDisabled: true
+	accessibilityDisabled: true,
+
+	/**
+	* @private
+	*/
+	_readoutDuration: 0,
+
+	/**
+	* Overriding {@link module:moonstone/ProgressBar~ProgressBar#ariaValue} to guard updating value
+	* when dragging.
+	*
+	* @private
+	*/
+	ariaValue: function () {
+		if (this._readoutDuration != 0 && parseInt(this.value)%this._readoutDuration == 0 &&
+			this.formatTime && this.getAttribute('aria-valuetext') != this.formatTime(this.value)) {
+
+			this.setAriaAttribute('aria-valuetext', this.formatTime(this.value));
+		}
+	}
 });
