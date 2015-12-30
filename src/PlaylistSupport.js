@@ -1,8 +1,9 @@
 require('moonstone-extra');
 
 /**
-* Contains the declaration for the {@link module:moonstone-extra/PlaylistSupport}
+* Contains the declaration for the {@link module:moonstone-extra/PlaylistSupport~PlaylistSupport}
 * mixin.
+* @wip
 * @module moonstone-extra/PlaylistSupport
 */
 
@@ -10,15 +11,16 @@ var
 	kind = require('enyo/kind');
 
 /**
-* The {@link module:moonstone-extra/PlaylistSupport} {@glossary mixin}
+* The {@link module:moonstone-extra/PlaylistSupport~PlaylistSupport} {@glossary mixin}
 * should be used with player controls like audio player or video player, whose
 * playback order is determined by various options.
 *
 * @mixin
+* @wip
 * @public
 */
 
-module.exports = {
+var PlaylistSupport = {
 
 	/**
 	* @private
@@ -389,3 +391,5 @@ module.exports = {
 		this.next();
 	}
 };
+
+module.exports = PlaylistSupport;
