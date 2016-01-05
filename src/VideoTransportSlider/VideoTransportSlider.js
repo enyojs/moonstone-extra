@@ -24,6 +24,7 @@ var
 	VideoFeedback = require('../VideoFeedback');
 
 var
+	$L = require('../i18n'),
 	defaultKnobIncrement = '5%';
 
 /**
@@ -314,6 +315,11 @@ module.exports = kind(
 	/**
 	* @private
 	*/
+	_enterEnable: false,
+
+	/**
+	* @private
+	*/
 	createPopup: function () {
 		this.createComponents(this.popupComponents);
 	},
@@ -404,6 +410,7 @@ module.exports = kind(
 			this.startJob('simulateTapEnd', this.mouseUpTapArea, 200);
 			val = this.transformToVideo(this.knobPosValue);
 			this.sendSeekEvent(val);
+			this.set('_enterEnable', true);
 			return true;
 		}
 	},
@@ -422,6 +429,7 @@ module.exports = kind(
 			this.addClass('visible');
 			//fires enyo.VideoTransportSlider#onEnterTapArea
 			this.doEnterTapArea();
+			this.set('_enterEnable', false);
 		}
 
 		// if slider is in preview mode, preview() will update knobPosition
@@ -443,6 +451,7 @@ module.exports = kind(
 	* @private
 	*/
 	spotBlur: function () {
+		this.set('_enterEnable', false);
 		this.selected = false;
 		this.removeClass('visible');
 		this.endPreview();
@@ -460,6 +469,7 @@ module.exports = kind(
 			v = (v - this._knobIncrement < this.min) ? this.min : v - this._knobIncrement;
 			this._updateKnobPosition(v);
 			this.set('knobPosValue', v);
+			this.set('_enterEnable', false);
 		}
 		return true;
 	},
@@ -474,6 +484,7 @@ module.exports = kind(
 			v = (v + this._knobIncrement > this.max) ? this.max - 1 : v + this._knobIncrement;
 			this._updateKnobPosition(v);
 			this.set('knobPosValue', v);
+			this.set('_enterEnable', false);
 		}
 		return true;
 	},
@@ -940,9 +951,26 @@ module.exports = kind(
 	},
 
 	// Accessibility
-
 	/**
 	* @private
 	*/
-	accessibilityDisabled: true
+	ariaObservers: [
+		{path: ['$.popupLabelText.content', '_enterEnable'], method: 'ariaValue'}
+	],
+
+	/**
+	* Overriding {@link module:moonstone/ProgressBar~ProgressBar#ariaValue} to guard updating value
+	* when dragging.
+	*
+	* @private
+	*/
+	ariaValue: function () {
+		var valueText;
+		if (!Spotlight.getPointerMode() && !this.dragging && this.$.popupLabelText && this.selected) {
+			valueText = this._enterEnable ? this.$.popupLabelText.content : $L('jump to ') + this.$.popupLabelText.content;
+			if (this.getAttribute('aria-valuetext') != valueText) {
+				this.setAriaAttribute('aria-valuetext', valueText);
+			}
+		}
+	}
 });
