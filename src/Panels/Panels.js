@@ -494,13 +494,6 @@ module.exports = kind(
 	breadcrumbWidth: 96,
 
 	/**
-	* Observer property for accessibility. Determine whether or not panelsHandle dom is blurred.
-	*
-	* @private
-	*/
-	_spotted: false,
-
-	/**
 	* Checks the state of panel transitions.
 	*
 	* @return {Boolean} `true` if a transition between panels is currently in progress;
@@ -1140,11 +1133,10 @@ module.exports = kind(
 	*/
 	handleBlur: function (sender, event) {
 		if (this.isHandleFocused) {
-			this.isHandleFocused = false;
+			this.set('isHandleFocused', false);
 			if (!Spotlight.getPointerMode()) {
 				if (!this.showing) {
 					this.panelsHiddenAsync();
-					this.set('_spotted', false);
 				}
 			}
 		}
@@ -1196,9 +1188,8 @@ module.exports = kind(
 	handleFocused: function () {
 		this.unstashHandle();
 		this.startJob('autoHide', 'handleSpotLeft', this.getAutoHideTimeout());
-		this.isHandleFocused = true;
+		this.set('isHandleFocused', true);
 		Signals.send('onPanelsHandleFocused');
-		this.set('_spotted', true);
 	},
 
 	/**
@@ -1808,8 +1799,8 @@ module.exports = kind(
 			}
 		}},
 		// If panels is hidden and panelsHandle is spotlight blured, also make panelsHandle's dom blur.
-		{path: '_spotted', method: function () {
-			if (this.$.showHideHandle && this.$.showHideHandle.hasNode() && !this._spotted) {
+		{path: 'isHandleFocused', method: function () {
+			if (this.$.showHideHandle && this.$.showHideHandle.hasNode() && !this.isHandleFocused) {
 				this.$.showHideHandle.hasNode().blur();
 			}
 		}}
