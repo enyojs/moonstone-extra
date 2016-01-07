@@ -429,7 +429,6 @@ module.exports = kind(
 			this.addClass('visible');
 			//fires enyo.VideoTransportSlider#onEnterTapArea
 			this.doEnterTapArea();
-			this.set('_enterEnable', false);
 		}
 
 		// if slider is in preview mode, preview() will update knobPosition
@@ -951,6 +950,16 @@ module.exports = kind(
 	},
 
 	// Accessibility
+
+	/**
+	* When `true`, VoiceReadout will be prevented.
+	*
+	* @default true
+	* @type {Boolean}
+	* @public
+	*/
+	accessibilityDisabled: true,
+
 	/**
 	* @private
 	*/
@@ -966,11 +975,18 @@ module.exports = kind(
 	*/
 	ariaValue: function () {
 		var valueText;
-		if (!Spotlight.getPointerMode() && !this.dragging && this.$.popupLabelText && this.selected) {
+		if (this.showing && !Spotlight.getPointerMode() && this.$.popupLabelText && this.$.popupLabelText.content && this.selected) {
 			valueText = this._enterEnable ? this.$.popupLabelText.content : $L('jump to ') + this.$.popupLabelText.content;
 			if (this.getAttribute('aria-valuetext') != valueText) {
-				this.setAriaAttribute('aria-valuetext', valueText);
+				this.set('accessibilityValueText', valueText);
+				// Screen reader should read valueText when slider is only spotlight focused, but there is a timing issue between spotlight focus and observed 
+				// popupLabelText's content, so Screen reader reads valueText twice. We added below timer code for preventing this issue.
+				setTimeout(this.bindSafely(function(){
+					this.set('accessibilityDisabled', false);
+				}), 0);
 			}
+		} else {
+			this.set('accessibilityDisabled', true);
 		}
 	}
 });
