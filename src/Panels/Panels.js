@@ -365,13 +365,13 @@ module.exports = kind(
 		preventKeyNavigation: false,
 
 		/**
-		* When `true`, focus can move from panel to breadcrumb when press left key. (Experimental)
+		* When `true`, focus can move from panel to breadcrumb when press left key.
 		*
 		* @type {Boolean}
 		* @default false
 		* @public
 		*/
-		leftKeyToBreadcrumb: false,
+		leftKeyToBreadcrumb: true,
 
 		/**
 		* When `true`, existing views are cached for reuse; otherwise, they are destroyed.
