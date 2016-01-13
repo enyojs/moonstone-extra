@@ -368,7 +368,8 @@ module.exports = kind(
 		* When `true`, focus can move from panel to breadcrumb when press left key.
 		*
 		* @type {Boolean}
-		* @default false
+		* @default true
+		* @deprecated This property will be removed in the future.
 		* @public
 		*/
 		leftKeyToBreadcrumb: true,
