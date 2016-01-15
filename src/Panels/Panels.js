@@ -1031,6 +1031,9 @@ module.exports = kind(
 					Spotlight.spot(Spotlight.getLastControl());
 				}
 				return true;
+			} else if (this.hasCloseButton && this.pattern != 'alwaysviewing') { // need to find a cleaner way to detect this case
+				Spotlight.spot(this.$.breadcrumbs);
+				return true;
 			}
 		}
 	},
