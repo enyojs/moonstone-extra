@@ -45,7 +45,7 @@ module.exports = kind(
 
 	/**
 	* @private
-	* @lends module:enyo/VideoFeedback~VideoFeedback.prototype
+	* @lends module:moonstone-extra/VideoFeedback~VideoFeedback.prototype
 	*/
 	published: {
 
