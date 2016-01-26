@@ -1062,6 +1062,9 @@ module.exports = kind(
 					Spotlight.spot(Spotlight.getLastControl());
 				}
 				return true;
+			} else if (sender instanceof ApplicationCloseButton && this.$.breadcrumbs) {
+				Spotlight.spot(this.$.breadcrumbs);
+				return true;
 			}
 		}
 	},
