@@ -1350,7 +1350,11 @@ module.exports = kind(
 	_setIndex: function (index) {
 		var prev = this.get('index');
 		this.index = this.clamp(index);
-		this.notifyObservers('aria-index', prev, index);
+		// Accessibility - Before reading the focused item, it must have a alert role for reading the title,
+		// so setAriaRole() must be called before notifyObservers('index', prev, index).
+		if (options.accessibility) {
+			this.setAriaRole();
+		}
 		this.notifyObservers('index', prev, index);
 	},
 
@@ -1802,34 +1806,42 @@ module.exports = kind(
 
 	// Accessibility
 
+	/**
+	* @private
+	*/
 	ariaObservers: [
-		{path: ['showing', 'aria-index'], method: function () {
-			var panels = this.getPanels(),
-				active = this.getActive(),
-				l = panels.length,
-				panel;
-
-			if (this.$.showHideHandle) {
-				if (active && active.title) {
-					this.$.showHideHandle.set('accessibilityLabel', (this.showing ? $L('Close') : $L('Open')) + ' ' + active.title);
-				} else {
-					this.$.showHideHandle.set('accessibilityLabel', this.showing ? $L('Close') : $L('Open'));
-				}
-			}
-
-			while (--l >= 0) {
-				panel = panels[l];
-				if (panel instanceof Panel && panel.title) {
-					panel.set('accessibilityRole', (panel === active) && this.get('showing') ? 'alert' : 'region');
-				}
-			}
-		}},
+		{path: 'showing', method: 'setAriaRole'},
 		// If panels is hidden and panelsHandle is spotlight blured, also make panelsHandle's dom blur.
 		{path: 'isHandleFocused', method: function () {
 			if (this.$.showHideHandle && this.$.showHideHandle.hasNode() && !this.isHandleFocused) {
 				this.$.showHideHandle.hasNode().blur();
 			}
 		}}
-	]
+	],
+
+	/**
+	* @private
+	*/
+	setAriaRole: function () {
+		var panels = this.getPanels(),
+			active = this.getActive(),
+			l = panels.length,
+			panel;
+
+		if (this.$.showHideHandle) {
+			if (active && active.title) {
+				this.$.showHideHandle.set('accessibilityLabel', (this.showing ? $L('Close') : $L('Open')) + ' ' + active.title);
+			} else {
+				this.$.showHideHandle.set('accessibilityLabel', this.showing ? $L('Close') : $L('Open'));
+			}
+		}
+
+		while (--l >= 0) {
+			panel = panels[l];
+			if (panel instanceof Panel && panel.title) {
+				panel.set('accessibilityRole', (panel === active) && this.get('showing') ? 'alert' : 'region');
+			}
+		}
+	}
 
 });
