@@ -1,5 +1,6 @@
 /**
 * Contains the declaration for the {@link module:moonstone-extra/AnimatedButton~AnimatedButton} kind.
+* @wip
 * @module moonstone-extra/AnimatedButton
 */
 
@@ -14,8 +15,9 @@ var
 	AnimatedButtonSvg = require('./AnimatedButtonSvg');
 
 /**
-* {@link module:moonstone-extra/AnimatedButton~AnimatedButton} is an {@link module:moonstone/Button~Button} with Moonstone styling applied.
-* The color of the button may be customized by specifying a background color.
+* {@link module:moonstone-extra/AnimatedButton~AnimatedButton} is a
+* {@link module:moonstone/Button~Button} with Moonstone styling applied. The color of the button may
+* be customized by specifying a background color.
 *
 * For more information, see the documentation on
 * [Buttons]{@linkplain $dev-guide/building-apps/controls/buttons.html} in the
@@ -25,6 +27,7 @@ var
 * @extends module:enyo/AnimatedButton~AnimatedButton
 * @mixes module:moonstone/MarqueeSupport~MarqueeSupport
 * @ui
+* @wip
 * @public
 */
 module.exports = kind(
@@ -87,7 +90,7 @@ module.exports = kind(
 			]}
 		]);
 
-		this.inherited(arguments);
+		Button.prototype.initComponents.apply(this, arguments);
 
 		if (this.$.client) {
 			this.$.client.addClass('button-client');
@@ -108,12 +111,11 @@ module.exports = kind(
 	*/
 	animateSpotlightFocus: function () {
 		this.$.animation.startFocus();
-		var self = this;
-		util.asyncMethod(function () {
-			self.removeClass('spotlight');
+		util.asyncMethod(this, function () {
+			this.removeClass('spotlight');
 		});
 		this.startJob('textTransition', function () {
-			self.addClass('nearly-spotlight');
+			this.addClass('nearly-spotlight');
 		}, this.get('duration') / 2);
 	},
 
