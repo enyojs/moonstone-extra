@@ -94,7 +94,7 @@ var
 *			{kind: IconButton, src: '@../assets/feature3.png', ontap: 'feature3'}
 *		],
 *		infoComponents: [
-*			{kind: 'VideoHeaderBackground, components: [
+*			{kind: VideoHeaderBackground, components: [
 *				{kind: VideoInfoHeader, ... }
 *			]
 *		]
