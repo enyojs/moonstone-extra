@@ -964,6 +964,15 @@ module.exports = kind(
 	* @private
 	*/
 	ariaObservers: [
+		{path: 'selected', method: function() {
+			if (this.selected) {
+				this.set('accessibilityRole', 'slider');
+				this.set('accessibilityLive', null);
+				this.set('accessibilityHint', null);
+			} else {
+				this.setAriaAttribute('aria-valuetext', null);
+			}
+		}},
 		{path: ['$.popupLabelText.content', '_enterEnable'], method: 'ariaValue'}
 	],
 
@@ -977,14 +986,12 @@ module.exports = kind(
 		var valueText;
 		if (this.showing && !Spotlight.getPointerMode() && this.$.popupLabelText && this.$.popupLabelText.content && this.selected) {
 			valueText = this._enterEnable ? this.$.popupLabelText.content : $L('jump to ') + this.$.popupLabelText.content;
-			if (this.getAttribute('aria-valuetext') != valueText) {
-				this.set('accessibilityValueText', valueText);
-				// Screen reader should read valueText when slider is only spotlight focused, but there is a timing issue between spotlight focus and observed 
-				// popupLabelText's content, so Screen reader reads valueText twice. We added below timer code for preventing this issue.
-				setTimeout(this.bindSafely(function(){
-					this.set('accessibilityDisabled', false);
-				}), 0);
-			}
+			// Screen reader should read valueText when slider is only spotlight focused, but there is a timing issue between spotlight focus and observed 
+			// popupLabelText's content, so Screen reader reads valueText twice. We added below timer code for preventing this issue.
+			setTimeout(this.bindSafely(function(){
+				this.set('accessibilityDisabled', false);
+				this.setAriaAttribute('aria-valuetext', valueText);
+			}), 0);
 		} else {
 			this.set('accessibilityDisabled', true);
 		}
