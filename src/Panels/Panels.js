@@ -633,18 +633,29 @@ module.exports = kind(
 	* @public
 	*/
 	pushPanel: function (info, moreInfo) { // added
-		if (this.transitioning || this.isModifyingPanels) {return null;}
-		this.isModifyingPanels = true;
-		var lastIndex = this.getPanels().length - 1,
-			oPanel = this.createPanel(info, moreInfo);
+		var startingPanelCount, lastIndex, panel;
 
-		oPanel.render();
+		if (this.transitioning || this.isModifyingPanels) return null;
+
+		this.isModifyingPanels = true;
+
+		startingPanelCount = this.getPanels().length;
+		lastIndex = startingPanelCount - 1;
+		panel = this.createPanel(info, moreInfo);
+
+		panel.render();
 		this.addBreadcrumb(true);
 		this.recalcLayout();
-		oPanel.resize();
+		panel.resize();
 		this.setIndex(lastIndex+1);
+
+		// when we push the first panel, we need to explicitly let our observers know about this as
+		// there would not be a change in actual index value
+		if (startingPanelCount === 0) this.notifyObservers('index');
+
 		this.isModifyingPanels = false;
-		return oPanel;
+
+		return panel;
 	},
 
 	/**
@@ -673,16 +684,20 @@ module.exports = kind(
 	* @public
 	*/
 	pushPanels: function (info, commonInfo, options) { // added
-		if (this.transitioning || this.isModifyingPanels) { return null; }
+		var startingPanelCount, lastIndex, panels, panel;
+
+		if (this.transitioning || this.isModifyingPanels) return null;
+
 		this.isModifyingPanels = true;
 
-		if (!options) { options = {}; }
-		var lastIndex = this.getPanels().length,
-			oPanels = this.createPanels(info, commonInfo),
-			nPanel;
+		if (!options) options = {};
 
-		for (nPanel = 0; nPanel < oPanels.length; ++nPanel) {
-			oPanels[nPanel].render();
+		startingPanelCount = this.getPanels().length;
+		lastIndex = startingPanelCount;
+		panels = this.createPanels(info, commonInfo);
+
+		for (panel = 0; panel < panels.length; ++panel) {
+			panels[panel].render();
 		}
 		this.addBreadcrumb(true);
 		this.recalcLayout();
@@ -690,8 +705,8 @@ module.exports = kind(
 			lastIndex = options.targetIndex;
 		}
 		lastIndex = this.clamp(lastIndex);
-		for (nPanel = 0; nPanel < oPanels.length; ++nPanel) {
-			oPanels[nPanel].resize();
+		for (panel = 0; panel < panels.length; ++panel) {
+			panels[panel].resize();
 		}
 		// If transition was explicitly set to false, since null or undefined indicate 'never set' or unset
 		if (options.transition === false) {
@@ -700,8 +715,13 @@ module.exports = kind(
 			this.setIndex(lastIndex);
 		}
 
+		// when we push the first panel, we need to explicitly let our observers know about this as
+		// there would not be a change in actual index value
+		if (startingPanelCount === 0) this.notifyObservers('index');
+
 		this.isModifyingPanels = false;
-		return oPanels;
+
+		return panels;
 	},
 
 	/**
@@ -1133,7 +1153,7 @@ module.exports = kind(
 	*/
 	handleBlur: function (sender, event) {
 		if (this.isHandleFocused) {
-			this.isHandleFocused = false;
+			this.set('isHandleFocused', false);
 			if (!Spotlight.getPointerMode()) {
 				if (!this.showing) {
 					this.panelsHiddenAsync();
@@ -1188,7 +1208,7 @@ module.exports = kind(
 	handleFocused: function () {
 		this.unstashHandle();
 		this.startJob('autoHide', 'handleSpotLeft', this.getAutoHideTimeout());
-		this.isHandleFocused = true;
+		this.set('isHandleFocused', true);
 		Signals.send('onPanelsHandleFocused');
 	},
 
@@ -1469,31 +1489,33 @@ module.exports = kind(
 	indexChanged: function (was) {
 		var current, delta, deltaAbs, idx;
 
-		this.assignBreadcrumbIndex();
+		if (this.getPanels().length > 0) {
+			this.assignBreadcrumbIndex();
 
-		// Set animation direction to use proper timing function before start animation
-		// This direction is only consumed by MoonAnimator.
-		this.$.animator.direction = this.getDirection();
+			// Set animation direction to use proper timing function before start animation
+			// This direction is only consumed by MoonAnimator.
+			this.$.animator.direction = this.getDirection();
 
-		this.adjustFirstPanelBeforeTransition();
+			this.adjustFirstPanelBeforeTransition();
 
-		// Push or drop history, based on the direction of the index change
-		if (this.allowBackKey) {
-			was = was || 0;
-			delta = this.index - was;
-			deltaAbs = Math.abs(delta);
+			// Push or drop history, based on the direction of the index change
+			if (this.allowBackKey) {
+				was = was || 0;
+				delta = this.index - was;
+				deltaAbs = Math.abs(delta);
 
-			if (delta > 0) {
-				for (idx = 0; idx < deltaAbs; idx++) {
-					this.pushBackHistory(idx + was);
-				}
-			} else {
-				current = EnyoHistory.peek();
+				if (delta > 0) {
+					for (idx = 0; idx < deltaAbs; idx++) {
+						this.pushBackHistory(idx + was);
+					}
+				} else {
+					current = EnyoHistory.peek();
 
-				// ensure we have history to drop - if the first history entry's index corresponds
-				// to the index prior to our current index, we assume the other entries exist
-				if (current && current.index + 1 == was) {
-					EnyoHistory.drop(deltaAbs);
+					// ensure we have history to drop - if the first history entry's index corresponds
+					// to the index prior to our current index, we assume the other entries exist
+					if (current && current.index + 1 == was) {
+						EnyoHistory.drop(deltaAbs);
+					}
 				}
 			}
 		}
@@ -1799,6 +1821,12 @@ module.exports = kind(
 				if (panel instanceof Panel && panel.title) {
 					panel.set('accessibilityRole', (panel === active) && this.get('showing') ? 'alert' : 'region');
 				}
+			}
+		}},
+		// If panels is hidden and panelsHandle is spotlight blured, also make panelsHandle's dom blur.
+		{path: 'isHandleFocused', method: function () {
+			if (this.$.showHideHandle && this.$.showHideHandle.hasNode() && !this.isHandleFocused) {
+				this.$.showHideHandle.hasNode().blur();
 			}
 		}}
 	]
