@@ -1607,6 +1607,11 @@ module.exports = kind(
 			if (this.showing) {
 				this.unstashHandle();
 				this._show();
+				// Accessibility - Before reading the focused item, it must have a alert role for reading the title,
+				// so setAriaRole() must be called before Spotlight.spot
+				if (options.accessibility) {
+					this.setAriaRole();
+				}
 				Spotlight.spot(this.getActive());
 			}
 			else {
