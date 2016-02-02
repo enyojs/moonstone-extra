@@ -1598,6 +1598,11 @@ module.exports = kind(
 	* @private
 	*/
 	showingChanged: function (inOldValue) {
+		// Accessibility - Before reading the focused item, it must have a alert role for reading the title,
+		// so setAriaRole() must be called before Spotlight.spot
+		if (options.accessibility) {
+			this.setAriaRole();
+		}
 		if (this.$.backgroundScrim) {
 			this.$.backgroundScrim.addRemoveClass('visible', this.showing);
 		}
@@ -1607,11 +1612,6 @@ module.exports = kind(
 			if (this.showing) {
 				this.unstashHandle();
 				this._show();
-				// Accessibility - Before reading the focused item, it must have a alert role for reading the title,
-				// so setAriaRole() must be called before Spotlight.spot
-				if (options.accessibility) {
-					this.setAriaRole();
-				}
 				Spotlight.spot(this.getActive());
 			}
 			else {
@@ -1815,7 +1815,6 @@ module.exports = kind(
 	* @private
 	*/
 	ariaObservers: [
-		{path: ['showing', 'index'], method: 'setAriaRole'},
 		// If panels is hidden and panelsHandle is spotlight blured, also make panelsHandle's dom blur.
 		{path: 'isHandleFocused', method: function () {
 			if (this.$.showHideHandle && this.$.showHideHandle.hasNode() && !this.isHandleFocused) {
