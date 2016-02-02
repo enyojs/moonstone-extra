@@ -1809,7 +1809,7 @@ module.exports = kind(
 	* @private
 	*/
 	ariaObservers: [
-		{path: 'showing', method: 'setAriaRole'},
+		{path: ['showing', 'index'], method: 'setAriaRole'},
 		// If panels is hidden and panelsHandle is spotlight blured, also make panelsHandle's dom blur.
 		{path: 'isHandleFocused', method: function () {
 			if (this.$.showHideHandle && this.$.showHideHandle.hasNode() && !this.isHandleFocused) {
