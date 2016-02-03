@@ -666,7 +666,9 @@ module.exports = kind(
 	* @private
 	*/
 	updateKnobPosition: function (val) {
-		if (this.dragging || !this.isInPreview()) {
+		if (this.dragging) {
+			this.updatePopupLabel(this.currentTime);
+		} else if (!this.isInPreview()) {
 			this.updatePopupLabel(val);
 		}
 	},
