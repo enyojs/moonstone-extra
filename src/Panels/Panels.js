@@ -26,7 +26,7 @@ var
 	$L = require('../i18n');
 
 var
-	options = require('moonstone/options'),
+	MoonOptions = require('moonstone/options'),
 	StyleAnimator = require('moonstone/StyleAnimator'),
 	HistorySupport = require('moonstone/HistorySupport');
 
@@ -650,7 +650,13 @@ module.exports = kind(
 
 		// when we push the first panel, we need to explicitly let our observers know about this as
 		// there would not be a change in actual index value
-		if (startingPanelCount === 0) this.notifyObservers('index');
+		if (startingPanelCount === 0) {
+			// Accessibility - when we push the first panel, we need to set alert role for reading title.
+			if (MoonOptions.accessibility) {
+				this.setAriaRole();
+			}
+			this.notifyObservers('index');
+		}
 
 		this.isModifyingPanels = false;
 
@@ -716,7 +722,13 @@ module.exports = kind(
 
 		// when we push the first panel, we need to explicitly let our observers know about this as
 		// there would not be a change in actual index value
-		if (startingPanelCount === 0) this.notifyObservers('index');
+		if (startingPanelCount === 0) {
+			// Accessibility - when we push the first panel, we need to set alert role for reading title.
+			if (MoonOptions.accessibility) {
+				this.setAriaRole();
+			}
+			this.notifyObservers('index');
+		}	
 
 		this.isModifyingPanels = false;
 
@@ -920,7 +932,7 @@ module.exports = kind(
 	*/
 	create: function () {
 		Panels.prototype.create.apply(this, arguments);
-		this.set('animate', this.animate && options.accelerate, true);
+		this.set('animate', this.animate && MoonOptions.accelerate, true);
 
 		// we need to ensure our handler has the opportunity to modify the flow during
 		// initialization
@@ -1351,7 +1363,7 @@ module.exports = kind(
 		this.index = this.clamp(index);
 		// Accessibility - Before reading the focused item, it must have a alert role for reading the title,
 		// so setAriaRole() must be called before notifyObservers('index', prev, index).
-		if (options.accessibility) {
+		if (MoonOptions.accessibility) {
 			this.setAriaRole();
 		}
 		this.notifyObservers('index', prev, index);
@@ -1597,6 +1609,11 @@ module.exports = kind(
 	* @private
 	*/
 	showingChanged: function (inOldValue) {
+		// Accessibility - Before reading the focused item, it must have a alert role for reading the title,
+		// so setAriaRole() must be called before Spotlight.spot
+		if (MoonOptions.accessibility) {
+			this.setAriaRole();
+		}
 		if (this.$.backgroundScrim) {
 			this.$.backgroundScrim.addRemoveClass('visible', this.showing);
 		}
@@ -1606,11 +1623,6 @@ module.exports = kind(
 			if (this.showing) {
 				this.unstashHandle();
 				this._show();
-				// Accessibility - Before reading the focused item, it must have a alert role for reading the title,
-				// so setAriaRole() must be called before Spotlight.spot
-				if (options.accessibility) {
-					this.setAriaRole();
-				}
 				Spotlight.spot(this.getActive());
 			}
 			else {
@@ -1814,7 +1826,6 @@ module.exports = kind(
 	* @private
 	*/
 	ariaObservers: [
-		{path: ['showing', 'index'], method: 'setAriaRole'},
 		// If panels is hidden and panelsHandle is spotlight blured, also make panelsHandle's dom blur.
 		{path: 'isHandleFocused', method: function () {
 			if (this.$.showHideHandle && this.$.showHideHandle.hasNode() && !this.isHandleFocused) {
