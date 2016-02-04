@@ -654,7 +654,7 @@ module.exports = kind(
 		if (startingPanelCount === 0) {
 			// Accessibility - when we push the first panel, we need to set alert role for reading title.
 			if (MoonOptions.accessibility) {
-				this.setAriaRole();
+				this.setAlertRole();
 			}
 			this.notifyObservers('index');
 		}
@@ -726,7 +726,7 @@ module.exports = kind(
 		if (startingPanelCount === 0) {
 			// Accessibility - when we push the first panel, we need to set alert role for reading title.
 			if (MoonOptions.accessibility) {
-				this.setAriaRole();
+				this.setAlertRole();
 			}
 			this.notifyObservers('index');
 		}	
@@ -1363,9 +1363,9 @@ module.exports = kind(
 		var prev = this.get('index');
 		this.index = this.clamp(index);
 		// Accessibility - Before reading the focused item, it must have a alert role for reading the title,
-		// so setAriaRole() must be called before notifyObservers('index', prev, index).
+		// so setAlertRole() must be called before notifyObservers('index', prev, index).
 		if (MoonOptions.accessibility) {
-			this.setAriaRole();
+			this.setAlertRole();
 		}
 		this.notifyObservers('index', prev, index);
 	},
@@ -1611,9 +1611,9 @@ module.exports = kind(
 	*/
 	showingChanged: function (inOldValue) {
 		// Accessibility - Before reading the focused item, it must have a alert role for reading the title,
-		// so setAriaRole() must be called before Spotlight.spot
+		// so setAlertRole() must be called before Spotlight.spot
 		if (MoonOptions.accessibility) {
-			this.setAriaRole();
+			this.setAlertRole();
 		}
 		if (this.$.backgroundScrim) {
 			this.$.backgroundScrim.addRemoveClass('visible', this.showing);
@@ -1838,7 +1838,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	setAriaRole: function () {
+	setAlertRole: function () {
 		var panels = this.getPanels(),
 			active = this.getActive(),
 			l = panels.length,
