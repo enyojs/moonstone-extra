@@ -1414,10 +1414,10 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	getBreadcrumbPositionInfo: function (inBounds, inContainerBounds) {
-		var right = inBounds ? inBounds.right : null,
-			left = inBounds ? inBounds.left : null,
-			panelEdge = inContainerBounds ? inContainerBounds.right : null;
+	getBreadcrumbPositionInfo: function (bounds, containerBounds) {
+		var right = bounds ? bounds.right : null,
+			left = bounds ? bounds.left : null,
+			panelEdge = containerBounds ? containerBounds.right : null;
 
 		return {isOffscreen: (right == null || left == null || panelEdge == null || right <= 0 || left >= panelEdge)};
 	},
