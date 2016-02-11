@@ -1627,8 +1627,10 @@ module.exports = kind(
 	*/
 	toggleFullscreen: function () {
 		if (this.isFullscreen()) {
+			if (this.allowBackKey) EnyoHistory.drop();
 			this.cancelFullscreen();
 		} else {
+			if (this.allowBackKey) this.pushBackHistory();
 			this.requestFullscreen();
 		}
 	},
@@ -2235,6 +2237,12 @@ module.exports = kind(
 
 		if (visibleUp) this.hideFSInfo();
 		if (visibleDown) this.hideFSBottomControls();
+
+		// if both the videoInfoHeaderClient and playerControl are hidden, then the remaining action
+		// to "reverse" is fullscreen mode
+		if (!visibleUp && !visibleDown && this.isFullscreen()) {
+			this.cancelFullscreen();
+		}
 
 		return true;
 	},
