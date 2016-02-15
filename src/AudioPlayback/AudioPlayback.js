@@ -43,7 +43,7 @@ var
 /**
 * {@link module:moonstone-extra/AudioPlayback~AudioPlayback} is meant to be used
 * with {@link module:moonstone/Drawers~Drawers}. It extends
-* {@link module:moonstone/Drawers~Drawer} by adding an audio playback control
+* {@link module:moonstone/Drawers/Drawer~Drawer} by adding an audio playback control
 * and playlist for the imported audio.
 *
 * ```
