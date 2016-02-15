@@ -5,7 +5,6 @@ var
 	BodyText = require('moonstone/BodyText'),
 	Button = require('moonstone/Button'),
 	ContextualPopup = require('moonstone/ContextualPopup'),
-	ContextualPopupButton = require('moonstone/ContextualPopupButton'),
 	ContextualPopupDecorator = require('moonstone/ContextualPopupDecorator'),
 	Divider = require('moonstone/Divider'),
 	Drawers = require('moonstone/Drawers'),
@@ -40,7 +39,7 @@ var ContainerInitializer = kind({
 					{kind: ImageItem},
 					{kind: Divider},
 					{kind: ContextualPopupDecorator, components: [
-						{kind: ContextualPopupButton},
+						{},
 						{kind: ContextualPopup, components: [{}]}
 					]}
 				]}
