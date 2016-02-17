@@ -740,7 +740,7 @@ module.exports = kind(
 		this.retrieveIconsSrcOrFont(this.$.fsPlayPause, this.pauseIcon);
 		this.retrieveIconsSrcOrFont(this.$.fastForward, this.fastForwardIcon);
 		this.retrieveIconsSrcOrFont(this.$.jumpForward, this.jumpForwardIcon);
-		this.retrieveIconsSrcOrFont(this.$.ilFullscreen, this.inlineFullscreenIcon, 'moon-video-player-inline-control-fullscreen');
+		this.retrieveIconsSrcOrFont(this.$.ilFullscreen, this.inlineFullscreenIcon);
 		this.$.ilFullscreen.removeClass('moon-icon-exitfullscreen-font-style');
 	},
 
@@ -1869,14 +1869,14 @@ module.exports = kind(
 	*/
 	updatePlayPauseButtons: function () {
 		if (this._isPlaying) {
-			this.retrieveIconsSrcOrFont(this.$.fsPlayPause, this.pauseIcon, 'moon-icon-main-control-font-size');
+			this.retrieveIconsSrcOrFont(this.$.fsPlayPause, this.pauseIcon);
 		} else {
-			this.retrieveIconsSrcOrFont(this.$.fsPlayPause, this.playIcon, 'moon-icon-main-control-font-size');
+			this.retrieveIconsSrcOrFont(this.$.fsPlayPause, this.playIcon);
 		}
 		if (this._isPlaying) {
-			this.retrieveIconsSrcOrFont(this.$.ilPlayPause, this.inlinePauseIcon, 'moon-video-player-inline-control-play-pause');
+			this.retrieveIconsSrcOrFont(this.$.ilPlayPause, this.inlinePauseIcon);
 		} else {
-			this.retrieveIconsSrcOrFont(this.$.ilPlayPause, this.inlinePlayIcon, 'moon-video-player-inline-control-play-pause');
+			this.retrieveIconsSrcOrFont(this.$.ilPlayPause, this.inlinePlayIcon);
 		}
 	},
 
@@ -1885,7 +1885,7 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	retrieveIconsSrcOrFont:function (src, icon, classes){
+	retrieveIconsSrcOrFont:function (src, icon) {
 		var iconType = this.checkIconType(icon);
 
 		if (iconType == 'image') {
@@ -1930,23 +1930,31 @@ module.exports = kind(
 	moreButtonTapped: function (sender, e) {
 		var index = this.$.controlsContainer.get('index');
 		if (index === 0) {
-			this.retrieveIconsSrcOrFont(this.$.moreButton, this.rtl?this.moreControlsIcon:this.lessControlsIcon, 'moon-icon-video-more-controls-font-style');
+			this.retrieveIconsSrcOrFont(this.$.moreButton, this.lessControlsIcon);
 			this.toggleSpotlightForMoreControls(true);
 			this.$.controlsContainer.next();
 		} else {
-			this.retrieveIconsSrcOrFont(this.$.moreButton, this.rtl?this.lessControlsIcon:this.moreControlsIcon, 'moon-icon-video-more-controls-font-style');
+			this.retrieveIconsSrcOrFont(this.$.moreButton, this.moreControlsIcon);
 			this.toggleSpotlightForMoreControls(false);
 			this.$.controlsContainer.previous();
 		}
 	},
+
+	/**
+	* @private
+	*/
 	updateMoreButton: function () {
 		var index = this.$.controlsContainer.get('index');
 		if (index === 0) {
-			this.retrieveIconsSrcOrFont(this.$.moreButton, this.rtl?this.lessControlsIcon:this.moreControlsIcon, 'moon-icon-video-round-controls-style moon-icon-video-more-controls-font-style');
+			this.retrieveIconsSrcOrFont(this.$.moreButton, this.moreControlsIcon);
 		} else {
-			this.retrieveIconsSrcOrFont(this.$.moreButton, this.rtl?this.moreControlsIcon:this.lessControlsIcon, 'moon-icon-video-round-controls-style moon-icon-video-more-controls-font-style');
+			this.retrieveIconsSrcOrFont(this.$.moreButton, this.lessControlsIcon);
 		}
 	},
+
+	/**
+	* @private
+	*/
 	toggleSpotlightForMoreControls: function (moreControlsSpottable) {
 		this.$.playbackControls.spotlightDisabled = moreControlsSpottable;
 		this.$.client.spotlightDisabled = !moreControlsSpottable;
