@@ -748,7 +748,7 @@ module.exports = kind(
 	* @private
 	*/
 	checkIconType: function (icon) {
-		var imagesrcRegex=/\.(jpg|jpeg|png|gif)$/i;
+		var imagesrcRegex=/\.(jpg|jpeg|png|gif|svg)$/i;
 		var iconType=imagesrcRegex.test(icon)?'image':'iconfont';
 		return iconType;
 	},
