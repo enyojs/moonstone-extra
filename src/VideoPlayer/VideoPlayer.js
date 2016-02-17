@@ -529,14 +529,14 @@ module.exports = kind(
 		*
 		* @private
 		*/
-		moreControlsIcon: 'arrowextend',
+		moreControlsIcon: '../../' + '@../../images/ellipsis.svg',
 
 		/**
 		* Name of font-based icon or image file.
 		*
 		* @private
 		*/
-		lessControlsIcon: 'arrowshrink',
+		lessControlsIcon: '../../' + '@../../images/back.svg',
 
 		/**
 		* Name of font-based icon or image file.
