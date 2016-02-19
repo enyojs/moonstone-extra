@@ -26,10 +26,15 @@ var
 *	VideoTitle = require('moonstone-extra/VideoTitle');
 *
 * {
-*		kind: VideoTitle,
-*		title: 'Breaking Bad - Live Free Or Die'
-*	]
+*	kind: VideoTitle,
+*	title: 'Breaking Bad - Live Free Or Die'
 * }
+* // OR with components
+* {kind: VideoTitle, title: 'Downton Abbey', components: [
+* 	{content: 'DTV'},
+* 	{content: 'Cinema'},
+* 	{content: '3D'}
+* ]}
 * ```
 *
 * @class VideoTitle

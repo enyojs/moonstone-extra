@@ -1221,12 +1221,9 @@ module.exports = kind(
 	* @private
 	*/
 	hideFSControls: function (spottingHandled) {
-		var dropCount;
 		if (this.isOverlayShowing()) {
 			if (this.allowBackKey) {
-				dropCount = 0;
-				if (this.$.playerControl.get('showing')) dropCount++;
-				EnyoHistory.drop(dropCount);
+				EnyoHistory.drop(1);
 			}
 
 			this.hideFSBottomControls();
@@ -2144,19 +2141,12 @@ module.exports = kind(
 	* @private
 	*/
 	backKeyHandler: function () {
-		var visibleDown = this.$.playerControl.get('showing');
-
-		// if videoInfoHeaderClient and playerControl are visible
-		// it means that we pushed video player into history stack twice.
-		// to set correct target for next back key, we should pop one instance.
-		if (visibleDown) {
-			EnyoHistory.drop();
+		// if playerControls are visible, hide them
+		if (this.isOverlayShowing()) {
 			this.hideFSBottomControls();
 		}
-
-		// if both the videoInfoHeaderClient and playerControl are hidden, then the remaining action
-		// to "reverse" is fullscreen mode
-		if (!visibleDown && this.isFullscreen()) {
+		// if playerControls are hidden, then the remaining action to "reverse" is fullscreen mode
+		else if (this.isFullscreen()) {
 			this.cancelFullscreen();
 		}
 
