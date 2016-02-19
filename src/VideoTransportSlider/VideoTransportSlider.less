@@ -1,7 +1,9 @@
 .moon-progress-bar.moon-video-player-transport-slider {
+	@knob-v-offset: (@moon-video-player-transport-slider-knob-size - (@moon-video-player-transport-slider-height / 2));
+
 	height: @moon-video-player-transport-slider-height;
 	background-color: rgba(0, 0, 0, 0.6);
-	margin: 0 0 (@moon-video-player-transport-slider-tap-area - @moon-video-player-transport-slider-height) 0;
+	margin: (@knob-v-offset / 2) 0 (@moon-video-player-transport-slider-tap-area - @moon-video-player-transport-slider-height) 0;
 
 	.moon-slider-popup {
 		pointer-events: none;
@@ -18,16 +20,12 @@
 
 		position: absolute;
 		width: (@moon-video-player-transport-slider-knob-size * 2);
-		top: 0;
-		height: @moon-video-player-transport-slider-knob-size;
+		top: -@knob-v-offset;
+		height: (@moon-video-player-transport-slider-knob-size * 2);
 		border-radius: @moon-video-player-transport-slider-knob-size;
-		border-top-left-radius: 0;
-		border-top-right-radius: 0;
 		background-color: #fff;
 		pointer-events: none;
 		display: none;
-		-webkit-transform-origin: top;
-		transform-origin: top;
 		-webkit-transform: translateZ(0) translateX(-50%) scale(0.5);
 		transform:         translateZ(0) translateX(-50%) scale(0.5);
 		-webkit-transition: -webkit-transform @activate-transition-function 0.2s;
@@ -163,9 +161,9 @@
 		content: '';
 		display: block;
 		position: absolute;
-		top: 0;
+		top: -(@knob-v-offset / 2);
 		width: 100%;
-		height: @moon-video-player-transport-slider-tap-area;
+		height: (@moon-video-player-transport-slider-tap-area + @knob-v-offset);
 	}
 }
 
