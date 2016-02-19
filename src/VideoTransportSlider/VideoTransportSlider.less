@@ -1,10 +1,11 @@
 .moon-progress-bar.moon-video-player-transport-slider {
 	height: @moon-video-player-transport-slider-height;
-	background-color: #323232;
-	margin: 0;
+	background-color: rgba(0, 0, 0, 0.6);
+	margin: 0 0 (@moon-video-player-transport-slider-tap-area - @moon-video-player-transport-slider-height) 0;
 
 	.moon-slider-popup {
 		pointer-events: none;
+
 		&.above {
 			padding-left: 0px;
 		}
@@ -41,6 +42,7 @@
 		.knob {
 			display: block;
 		}
+
 		&.pressed {
 			.knob {
 				-webkit-transform: translateZ(0) translateX(-50%) scale(0.75);
@@ -57,6 +59,7 @@
 			left: 0;
 			margin: 0 auto;
 		}
+
 		> * {
 			background-color: @moon-dark-gray; //Todo: check exact color
 		}
@@ -75,19 +78,27 @@
 		}
 	}
 
-	// Bar
-	.bar-bar {
-		height: 100%;
-		background-color: @moon-accent;
-		position: absolute;
-		top: 0;
-	}
+	// Bars
+	.bar-bar,
 	.bg-bar {
 		height: 100%;
-		background-color: @moon-dark-gray;
 		position: absolute;
 		top: 0;
+		border-top-right-radius: (@moon-video-player-transport-slider-height / 2);
+		border-bottom-right-radius: (@moon-video-player-transport-slider-height / 2);
 	}
+
+	// Bar
+	.bar-bar {
+		background-color: @moon-accent;
+		opacity: 0.8;
+	}
+
+	.bg-bar {
+		background-color: @moon-dark-gray;
+		opacity: 0.4;
+	}
+
 	.popup-label {
 		.moon-large-button-text;
 		.font-kerning(none);
@@ -101,8 +112,8 @@
 
 	// Indicator
 	.indicator-wrapper {
-		height: @moon-video-player-transport-slider-height;
-		line-height: @moon-video-player-transport-slider-height;
+		height: @moon-video-player-transport-slider-tap-area;
+		line-height: @moon-video-player-transport-slider-tap-area;
 		top: 0;
 		position: absolute;
 
@@ -110,11 +121,13 @@
 			left: @moon-video-player-side-padding;
 			text-align: left;
 		}
+
 		&.end {
 			right: @moon-video-player-side-padding;
 			text-align: right;
 		}
 	}
+
 	// Indicator-bar doesn't appear to be used at all?
 	.indicator-bar {
 		width: 3px;
@@ -125,19 +138,34 @@
 		&.left {
 			float: left;
 		}
+
 		&.right {
 			float: right;
 		}
 	}
+
 	.indicator-text {
 		font-size: 45px;	//34pt
 		font-family: @moon-popup-header-font-family;
 		color: @moon-indicator-text-color;	//#ffffff, @moon-white
+
+		.enyo-locale-right-to-left & {
+			direction: rtl;
+		}
 	}
 
 	// Disable the slider taparea since video slider is big enough for tapping on its own
-	&:before {
+	&::before {
 		content: none;
+	}
+
+	&::after {
+		content: '';
+		display: block;
+		position: absolute;
+		top: 0;
+		width: 100%;
+		height: @moon-video-player-transport-slider-tap-area;
 	}
 }
 
@@ -148,7 +176,4 @@
 	.indicator-text {
 		font-family: @moon-non-latin-font-family;
 	}
-}
-.enyo-locale-right-to-left .moon-video-player-transport-slider .indicator-text {
-	direction: rtl;
 }
