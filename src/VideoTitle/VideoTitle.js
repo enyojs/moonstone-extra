@@ -7,8 +7,7 @@ require('moonstone-extra');
 
 var
 	kind = require('enyo/kind'),
-	Control = require('enyo/Control'),
-	ShowingTransitionSupport = require('enyo/ShowingTransitionSupport');
+	Control = require('enyo/Control');
 
 var
 	Marquee = require('moonstone/Marquee'),
