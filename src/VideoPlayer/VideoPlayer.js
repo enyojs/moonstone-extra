@@ -669,10 +669,8 @@ module.exports = kind(
 
 		//* Fullscreen controls
 		{name: 'fullscreenControl', kind: Control, classes: 'moon-video-player-fullscreen enyo-fit scrim', onmousemove: 'mousemove', components: [
-
-			{name: 'videoInfoHeaderClient', kind: Control, showing: false, classes: 'moon-video-player-top'},
-
 			{name: 'playerControl', kind: Control, classes: 'moon-video-player-bottom', showing: false, components: [
+				{name: 'videoInfoHeaderClient', kind: Control},
 				{name: 'controls', kind: FittableColumns, classes: 'moon-video-player-controls-frame', ontap: 'resetAutoTimeout', components: [
 
 					{name: 'leftPremiumPlaceHolder', kind: Control, classes: 'moon-video-player-premium-placeholder-left'},
@@ -726,7 +724,6 @@ module.exports = kind(
 		this.updateSource();
 		this.createInfoControls();
 		this.inlineChanged();
-		this.showInfoChanged();
 		this.autoShowInfoChanged();
 		this.autoShowControlsChanged();
 		this.autoplayChanged();
@@ -748,7 +745,7 @@ module.exports = kind(
 	* @private
 	*/
 	checkIconType: function (icon) {
-		var imagesrcRegex=/\.(jpg|jpeg|png|gif)$/i;
+		var imagesrcRegex=/\.(jpg|jpeg|png|gif|svg)$/i;
 		var iconType=imagesrcRegex.test(icon)?'image':'iconfont';
 		return iconType;
 	},
@@ -997,9 +994,6 @@ module.exports = kind(
 	* @private
 	*/
 	autoShowInfoChanged: function () {
-		if (this.$.videoInfoHeaderClient.getShowing() && !this.autoShowInfo && !this.showInfo) {
-			this.$.videoInfoHeaderClient.hide();
-		}
 		if (this.autoShowInfo) {
 			this.resetAutoTimeout();
 		}
@@ -1009,23 +1003,11 @@ module.exports = kind(
 	* @private
 	*/
 	autoShowControlsChanged: function () {
-		if (this.$.playerControl.getShowing() && !this.autoShowControls) {
+		if (this.$.playerControl.get('showing') && !this.autoShowControls) {
 			this.$.playerControl.hide();
 		}
 		if (this.autoShowControls) {
 			this.resetAutoTimeout();
-		}
-	},
-
-	/**
-	* @private
-	*/
-	showInfoChanged: function () {
-		this.$.videoInfoHeaderClient.setShowing(this.showInfo);
-
-		if (this.showInfo) {
-			// Kick off any marquees in the video info header
-			this.$.videoInfoHeaderClient.waterfallDown('onRequestStartMarquee');
 		}
 	},
 
@@ -1085,7 +1067,6 @@ module.exports = kind(
 		if (this.isDescendantOf(e.panels)) return;
 		this._panelsShowing = true;
 		this._controlsShowing = false;
-		this._infoShowing = false;
 		this.updateSpotability();
 		if (e.initialization) {
 			return;
@@ -1117,8 +1098,7 @@ module.exports = kind(
 	* @private
 	*/
 	panelsHandleFocused: function (sender, e) {
-		this._infoShowing = this.$.videoInfoHeaderClient.getShowing();
-		this._controlsShowing = this.$.playerControl.getShowing();
+		this._controlsShowing = this.$.playerControl.get('showing');
 		this.hideFSControls(true);
 	},
 
@@ -1127,9 +1107,6 @@ module.exports = kind(
 	*/
 	panelsHandleBlurred: function (sender, e) {
 		if (this.isLarge() && !this.isOverlayShowing()) {
-			if (this._infoShowing) {
-				this.showFSInfo();
-			}
 			if (this._controlsShowing) {
 				util.asyncMethod(this, 'showFSBottomControls');
 			}
@@ -1167,33 +1144,6 @@ module.exports = kind(
 		if (this._sentHold) return;
 
 		return this.spotlightModal && e.originator === this;
-	},
-
-	/**
-	* @private
-	*/
-	spotlightUpHandler: function (sender, e) {
-		if (this._sentHold) return;
-
-		if (this.hasClass('spotlight-5way-mode')) this.removeClass('spotlight-5way-mode');
-		if (this._shouldHandleUpDown) {
-			var current = Spotlight.getCurrent();
-
-			if (current.isDescendantOf(this.$.slider)) {
-				if (this.$.controlsContainer.get('index')) return false;
-				else Spotlight.spot(this.$.fsPlayPause);
-			}
-			else if (current == this || current.isDescendantOf(this.$.controls)) {
-				// Toggle info header on 'up' press
-				if (!this.$.videoInfoHeaderClient.getShowing()) {
-					this.showFSInfo();
-				} else {
-					if (this.allowBackKey) EnyoHistory.drop();
-					this.hideFSInfo();
-				}
-			}
-			return true;
-		}
 	},
 
 	/**
@@ -1242,7 +1192,7 @@ module.exports = kind(
 	* @private
 	*/
 	isOverlayShowing: function () {
-		return this.$.videoInfoHeaderClient.getShowing() || this.$.playerControl.getShowing();
+		return this.$.playerControl.get('showing');
 	},
 
 	/**
@@ -1264,7 +1214,6 @@ module.exports = kind(
 	* @private
 	*/
 	showFSControls: function (sender, e) {
-		this.showFSInfo();
 		this.showFSBottomControls();
 	},
 
@@ -1276,12 +1225,10 @@ module.exports = kind(
 		if (this.isOverlayShowing()) {
 			if (this.allowBackKey) {
 				dropCount = 0;
-				if (this.$.videoInfoHeaderClient.get('showing')) dropCount++;
 				if (this.$.playerControl.get('showing')) dropCount++;
 				EnyoHistory.drop(dropCount);
 			}
 
-			this.hideFSInfo();
 			this.hideFSBottomControls();
 		}
 		if (!spottingHandled) {
@@ -1368,36 +1315,6 @@ module.exports = kind(
 		}
 		this.showScrim(false);
 		this.$.playerControl.setShowing(false);
-	},
-
-	/**
-	* Sets `this.visible` to `true` and clears hide job.
-	*
-	* @private
-	*/
-	showFSInfo: function () {
-		if (this.autoShowOverlay && this.autoShowInfo) {
-			this.resetAutoTimeout();
-			this.$.videoInfoHeaderClient.setShowing(true);
-			this.$.videoInfoHeaderClient.resize();
-
-			// Kick off any marquees in the video info header
-			this.$.videoInfoHeaderClient.waterfallDown('onRequestStartMarquee');
-			if (this.allowBackKey) {
-				this.pushBackHistory();
-			}
-		}
-	},
-
-	/**
-	* Sets `this.visible` to `false`.
-	*
-	* @private
-	*/
-	hideFSInfo: function () {
-		if (!this.showInfo) {
-			this.$.videoInfoHeaderClient.setShowing(false);
-		}
 	},
 
 	/**
@@ -1910,7 +1827,7 @@ module.exports = kind(
 		if (this.autoShowSpinner && this._isPlaying && !this._canPlay && !this._errorCode) {
 			spinner.start();
 			this.addClass("spinner-showing");
-		} else if (spinner.getShowing()) {
+		} else if (spinner.get('showing')) {
 			this.removeClass("spinner-showing");
 			spinner.stop();
 		}
@@ -2213,7 +2130,7 @@ module.exports = kind(
 				break;
 			}
 			if (showControls) {
-				if(!this.$.playerControl.getShowing()) {
+				if(!this.$.playerControl.get('showing')) {
 					this.showFSBottomControls();
 				} else {
 					this.resetAutoTimeout();
@@ -2227,22 +2144,19 @@ module.exports = kind(
 	* @private
 	*/
 	backKeyHandler: function () {
-		var visibleUp = this.$.videoInfoHeaderClient.getShowing(),
-			visibleDown = this.$.playerControl.getShowing();
+		var visibleDown = this.$.playerControl.get('showing');
 
 		// if videoInfoHeaderClient and playerControl are visible
 		// it means that we pushed video player into history stack twice.
 		// to set correct target for next back key, we should pop one instance.
-		if (visibleUp && visibleDown) {
+		if (visibleDown) {
 			EnyoHistory.drop();
+			this.hideFSBottomControls();
 		}
-
-		if (visibleUp) this.hideFSInfo();
-		if (visibleDown) this.hideFSBottomControls();
 
 		// if both the videoInfoHeaderClient and playerControl are hidden, then the remaining action
 		// to "reverse" is fullscreen mode
-		if (!visibleUp && !visibleDown && this.isFullscreen()) {
+		if (!visibleDown && this.isFullscreen()) {
 			this.cancelFullscreen();
 		}
 
