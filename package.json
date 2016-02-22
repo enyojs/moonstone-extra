@@ -1,6 +1,7 @@
 {
   "name": "moonstone-extra",
   "assets": [
+    "images/**/*.svg",
     "resources/**/*.*"
   ],
   "devAssets": [],
