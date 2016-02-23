@@ -1,6 +1,3 @@
 {
-	"main": "AnimatedButton.js",
-	"styles": [
-		"AnimatedButton.less"
-	]
+	"main": "AnimatedButton.js"
 }
