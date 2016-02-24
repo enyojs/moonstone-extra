@@ -26,7 +26,7 @@ var
 	$L = require('../i18n');
 
 var
-	options = require('moonstone/options'),
+	MoonOptions = require('moonstone/options'),
 	StyleAnimator = require('moonstone/StyleAnimator'),
 	HistorySupport = require('moonstone/HistorySupport');
 
@@ -650,7 +650,13 @@ module.exports = kind(
 
 		// when we push the first panel, we need to explicitly let our observers know about this as
 		// there would not be a change in actual index value
-		if (startingPanelCount === 0) this.notifyObservers('index');
+		if (startingPanelCount === 0) {
+			// Accessibility - when we push the first panel, we need to set alert role for reading title.
+			if (MoonOptions.accessibility) {
+				this.setAlertRole();
+			}
+			this.notifyObservers('index');
+		}
 
 		this.isModifyingPanels = false;
 
@@ -716,7 +722,13 @@ module.exports = kind(
 
 		// when we push the first panel, we need to explicitly let our observers know about this as
 		// there would not be a change in actual index value
-		if (startingPanelCount === 0) this.notifyObservers('index');
+		if (startingPanelCount === 0) {
+			// Accessibility - when we push the first panel, we need to set alert role for reading title.
+			if (MoonOptions.accessibility) {
+				this.setAlertRole();
+			}
+			this.notifyObservers('index');
+		}	
 
 		this.isModifyingPanels = false;
 
@@ -920,7 +932,7 @@ module.exports = kind(
 	*/
 	create: function () {
 		Panels.prototype.create.apply(this, arguments);
-		this.set('animate', this.animate && options.accelerate, true);
+		this.set('animate', this.animate && MoonOptions.accelerate, true);
 
 		// we need to ensure our handler has the opportunity to modify the flow during
 		// initialization
@@ -1349,6 +1361,11 @@ module.exports = kind(
 	_setIndex: function (index) {
 		var prev = this.get('index');
 		this.index = this.clamp(index);
+		// Accessibility - Before reading the focused item, it must have a alert role for reading the title,
+		// so setAlertRole() must be called before notifyObservers('index', prev, index).
+		if (MoonOptions.accessibility) {
+			this.setAlertRole();
+		}
 		this.notifyObservers('index', prev, index);
 	},
 
@@ -1592,6 +1609,11 @@ module.exports = kind(
 	* @private
 	*/
 	showingChanged: function (inOldValue) {
+		// Accessibility - Before reading the focused item, it must have a alert role for reading the title,
+		// so setAlertRole() must be called before Spotlight.spot
+		if (MoonOptions.accessibility) {
+			this.setAlertRole();
+		}
 		if (this.$.backgroundScrim) {
 			this.$.backgroundScrim.addRemoveClass('visible', this.showing);
 		}
@@ -1800,34 +1822,41 @@ module.exports = kind(
 
 	// Accessibility
 
+	/**
+	* @private
+	*/
 	ariaObservers: [
-		{path: ['showing', 'index'], method: function () {
-			var panels = this.getPanels(),
-				active = this.getActive(),
-				l = panels.length,
-				panel;
-
-			if (this.$.showHideHandle) {
-				if (active && active.title) {
-					this.$.showHideHandle.set('accessibilityLabel', (this.showing ? $L('Close') : $L('Open')) + ' ' + active.title);
-				} else {
-					this.$.showHideHandle.set('accessibilityLabel', this.showing ? $L('Close') : $L('Open'));
-				}
-			}
-
-			while (--l >= 0) {
-				panel = panels[l];
-				if (panel instanceof Panel && panel.title) {
-					panel.set('accessibilityRole', (panel === active) && this.get('showing') ? 'alert' : 'region');
-				}
-			}
-		}},
 		// If panels is hidden and panelsHandle is spotlight blured, also make panelsHandle's dom blur.
 		{path: 'isHandleFocused', method: function () {
 			if (this.$.showHideHandle && this.$.showHideHandle.hasNode() && !this.isHandleFocused) {
 				this.$.showHideHandle.hasNode().blur();
 			}
 		}}
-	]
+	],
+
+	/**
+	* @private
+	*/
+	setAlertRole: function () {
+		var panels = this.getPanels(),
+			active = this.getActive(),
+			l = panels.length,
+			panel;
+
+		if (this.$.showHideHandle) {
+			if (active && active.title) {
+				this.$.showHideHandle.set('accessibilityLabel', (this.showing ? $L('Close') : $L('Open')) + ' ' + active.title);
+			} else {
+				this.$.showHideHandle.set('accessibilityLabel', this.showing ? $L('Close') : $L('Open'));
+			}
+		}
+
+		while (--l >= 0) {
+			panel = panels[l];
+			if (panel instanceof Panel && panel.title) {
+				panel.set('accessibilityRole', (panel === active) && this.get('showing') ? 'alert' : 'region');
+			}
+		}
+	}
 
 });
