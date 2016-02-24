@@ -511,7 +511,7 @@ module.exports = kind(
 	*/
 	preview: function (sender, e) {
 		if (!this.disabled && !this.dragging) {
-			if (!this._previewMode) {
+			if (Spotlight.getCurrent() == this && !this._previewMode) {
 				this.startPreview();
 			}
 			var v = this.knobPosValue = this.calcKnobPosition(e);
