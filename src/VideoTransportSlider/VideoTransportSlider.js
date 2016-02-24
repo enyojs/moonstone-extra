@@ -212,10 +212,10 @@ module.exports = kind(
 		* Color of value popup
 		*
 		* @type {String}
-		* @default '#fff'
+		* @default 'transparent'
 		* @public
 		*/
-		popupColor: '#4B4B4B',
+		popupColor: 'transparent',
 
 		/**
 		* Popup offset in pixels.
@@ -224,7 +224,7 @@ module.exports = kind(
 		* @default 144 - controls height(132) + margin (12)
 		* @public
 		*/
-		popupOffset: 144,
+		popupOffset: 39,
 
 		/**
 		* Threshold value (percentage) for using animation effect on slider progress change.
@@ -283,10 +283,9 @@ module.exports = kind(
 	* @private
 	*/
 	tickComponents: [
-		{name: 'startWrapper', classes: 'indicator-wrapper start', components: [
-			{name: 'beginTickText', classes: 'indicator-text left', content: '00:00'}
-		]},
 		{name: 'endWrapper', classes: 'indicator-wrapper end', components: [
+			{name: 'beginTickText', classes: 'indicator-text left', content: '00:00'},
+			{content: '/', classes: 'indicator-text separator'},
 			{name: 'endTickText', classes: 'indicator-text right', content: '00:00'}
 		]}
 	],
@@ -604,8 +603,7 @@ module.exports = kind(
 	* @private
 	*/
 	showTickTextChanged: function () {
-		this.$.beginTickText.setShowing(this.getShowTickText());
-		this.$.endTickText.setShowing(this.getShowTickText());
+		this.$.endWrapper.set('showing', this.getShowTickText());
 	},
 
 	/**
@@ -988,7 +986,7 @@ module.exports = kind(
 		var valueText;
 		if (this.showing && !Spotlight.getPointerMode() && this.$.popupLabelText && this.$.popupLabelText.content && this.selected) {
 			valueText = this._enterEnable ? this.$.popupLabelText.content : $L('jump to ') + this.$.popupLabelText.content;
-			// Screen reader should read valueText when slider is only spotlight focused, but there is a timing issue between spotlight focus and observed 
+			// Screen reader should read valueText when slider is only spotlight focused, but there is a timing issue between spotlight focus and observed
 			// popupLabelText's content, so Screen reader reads valueText twice. We added below timer code for preventing this issue.
 			setTimeout(this.bindSafely(function(){
 				this.set('accessibilityDisabled', false);
