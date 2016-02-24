@@ -24,6 +24,7 @@ var
 	VideoFeedback = require('../VideoFeedback');
 
 var
+	$L = require('../i18n'),
 	defaultKnobIncrement = '5%';
 
 /**
@@ -314,6 +315,11 @@ module.exports = kind(
 	/**
 	* @private
 	*/
+	_enterEnable: false,
+
+	/**
+	* @private
+	*/
 	createPopup: function () {
 		this.createComponents(this.popupComponents);
 	},
@@ -404,6 +410,7 @@ module.exports = kind(
 			this.startJob('simulateTapEnd', this.mouseUpTapArea, 200);
 			val = this.transformToVideo(this.knobPosValue);
 			this.sendSeekEvent(val);
+			this.set('_enterEnable', true);
 			return true;
 		}
 	},
@@ -443,6 +450,7 @@ module.exports = kind(
 	* @private
 	*/
 	spotBlur: function () {
+		this.set('_enterEnable', false);
 		this.selected = false;
 		this.removeClass('visible');
 		this.endPreview();
@@ -460,6 +468,7 @@ module.exports = kind(
 			v = (v - this._knobIncrement < this.min) ? this.min : v - this._knobIncrement;
 			this._updateKnobPosition(v);
 			this.set('knobPosValue', v);
+			this.set('_enterEnable', false);
 		}
 		return true;
 	},
@@ -474,6 +483,7 @@ module.exports = kind(
 			v = (v + this._knobIncrement > this.max) ? this.max - 1 : v + this._knobIncrement;
 			this._updateKnobPosition(v);
 			this.set('knobPosValue', v);
+			this.set('_enterEnable', false);
 		}
 		return true;
 	},
@@ -942,7 +952,48 @@ module.exports = kind(
 	// Accessibility
 
 	/**
+	* When `true`, VoiceReadout will be prevented.
+	*
+	* @default true
+	* @type {Boolean}
+	* @public
+	*/
+	accessibilityDisabled: true,
+
+	/**
 	* @private
 	*/
-	accessibilityDisabled: true
+	ariaObservers: [
+		{path: 'selected', method: function() {
+			if (this.selected) {
+				this.set('accessibilityRole', 'slider');
+				this.set('accessibilityLive', null);
+				this.set('accessibilityHint', null);
+			} else {
+				this.setAriaAttribute('aria-valuetext', null);
+			}
+		}},
+		{path: ['$.popupLabelText.content', '_enterEnable'], method: 'ariaValue'}
+	],
+
+	/**
+	* Overriding {@link module:moonstone/ProgressBar~ProgressBar#ariaValue} to guard updating value
+	* when dragging.
+	*
+	* @private
+	*/
+	ariaValue: function () {
+		var valueText;
+		if (this.showing && !Spotlight.getPointerMode() && this.$.popupLabelText && this.$.popupLabelText.content && this.selected) {
+			valueText = this._enterEnable ? this.$.popupLabelText.content : $L('jump to ') + this.$.popupLabelText.content;
+			// Screen reader should read valueText when slider is only spotlight focused, but there is a timing issue between spotlight focus and observed 
+			// popupLabelText's content, so Screen reader reads valueText twice. We added below timer code for preventing this issue.
+			setTimeout(this.bindSafely(function(){
+				this.set('accessibilityDisabled', false);
+				this.setAriaAttribute('aria-valuetext', valueText);
+			}), 0);
+		} else {
+			this.set('accessibilityDisabled', true);
+		}
+	}
 });
