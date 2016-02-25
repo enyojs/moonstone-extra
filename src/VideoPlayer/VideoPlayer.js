@@ -1928,6 +1928,8 @@ module.exports = kind(
 	* @private
 	*/
 	moreButtonTapped: function (sender, e) {
+		if (this.$.controlsContainer.isTransitioning()) return true;
+
 		var index = this.$.controlsContainer.get('index');
 		if (index === 0) {
 			this.retrieveIconsSrcOrFont(this.$.moreButton, this.rtl?this.moreControlsIcon:this.lessControlsIcon, 'moon-icon-video-more-controls-font-style');
