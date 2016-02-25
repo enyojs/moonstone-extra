@@ -365,13 +365,14 @@ module.exports = kind(
 		preventKeyNavigation: false,
 
 		/**
-		* When `true`, focus can move from panel to breadcrumb when press left key. (Experimental)
+		* When `true`, focus can move from panel to breadcrumb when press left key.
 		*
 		* @type {Boolean}
-		* @default false
+		* @default true
+		* @deprecated This property will be removed in the future.
 		* @public
 		*/
-		leftKeyToBreadcrumb: false,
+		leftKeyToBreadcrumb: true,
 
 		/**
 		* When `true`, existing views are cached for reuse; otherwise, they are destroyed.
@@ -1060,6 +1061,9 @@ module.exports = kind(
 				} else {
 					Spotlight.spot(Spotlight.getLastControl());
 				}
+				return true;
+			} else if (sender instanceof ApplicationCloseButton && this.$.breadcrumbs) {
+				Spotlight.spot(this.$.breadcrumbs);
 				return true;
 			}
 		}
