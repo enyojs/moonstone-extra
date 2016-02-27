@@ -1,6 +1,3 @@
 {
-  "main": "VideoFeedback.js",
-  "styles": [
-    "VideoFeedback.less"
-  ]
+  "main": "VideoFeedback.js"
 }

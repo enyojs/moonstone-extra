@@ -1,6 +1,3 @@
 {
-  "main": "Panel.js",
-  "styles": [
-    "Panel.less"
-  ]
+  "main": "Panel.js"
 }

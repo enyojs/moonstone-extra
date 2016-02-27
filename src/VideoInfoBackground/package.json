@@ -1,6 +1,3 @@
 {
-  "main": "VideoInfoBackground.js",
-  "styles": [
-    "VideoInfoBackground.less"
-  ]
+  "main": "VideoInfoBackground.js"
 }
