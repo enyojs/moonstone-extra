@@ -586,7 +586,6 @@ module.exports = kind(
 	handlers: {
 		onRequestTimeChange: 'timeChange',
 		onRequestToggleFullscreen: 'toggleFullscreen',
-		onSpotlightKeyUp: 'spotlightKeyUpHandler',
 		onSpotlightKeyDown: 'spotlightKeyDownHandler',
 		onSpotlightUp: 'spotlightUpHandler',
 		onSpotlightDown: 'spotlightDownHandler',
@@ -673,6 +672,11 @@ module.exports = kind(
 		{name: 'fullscreenControl', kind: Control, classes: 'moon-video-player-fullscreen enyo-fit scrim', onmousemove: 'mousemove', components: [
 			{name: 'playerControl', kind: Control, classes: 'moon-video-player-bottom', showing: false, components: [
 				{name: 'videoInfoHeaderClient', kind: Control},
+				{name: 'sliderContainer', kind: Control, classes: 'moon-video-player-slider-frame', components: [
+					{name: 'slider', kind: VideoTransportSlider, rtl: false, disabled: true, onSeekStart: 'sliderSeekStart', onSeek: 'sliderSeek', onSeekFinish: 'sliderSeekFinish',
+						onEnterTapArea: 'onEnterSlider', onLeaveTapArea: 'onLeaveSlider', ontap:'playbackControlsTapped'
+					}
+				]},
 				{name: 'controls', kind: FittableColumns, classes: 'moon-video-player-controls-frame', ontap: 'resetAutoTimeout', components: [
 
 					{name: 'leftPremiumPlaceHolder', kind: Control, classes: 'moon-video-player-premium-placeholder-left'},
@@ -695,12 +699,6 @@ module.exports = kind(
 					{name: 'rightPremiumPlaceHolder', kind: Control, classes: 'moon-video-player-premium-placeholder-right', components: [
 						{name: 'moreButton', kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'moreButtonTapped', accessibilityLabel: $L('More')}
 					]}
-				]},
-
-				{name: 'sliderContainer', kind: Control, classes: 'moon-video-player-slider-frame', components: [
-					{name: 'slider', kind: VideoTransportSlider, rtl: false, disabled: true, onSeekStart: 'sliderSeekStart', onSeek: 'sliderSeek', onSeekFinish: 'sliderSeekFinish',
-						onEnterTapArea: 'onEnterSlider', onLeaveTapArea: 'onLeaveSlider', ontap:'playbackControlsTapped'
-					}
 				]}
 			]}
 		]},
@@ -1151,9 +1149,18 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	spotlightKeyUpHandler: function(sender, e) {
+	spotlightUpHandler: function(sender, e) {
 		this.resetAutoTimeout();
-		gesture.drag.endHold();
+
+		var current = Spotlight.getCurrent();
+		if (current == this) {
+			this.hideFSBottomControls();
+			gesture.drag.endHold();
+			if (this.allowBackKey) EnyoHistory.drop();
+		}
+		else if (current.isDescendantOf(this.$.slider)) {
+			this.addClass('spotlight-5way-mode');
+		}
 	},
 
 	/**
@@ -1165,13 +1172,13 @@ module.exports = kind(
 		if (this._shouldHandleUpDown) {
 			var current = Spotlight.getCurrent();
 
-			if (current == this) this.showFSBottomControls();
-			else if (current.isDescendantOf(this.$.controls)) {
-				this.addClass('spotlight-5way-mode');
-				Spotlight.spot(this.$.slider);
+			if (current == this) {
+				this.showFSBottomControls();
 			}
 			else if (current.isDescendantOf(this.$.slider)) {
-				if (this.allowBackKey) EnyoHistory.drop();
+				Spotlight.spot(this.$.controls);
+			}
+			else if (current.isDescendantOf(this.$.controls)) {
 				this.hideFSBottomControls();
 			}
 			return true;
