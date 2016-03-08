@@ -1,0 +1,24 @@
+.moon-video-player-title {
+	color: @moon-white;
+	text-shadow: @moon-video-player-title-text-shadow;
+	padding: @moon-spotlight-outset @moon-video-player-side-padding;
+
+	.moon-video-player-title-text {
+		font-family: @moon-font-family-light;
+		font-size: 36px;
+		line-height: @moon-header-line-height;
+		.font-kerning;
+
+		.enyo-locale-non-latin & {
+			line-height: @moon-non-latin-header-text-line-height;
+		}
+	}
+	.moon-video-player-title-client {
+		font-size: 24px;
+
+		> * {
+			display: inline-block;
+			margin: 0 6px;
+		}
+	}
+}
