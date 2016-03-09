@@ -1893,7 +1893,7 @@ module.exports = kind(
 	*/
 	timeUpdate: function (sender, e) {
 		//* Update _this.duration_ and _this.currentTime_
-		if (!e && e.srcElement || e.currentTime === null) {
+		if (!e && e.target || e.currentTime === null) {
 			return;
 		}
 
@@ -1977,7 +1977,7 @@ module.exports = kind(
 	* @private
 	*/
 	_progress: function (sender, e) {
-		var buffered = this._getBufferedProgress(e.srcElement);
+		var buffered = this._getBufferedProgress(e.target);
 		if (this.isFullscreen() || !this.getInline()) {
 			this.$.slider.setBgProgress(buffered.value);
 		} else {
@@ -2010,10 +2010,10 @@ module.exports = kind(
 	*/
 	_pause: function (sender, e) {
 		// Don't send pause feedback if we are rewinding
-		if (e.srcElement.playbackRate < 0) {
+		if (e.target.playbackRate < 0) {
 			return;
 		}
-		if (e.srcElement.currentTime === 0) {
+		if (e.target.currentTime === 0) {
 			this.sendFeedback('Stop', {}, true);
 			return;
 		}
