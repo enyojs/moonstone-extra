@@ -1052,7 +1052,7 @@ module.exports = kind(
 	unload: function () {
 		this.$.video.unload();
 		this._resetTime();
-		this._loaded = false;
+		this.set('_loaded', false);
 		this.set('_isPlaying', false);
 		this._canPlay = false;
 		this._errorCode = null;
@@ -2029,7 +2029,7 @@ module.exports = kind(
 	* @private
 	*/
 	dataloaded: function (sender, e) {
-		this._loaded = true;
+		this.set('_loaded', true);
 		this.updateSliderState();
 		this.durationUpdate(sender, e);
 	},
@@ -2183,7 +2183,7 @@ module.exports = kind(
 		// 1: MEDIA_ERR_ABORTED, 2: MEDIA_ERR_NETWORK, 3: MEDIA_ERR_DECODE,
 		// 4: MEDIA_ERR_SRC_NOT_SUPPORTED
 		this._errorCode = e.currentTarget.error.code;
-		this._loaded = false;
+		this.set('_loaded', false);
 		this.set('_isPlaying', false);
 		this._canPlay = false;
 		this.$.currTime.setContent($L('Error'));
@@ -2257,6 +2257,12 @@ module.exports = kind(
 	// Accessibility
 
 	/**
+	* Flag for reading a video info on first time when playerControl is shown. 
+	* @private
+	*/
+	_enableInfoReadOut: true,
+
+	/**
 	* @private
 	*/
 	ariaObservers: [
@@ -2270,21 +2276,17 @@ module.exports = kind(
 				label = index === 0 ? $L('More') : $L('Back');
 			this.$.moreButton.set('accessibilityLabel', label);
 		}},
-		{path: '$.titleContainer.showing', method: function () {
-			var client = this.$.titleContainer,
-				showing = client.get('showing');
-
-			client.set('accessibilityAlert', showing);
-			client.setAriaAttribute('aria-live', showing ? 'off' : null);
-			if (!showing) {
-				client.set('accessibilityDisabled', false);
-			}
+		{path: '_loaded', method: function () {
+			this.set('_enableInfoReadOut', this._loaded);
 		}},
-		{path: '$.playerControl.showing', method: function () {
-			var client = this.$.titleContainer;
-			if (client.get('showing')) {
-				client.set('accessibilityDisabled', true);
-			}
+		{path: ['src', 'sources'], method: function () {
+			this.set('_enableInfoReadOut', true);
+		}},
+		{path: ['$.playerControl.showing', '_enableInfoReadOut'], method: function () {
+			var alert = this.$.playerControl.showing && this._enableInfoReadOut;
+			this.$.titleContainer.set('accessibilityAlert', alert);
+			// skipping notifications since it'll bring us right back here
+			if (alert) this._enableInfoReadOut = false;
 		}}
 	]
 });
