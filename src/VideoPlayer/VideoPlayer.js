@@ -35,6 +35,8 @@ var
 	VideoFullscreenToggleButton = require('../VideoFullscreenToggleButton'),
 	VideoTransportSlider = require('../VideoTransportSlider');
 
+var libPath = '@../..';
+
 /**
 * Fires when [disablePlaybackControls]{@link module:moonstone-extra/VideoPlayer~VideoPlayer#disablePlaybackControls}
 * is `true` and the user taps one of the [controls]{@link module:enyo/Control~Control}; may be handled to
@@ -529,14 +531,14 @@ module.exports = kind(
 		*
 		* @private
 		*/
-		moreControlsIcon: 'arrowextend',
+		moreControlsIcon: libPath + '/images/ellipsis.svg',
 
 		/**
 		* Name of font-based icon or image file.
 		*
 		* @private
 		*/
-		lessControlsIcon: 'arrowshrink',
+		lessControlsIcon: libPath + '/images/back.svg',
 
 		/**
 		* Name of font-based icon or image file.
@@ -740,7 +742,7 @@ module.exports = kind(
 		this.retrieveIconsSrcOrFont(this.$.fsPlayPause, this.pauseIcon);
 		this.retrieveIconsSrcOrFont(this.$.fastForward, this.fastForwardIcon);
 		this.retrieveIconsSrcOrFont(this.$.jumpForward, this.jumpForwardIcon);
-		this.retrieveIconsSrcOrFont(this.$.ilFullscreen, this.inlineFullscreenIcon, 'moon-video-player-inline-control-fullscreen');
+		this.retrieveIconsSrcOrFont(this.$.ilFullscreen, this.inlineFullscreenIcon);
 		this.$.ilFullscreen.removeClass('moon-icon-exitfullscreen-font-style');
 	},
 
@@ -748,7 +750,7 @@ module.exports = kind(
 	* @private
 	*/
 	checkIconType: function (icon) {
-		var imagesrcRegex=/\.(jpg|jpeg|png|gif)$/i;
+		var imagesrcRegex=/\.(jpg|jpeg|png|gif|svg)$/i;
 		var iconType=imagesrcRegex.test(icon)?'image':'iconfont';
 		return iconType;
 	},
@@ -1869,14 +1871,14 @@ module.exports = kind(
 	*/
 	updatePlayPauseButtons: function () {
 		if (this._isPlaying) {
-			this.retrieveIconsSrcOrFont(this.$.fsPlayPause, this.pauseIcon, 'moon-icon-main-control-font-size');
+			this.retrieveIconsSrcOrFont(this.$.fsPlayPause, this.pauseIcon);
 		} else {
-			this.retrieveIconsSrcOrFont(this.$.fsPlayPause, this.playIcon, 'moon-icon-main-control-font-size');
+			this.retrieveIconsSrcOrFont(this.$.fsPlayPause, this.playIcon);
 		}
 		if (this._isPlaying) {
-			this.retrieveIconsSrcOrFont(this.$.ilPlayPause, this.inlinePauseIcon, 'moon-video-player-inline-control-play-pause');
+			this.retrieveIconsSrcOrFont(this.$.ilPlayPause, this.inlinePauseIcon);
 		} else {
-			this.retrieveIconsSrcOrFont(this.$.ilPlayPause, this.inlinePlayIcon, 'moon-video-player-inline-control-play-pause');
+			this.retrieveIconsSrcOrFont(this.$.ilPlayPause, this.inlinePlayIcon);
 		}
 	},
 
@@ -1885,11 +1887,15 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	retrieveIconsSrcOrFont:function (src, icon, classes){
-		var iconType = this.checkIconType(icon);
+	retrieveIconsSrcOrFont:function (src, icon) {
+		var iconPath,
+			iconType = this.checkIconType(icon);
 
 		if (iconType == 'image') {
-			var iconPath = Boolean(iconType == 'image') ? (this.iconPath + icon) : icon;
+			// To maintain compatibility with iconPath which isn't resolved by the build tools and
+			// therefore is an app-scoped path vs a library-scoped path, we check the path of the
+			// image and only prepend iconPath if the icon isn't in the library's path
+			iconPath = icon.indexOf(libPath) === 0 ? icon : this.iconPath + icon;
 			src.set('icon', null);
 			src.set('src', iconPath);
 		} else {
@@ -1930,23 +1936,31 @@ module.exports = kind(
 	moreButtonTapped: function (sender, e) {
 		var index = this.$.controlsContainer.get('index');
 		if (index === 0) {
-			this.retrieveIconsSrcOrFont(this.$.moreButton, this.rtl?this.moreControlsIcon:this.lessControlsIcon, 'moon-icon-video-more-controls-font-style');
+			this.retrieveIconsSrcOrFont(this.$.moreButton, this.lessControlsIcon);
 			this.toggleSpotlightForMoreControls(true);
 			this.$.controlsContainer.next();
 		} else {
-			this.retrieveIconsSrcOrFont(this.$.moreButton, this.rtl?this.lessControlsIcon:this.moreControlsIcon, 'moon-icon-video-more-controls-font-style');
+			this.retrieveIconsSrcOrFont(this.$.moreButton, this.moreControlsIcon);
 			this.toggleSpotlightForMoreControls(false);
 			this.$.controlsContainer.previous();
 		}
 	},
+
+	/**
+	* @private
+	*/
 	updateMoreButton: function () {
 		var index = this.$.controlsContainer.get('index');
 		if (index === 0) {
-			this.retrieveIconsSrcOrFont(this.$.moreButton, this.rtl?this.lessControlsIcon:this.moreControlsIcon, 'moon-icon-video-round-controls-style moon-icon-video-more-controls-font-style');
+			this.retrieveIconsSrcOrFont(this.$.moreButton, this.moreControlsIcon);
 		} else {
-			this.retrieveIconsSrcOrFont(this.$.moreButton, this.rtl?this.moreControlsIcon:this.lessControlsIcon, 'moon-icon-video-round-controls-style moon-icon-video-more-controls-font-style');
+			this.retrieveIconsSrcOrFont(this.$.moreButton, this.lessControlsIcon);
 		}
 	},
+
+	/**
+	* @private
+	*/
 	toggleSpotlightForMoreControls: function (moreControlsSpottable) {
 		this.$.playbackControls.spotlightDisabled = moreControlsSpottable;
 		this.$.client.spotlightDisabled = !moreControlsSpottable;
