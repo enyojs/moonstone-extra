@@ -154,9 +154,13 @@ var Breadcrumb = kind(
 	/**
 	* @private
 	*/
+	isOffscreen: false,
+
+	/**
+	* @private
+	*/
 	handlers: {
 		ontap: 'tapHandler',
-		onSpotlightFocus: 'focusHandler',
 		onSpotlightRight: 'rightHandler'
 	},
 
@@ -197,19 +201,6 @@ var Breadcrumb = kind(
 	},
 
 	/**
-	* Block focus on offscreen breadcrumb.
-	* @private
-	*/
-	focusHandler: function(sender, event) {
-		var bounds = this.getAbsoluteBounds(),
-			containerBounds = this.container.getAbsoluteBounds(),
-			right = bounds ? bounds.right : null,
-			left = bounds ? bounds.left : null,
-			panelEdge = containerBounds ? containerBounds.right : null;
-		if (right <= 0 || left >= panelEdge) return true;
-	},
-
-	/**
 	* @private
 	*/
 	rightHandler: function(sender, event) {
@@ -218,6 +209,21 @@ var Breadcrumb = kind(
 			Spotlight.spot(panels.getActive());
 			return true;
 		}
+	},
+
+	/**
+	* @private
+	*/
+	updateSpotability: function () {
+		this.spotlightDisabled = this.isOffscreen;
+	},
+
+	/**
+	* @private
+	*/
+	updateBreadcrumb: function (info) {
+		this.set('isOffscreen', info.isOffscreen);
+		this.updateSpotability();
 	}
 });
 
@@ -939,6 +945,7 @@ module.exports = kind(
 		this.showingChanged();
 		// make other panel to spotlightDisabled without the initialPanel;
 		this.notifyPanels('initPanel');
+		this.notifyBreadcrumbs('updateBreadcrumb');
 	},
 
 	/**
@@ -1281,6 +1288,7 @@ module.exports = kind(
 			this.$.appClose.set('showing', this.hasCloseButton);
 		}
 		this.notifyPanels('initPanel');
+		this.notifyBreadcrumbs('updateBreadcrumb');
 
 		// Ensure any VKB is closed when transitioning panels
 		this.blurActiveElementIfHiding(index);
@@ -1397,6 +1405,17 @@ module.exports = kind(
 		info.index = inPanelIndex;
 		info.animate = this.animate;
 		return info;
+	},
+
+	/**
+	* @private
+	*/
+	getBreadcrumbPositionInfo: function (bounds, containerBounds) {
+		var right = bounds ? bounds.right : null,
+			left = bounds ? bounds.left : null,
+			panelEdge = containerBounds ? containerBounds.right : null;
+
+		return {isOffscreen: (right == null || left == null || panelEdge == null || right <= 0 || left >= panelEdge)};
 	},
 
 	/**
@@ -1556,6 +1575,25 @@ module.exports = kind(
 	/**
 	* @private
 	*/
+	notifyBreadcrumbs: function (method) {
+		if (this.pattern == 'none' || !this.$.breadcrumbs) return;
+
+		var range = this.getBreadcrumbRange(),
+			containerBounds = this.$.breadcrumbs.getAbsoluteBounds(),
+			control, bounds, info, i;
+		for (i=range.start; i<range.end; i++) {
+			control = this.getBreadcrumbForIndex(i);
+			bounds = control.getAbsoluteBounds();
+			info = this.getBreadcrumbPositionInfo(bounds, containerBounds);
+			if (control[method]) {
+				control[method](info);
+			}
+		}
+	},
+
+	/**
+	* @private
+	*/
 	processPanelsToRemove: function(fromIndex, toIndex) {
 		var direction = toIndex < fromIndex ? -1 : 1,
 			removeFrom;
@@ -1587,6 +1625,7 @@ module.exports = kind(
 
 		this.adjustFirstPanelAfterTransition();
 		this.notifyPanels('transitionFinished');
+		this.notifyBreadcrumbs('updateBreadcrumb');
 		Panels.prototype.finishTransition.apply(this, arguments);
 		this.processPanelsToRemove(fromIndex, toIndex);
 		this.processQueuedKey();
