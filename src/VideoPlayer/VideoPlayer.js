@@ -14,6 +14,8 @@ var
 	Animator = require('enyo/Animator'),
 	Control = require('enyo/Control'),
 	EnyoHistory = require('enyo/History'),
+	ContentAreaSupport = require('enyo/ContentAreaSupport'),
+	ShowingTransitionSupport = require('enyo/ShowingTransitionSupport'),
 	Signals = require('enyo/Signals'),
 	Video = require('enyo/Video');
 
@@ -31,9 +33,40 @@ var
 	$L = require('../i18n'),
 	IconButton = require('moonstone/IconButton'),
 	HistorySupport = require('moonstone/HistorySupport'),
+	Marquee = require('moonstone/Marquee'),
+	MarqueeText = Marquee.Text,
 	Spinner = require('moonstone/Spinner'),
 	VideoFullscreenToggleButton = require('../VideoFullscreenToggleButton'),
 	VideoTransportSlider = require('../VideoTransportSlider');
+
+/**
+* {@link module:moonstone/VideoPlayer~InfoBadge} is a simple kind used to display a badge
+* containing channel information. It is the default kind for components added
+* to {@link module:moonstone/VideoPlayer}.
+*
+* @class InfoBadge
+* @extends module:enyo/Control~Control
+* @ui
+* @public
+*/
+var InfoBadge = kind(
+	/** @lends module:moonstone/VideoPlayer~InfoBadge.prototype */ {
+
+	/**
+	* @private
+	*/
+	name: 'moon.InfoBadge',
+
+	/**
+	* @private
+	*/
+	kind: Control,
+
+	/**
+	* @private
+	*/
+	classes: 'moon-video-badge-text badge-text-icon'
+});
 
 /**
 * Fires when [disablePlaybackControls]{@link module:moonstone-extra/VideoPlayer~VideoPlayer#disablePlaybackControls}
@@ -122,7 +155,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	mixins: [HistorySupport],
+	mixins: [HistorySupport, ContentAreaSupport],
 
 	/**
 	* @private
@@ -165,6 +198,15 @@ module.exports = kind(
 		* @public
 		*/
 		sources: null,
+
+		/**
+		* A title for the video the player has currently loaded.
+		*
+		* @type {Object}
+		* @default null
+		* @public
+		*/
+		title: null,
 
 		/**
 		* A [component]{@link module:enyo/Component~Component} definition block describing components to
@@ -606,19 +648,20 @@ module.exports = kind(
 	* @private
 	*/
 	bindings: [
-		{from: 'src',						to:'$.video.src'},
-		{from: 'sources',					to:'$.video.sourceComponents'},
-		{from: 'playbackRateHash',			to:'$.video.playbackRateHash'},
-		{from: 'poster',					to:'$.video.poster'},
-		{from: 'constrainToBgProgress',		to:'$.slider.constrainToBgProgress'},
-		{from: 'elasticEffect',				to:'$.slider.elasticEffect'},
-		{from: 'knobIncrement',				to:'$.slider.knobIncrement'},
-		{from: 'showJumpControls',			to:'$.jumpForward.showing'},
-		{from: 'showJumpControls',			to:'$.jumpBack.showing'},
-		{from: 'showFFRewindControls',		to:'$.fastForward.showing'},
-		{from: 'showFFRewindControls',		to:'$.rewind.showing'},
-		{from: 'showPlayPauseControl',		to:'$.fsPlayPause.showing'},
-		{from: 'showVideo',					to:'$.videoContainer.showing'}
+		{from: 'src',                    to: '$.video.src'},
+		{from: 'sources',                to: '$.video.sourceComponents'},
+		{from: 'title',                  to: '$.title.content'},
+		{from: 'playbackRateHash',       to: '$.video.playbackRateHash'},
+		{from: 'poster',                 to: '$.video.poster'},
+		{from: 'constrainToBgProgress',  to: '$.slider.constrainToBgProgress'},
+		{from: 'elasticEffect',          to: '$.slider.elasticEffect'},
+		{from: 'knobIncrement',          to: '$.slider.knobIncrement'},
+		{from: 'showJumpControls',       to: '$.jumpForward.showing'},
+		{from: 'showJumpControls',       to: '$.jumpBack.showing'},
+		{from: 'showFFRewindControls',   to: '$.fastForward.showing'},
+		{from: 'showFFRewindControls',   to: '$.rewind.showing'},
+		{from: 'showPlayPauseControl',   to: '$.fsPlayPause.showing'},
+		{from: 'showVideo',              to: '$.videoContainer.showing'}
 	],
 
 	/**
@@ -656,6 +699,13 @@ module.exports = kind(
 	/**
 	* @private
 	*/
+	contentAreas: [
+		{target: 'infoClient', content: 'infoComponents'}
+	],
+
+	/**
+	* @private
+	*/
 	components: [
 		{kind: Signals, onPanelsShown: 'panelsShown', onPanelsHidden: 'panelsHidden', onPanelsHandleFocused: 'panelsHandleFocused', onPanelsHandleBlurred: 'panelsHandleBlurred', onFullscreenChange: 'fullscreenChanged', onkeyup:'remoteKeyHandler', onlocalechange: 'updateMoreButton'},
 		{name: 'videoContainer', kind: Control, classes: 'moon-video-player-container', components: [
@@ -670,7 +720,10 @@ module.exports = kind(
 		//* Fullscreen controls
 		{name: 'fullscreenControl', kind: Control, classes: 'moon-video-player-fullscreen enyo-fit scrim', onmousemove: 'mousemove', components: [
 			{name: 'playerControl', kind: Control, classes: 'moon-video-player-bottom', showing: false, components: [
-				{name: 'videoInfoHeaderClient', kind: Control},
+				{name: 'videoInfoHeaderClient', kind: Control, classes: 'moon-video-player-title', mixins: [ShowingTransitionSupport], hidingDuration: 1000, components: [
+					{name: 'title', kind: MarqueeText, classes: 'moon-video-player-title-text'},
+					{name: 'infoClient', kind: Control, defaultKind: InfoBadge, classes: 'moon-video-player-info-badges', showing: false, mixins: [ShowingTransitionSupport], showingDuration: 500}
+				]},
 				{name: 'controls', kind: FittableColumns, classes: 'moon-video-player-controls-frame', ontap: 'resetAutoTimeout', components: [
 
 					{name: 'leftPremiumPlaceHolder', kind: Control, classes: 'moon-video-player-premium-placeholder-left'},
@@ -722,7 +775,6 @@ module.exports = kind(
 		Control.prototype.create.apply(this, arguments);
 		this.durfmt = new DurationFmt({length: 'medium', style: 'clock', useNative: false});
 		this.updateSource();
-		this.createInfoControls();
 		this.inlineChanged();
 		this.autoShowInfoChanged();
 		this.autoShowControlsChanged();
@@ -853,14 +905,6 @@ module.exports = kind(
 	*/
 	getVideo: function () {
 		return this.$.video;
-	},
-
-	/**
-	* @private
-	*/
-	createInfoControls: function () {
-		var owner = this.hasOwnProperty('infoComponents') ? this.getInstanceOwner() : this;
-		this.$.videoInfoHeaderClient.createComponents(this.infoComponents, {owner: owner});
 	},
 
 	/**
@@ -1734,7 +1778,7 @@ module.exports = kind(
 			ratio = videoAspectRatio[0] / videoAspectRatio[1];
 			this.applyStyle('width', dom.unit(parseInt(height, 10) * ratio, 'rem'));
 		// If fixedHeight is false, update height based on aspect ratio
-		} else if (!this.fixedHeight) {
+		} else {
 			// Case 1: Automatic resize based on video aspect ratio (fixed width):
 			// Case 3: Fixed aspect ratio provided by user (fixed-width):
 			ratio = videoAspectRatio[1] / videoAspectRatio[0];
@@ -1759,10 +1803,11 @@ module.exports = kind(
 	* @private
 	*/
 	formatTime: function (val) {
-		var hour = Math.floor(val / (60*60));
-		var min = Math.floor((val / 60) % 60);
-		var sec = Math.floor(val % 60);
-		var time = {minute: min, second: sec};
+		var hour = Math.floor(val / (60*60)),
+			min = Math.floor((val / 60) % 60),
+			sec = Math.floor(val % 60),
+			time = {minute: min, second: sec};
+
 		if (hour) {
 			time.hour = hour;
 		}
@@ -1775,7 +1820,7 @@ module.exports = kind(
 	* @private
 	*/
 	padDigit: function (val) {
-		return (val) ? (String(val).length < 2) ? '0'+val : val : '00';
+		return (val < 10) ? ('0'+val) : val;
 	},
 
 	/**
@@ -1786,12 +1831,9 @@ module.exports = kind(
 	updatePlayPauseButtons: function () {
 		if (this._isPlaying) {
 			this.retrieveIconsSrcOrFont(this.$.fsPlayPause, this.pauseIcon);
-		} else {
-			this.retrieveIconsSrcOrFont(this.$.fsPlayPause, this.playIcon);
-		}
-		if (this._isPlaying) {
 			this.retrieveIconsSrcOrFont(this.$.ilPlayPause, this.inlinePauseIcon);
 		} else {
+			this.retrieveIconsSrcOrFont(this.$.fsPlayPause, this.playIcon);
 			this.retrieveIconsSrcOrFont(this.$.ilPlayPause, this.inlinePlayIcon);
 		}
 	},
@@ -1822,9 +1864,9 @@ module.exports = kind(
 		var spinner = this.$.spinner;
 		if (this.autoShowSpinner && this._isPlaying && !this._canPlay && !this._errorCode) {
 			spinner.start();
-			this.addClass("spinner-showing");
+			this.addClass('spinner-showing');
 		} else if (spinner.get('showing')) {
-			this.removeClass("spinner-showing");
+			this.removeClass('spinner-showing');
 			spinner.stop();
 		}
 	},
@@ -1850,10 +1892,12 @@ module.exports = kind(
 			this.retrieveIconsSrcOrFont(this.$.moreButton, this.lessControlsIcon);
 			this.toggleSpotlightForMoreControls(true);
 			this.$.controlsContainer.next();
+			this.$.infoClient.show();
 		} else {
 			this.retrieveIconsSrcOrFont(this.$.moreButton, this.moreControlsIcon);
 			this.toggleSpotlightForMoreControls(false);
 			this.$.controlsContainer.previous();
+			this.$.infoClient.hide();
 		}
 	},
 

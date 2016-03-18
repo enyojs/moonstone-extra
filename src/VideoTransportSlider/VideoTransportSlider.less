@@ -1,9 +1,7 @@
 .moon-progress-bar.moon-video-player-transport-slider {
-	@knob-v-offset: (@moon-video-player-transport-slider-knob-size - (@moon-video-player-transport-slider-height / 2));
-
 	height: @moon-video-player-transport-slider-height;
 	background-color: rgba(0, 0, 0, 0.6);
-	margin: (@knob-v-offset / 2) 0 (@moon-video-player-transport-slider-tap-area - @moon-video-player-transport-slider-height) 0;
+	margin: (@moon-video-player-knob-v-offset / 2) 0 (@moon-video-player-transport-slider-tap-area - @moon-video-player-transport-slider-height) 0;
 
 	.moon-slider-popup {
 		pointer-events: none;
@@ -20,7 +18,7 @@
 
 		position: absolute;
 		width: (@moon-video-player-transport-slider-knob-size * 2);
-		top: -@knob-v-offset;
+		top: -@moon-video-player-knob-v-offset;
 		height: (@moon-video-player-transport-slider-knob-size * 2);
 		border-radius: @moon-video-player-transport-slider-knob-size;
 		background-color: #fff;
@@ -161,9 +159,9 @@
 		content: '';
 		display: block;
 		position: absolute;
-		top: -(@knob-v-offset / 2);
+		top: -(@moon-video-player-knob-v-offset / 2);
 		width: 100%;
-		height: (@moon-video-player-transport-slider-tap-area + @knob-v-offset);
+		height: (@moon-video-player-transport-slider-tap-area + @moon-video-player-knob-v-offset);
 	}
 }
 
