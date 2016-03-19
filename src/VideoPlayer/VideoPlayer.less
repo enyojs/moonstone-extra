@@ -29,6 +29,66 @@
 		margin-left: (-@moon-spinner-size / 2);
 	}
 
+	.moon-video-player-title {
+		@badges-present-transition: transform 500ms ease-in-out;
+
+		color: @moon-white;
+		text-shadow: @moon-video-player-title-text-shadow;
+
+		&.hiding {
+			opacity: 0;
+			transition: @badges-present-transition, opacity 1000ms ease-in-out;
+		}
+
+		.moon-video-player-title-text {
+			font-family: @moon-font-family;
+			font-size: 48px;
+			line-height: @moon-header-line-height;
+			transition: @badges-present-transition;
+			transform: translateY(36px) translateZ(0);
+			.font-kerning;
+
+			&.with-badges {
+				transform: translateY(0) translateZ(0);
+			}
+
+			.enyo-locale-non-latin & {
+				line-height: @moon-non-latin-header-text-line-height;
+			}
+		}
+
+		// Badges
+		.moon-video-player-info-badges {
+			vertical-align: super;
+
+			&.hidden {
+				opacity: 0;
+			}
+			&.showing {
+				transition: opacity 500ms ease-in-out;
+			}
+
+			> * {
+				display: inline-block;
+				margin: 0 6px;
+			}
+
+			.badge-text-icon {
+				font-family: @moon-font-family-bold;
+				font-size: @moon-video-player-badge-text-size;
+				text-align: center;
+				white-space: nowrap;
+				display: inline-block;
+			}
+
+			.redicon {
+				background-color: @moon-videoplayer-redicon-bg-color;
+				color: @moon-videoplayer-redicon-text-color;
+			}
+		}
+	}
+
+
 	/* Fullscreen CSS */
 	.vendor-fullscreen({
 		position: static !important;

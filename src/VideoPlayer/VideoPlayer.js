@@ -14,6 +14,8 @@ var
 	Animator = require('enyo/Animator'),
 	Control = require('enyo/Control'),
 	EnyoHistory = require('enyo/History'),
+	ContentAreaSupport = require('enyo/ContentAreaSupport'),
+	ShowingTransitionSupport = require('enyo/ShowingTransitionSupport'),
 	Signals = require('enyo/Signals'),
 	Video = require('enyo/Video');
 
@@ -31,11 +33,40 @@ var
 	$L = require('../i18n'),
 	IconButton = require('moonstone/IconButton'),
 	HistorySupport = require('moonstone/HistorySupport'),
+	Marquee = require('moonstone/Marquee'),
+	MarqueeText = Marquee.Text,
 	Spinner = require('moonstone/Spinner'),
 	VideoFullscreenToggleButton = require('../VideoFullscreenToggleButton'),
 	VideoTransportSlider = require('../VideoTransportSlider');
 
-var libPath = '@../..';
+/**
+* {@link module:moonstone/VideoPlayer~InfoBadge} is a simple kind used to display a badge
+* containing channel information. It is the default kind for components added
+* to {@link module:moonstone/VideoPlayer}.
+*
+* @class InfoBadge
+* @extends module:enyo/Control~Control
+* @ui
+* @public
+*/
+var InfoBadge = kind(
+	/** @lends module:moonstone/VideoPlayer~InfoBadge.prototype */ {
+
+	/**
+	* @private
+	*/
+	name: 'moon.InfoBadge',
+
+	/**
+	* @private
+	*/
+	kind: Control,
+
+	/**
+	* @private
+	*/
+	classes: 'moon-video-badge-text badge-text-icon'
+});
 
 /**
 * Fires when [disablePlaybackControls]{@link module:moonstone-extra/VideoPlayer~VideoPlayer#disablePlaybackControls}
@@ -124,7 +155,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	mixins: [HistorySupport],
+	mixins: [HistorySupport, ContentAreaSupport],
 
 	/**
 	* @private
@@ -167,6 +198,15 @@ module.exports = kind(
 		* @public
 		*/
 		sources: null,
+
+		/**
+		* A title for the video the player has currently loaded.
+		*
+		* @type {Object}
+		* @default null
+		* @public
+		*/
+		title: null,
 
 		/**
 		* A [component]{@link module:enyo/Component~Component} definition block describing components to
@@ -227,7 +267,16 @@ module.exports = kind(
 		* @default 7000
 		* @public
 		*/
-		autoCloseTimeout: 7000,
+		autoCloseTimeout: 5000,
+
+		/**
+		* Amount of time (in milliseconds) after which control buttons are automatically hidden.
+		*
+		* @type {Number}
+		* @default 7000
+		* @public
+		*/
+		autoHideTitleTimeout: 5000,
 
 		/**
 		* Duration of the video.
@@ -531,14 +580,14 @@ module.exports = kind(
 		*
 		* @private
 		*/
-		moreControlsIcon: libPath + '/images/ellipsis.svg',
+		moreControlsIcon: 'ellipsis',
 
 		/**
 		* Name of font-based icon or image file.
 		*
 		* @private
 		*/
-		lessControlsIcon: libPath + '/images/back.svg',
+		lessControlsIcon: 'arrowhookleft',
 
 		/**
 		* Name of font-based icon or image file.
@@ -586,7 +635,6 @@ module.exports = kind(
 	handlers: {
 		onRequestTimeChange: 'timeChange',
 		onRequestToggleFullscreen: 'toggleFullscreen',
-		onSpotlightKeyUp: 'spotlightKeyUpHandler',
 		onSpotlightKeyDown: 'spotlightKeyDownHandler',
 		onSpotlightUp: 'spotlightUpHandler',
 		onSpotlightDown: 'spotlightDownHandler',
@@ -608,19 +656,20 @@ module.exports = kind(
 	* @private
 	*/
 	bindings: [
-		{from: 'src',						to:'$.video.src'},
-		{from: 'sources',					to:'$.video.sourceComponents'},
-		{from: 'playbackRateHash',			to:'$.video.playbackRateHash'},
-		{from: 'poster',					to:'$.video.poster'},
-		{from: 'constrainToBgProgress',		to:'$.slider.constrainToBgProgress'},
-		{from: 'elasticEffect',				to:'$.slider.elasticEffect'},
-		{from: 'knobIncrement',				to:'$.slider.knobIncrement'},
-		{from: 'showJumpControls',			to:'$.jumpForward.showing'},
-		{from: 'showJumpControls',			to:'$.jumpBack.showing'},
-		{from: 'showFFRewindControls',		to:'$.fastForward.showing'},
-		{from: 'showFFRewindControls',		to:'$.rewind.showing'},
-		{from: 'showPlayPauseControl',		to:'$.fsPlayPause.showing'},
-		{from: 'showVideo',					to:'$.videoContainer.showing'}
+		{from: 'src',                    to: '$.video.src'},
+		{from: 'sources',                to: '$.video.sourceComponents'},
+		{from: 'title',                  to: '$.title.content'},
+		{from: 'playbackRateHash',       to: '$.video.playbackRateHash'},
+		{from: 'poster',                 to: '$.video.poster'},
+		{from: 'constrainToBgProgress',  to: '$.slider.constrainToBgProgress'},
+		{from: 'elasticEffect',          to: '$.slider.elasticEffect'},
+		{from: 'knobIncrement',          to: '$.slider.knobIncrement'},
+		{from: 'showJumpControls',       to: '$.jumpForward.showing'},
+		{from: 'showJumpControls',       to: '$.jumpBack.showing'},
+		{from: 'showFFRewindControls',   to: '$.fastForward.showing'},
+		{from: 'showFFRewindControls',   to: '$.rewind.showing'},
+		{from: 'showPlayPauseControl',   to: '$.fsPlayPause.showing'},
+		{from: 'showVideo',              to: '$.videoContainer.showing'}
 	],
 
 	/**
@@ -658,6 +707,13 @@ module.exports = kind(
 	/**
 	* @private
 	*/
+	contentAreas: [
+		{target: 'infoClient', content: 'infoComponents'}
+	],
+
+	/**
+	* @private
+	*/
 	components: [
 		{kind: Signals, onPanelsShown: 'panelsShown', onPanelsHidden: 'panelsHidden', onPanelsHandleFocused: 'panelsHandleFocused', onPanelsHandleBlurred: 'panelsHandleBlurred', onFullscreenChange: 'fullscreenChanged', onkeyup:'remoteKeyHandler', onlocalechange: 'updateMoreButton'},
 		{name: 'videoContainer', kind: Control, classes: 'moon-video-player-container', components: [
@@ -671,10 +727,16 @@ module.exports = kind(
 
 		//* Fullscreen controls
 		{name: 'fullscreenControl', kind: Control, classes: 'moon-video-player-fullscreen enyo-fit scrim', onmousemove: 'mousemove', components: [
-
-			{name: 'videoInfoHeaderClient', kind: Control, showing: false, classes: 'moon-video-player-top'},
-
 			{name: 'playerControl', kind: Control, classes: 'moon-video-player-bottom', showing: false, components: [
+				{name: 'titleContainer', kind: Control, classes: 'moon-video-player-title', mixins: [ShowingTransitionSupport], hidingDuration: 1000, components: [
+					{name: 'title', kind: MarqueeText, classes: 'moon-video-player-title-text'},
+					{name: 'infoClient', kind: Control, defaultKind: InfoBadge, classes: 'moon-video-player-info-badges', showing: false, mixins: [ShowingTransitionSupport], showingDuration: 500}
+				]},
+				{name: 'sliderContainer', kind: Control, classes: 'moon-video-player-slider-frame', components: [
+					{name: 'slider', kind: VideoTransportSlider, rtl: false, disabled: true, onSeekStart: 'sliderSeekStart', onSeek: 'sliderSeek', onSeekFinish: 'sliderSeekFinish',
+						onEnterTapArea: 'onEnterSlider', onLeaveTapArea: 'onLeaveSlider', ontap:'playbackControlsTapped'
+					}
+				]},
 				{name: 'controls', kind: FittableColumns, classes: 'moon-video-player-controls-frame', ontap: 'resetAutoTimeout', components: [
 
 					{name: 'leftPremiumPlaceHolder', kind: Control, classes: 'moon-video-player-premium-placeholder-left'},
@@ -697,12 +759,6 @@ module.exports = kind(
 					{name: 'rightPremiumPlaceHolder', kind: Control, classes: 'moon-video-player-premium-placeholder-right', components: [
 						{name: 'moreButton', kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'moreButtonTapped', accessibilityLabel: $L('More')}
 					]}
-				]},
-
-				{name: 'sliderContainer', kind: Control, classes: 'moon-video-player-slider-frame', components: [
-					{name: 'slider', kind: VideoTransportSlider, rtl: false, disabled: true, onSeekStart: 'sliderSeekStart', onSeek: 'sliderSeek', onSeekFinish: 'sliderSeekFinish',
-						onEnterTapArea: 'onEnterSlider', onLeaveTapArea: 'onLeaveSlider', ontap:'playbackControlsTapped'
-					}
 				]}
 			]}
 		]},
@@ -726,9 +782,7 @@ module.exports = kind(
 		Control.prototype.create.apply(this, arguments);
 		this.durfmt = new DurationFmt({length: 'medium', style: 'clock', useNative: false});
 		this.updateSource();
-		this.createInfoControls();
 		this.inlineChanged();
-		this.showInfoChanged();
 		this.autoShowInfoChanged();
 		this.autoShowControlsChanged();
 		this.autoplayChanged();
@@ -863,14 +917,6 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	createInfoControls: function () {
-		var owner = this.hasOwnProperty('infoComponents') ? this.getInstanceOwner() : this;
-		this.$.videoInfoHeaderClient.createComponents(this.infoComponents, {owner: owner});
-	},
-
-	/**
-	* @private
-	*/
 	createClientComponents: function (comps) {
 		comps = (comps) ? util.clone(comps) : [];
 		this.clientComponentsCount = comps.length;
@@ -999,9 +1045,6 @@ module.exports = kind(
 	* @private
 	*/
 	autoShowInfoChanged: function () {
-		if (this.$.videoInfoHeaderClient.getShowing() && !this.autoShowInfo && !this.showInfo) {
-			this.$.videoInfoHeaderClient.hide();
-		}
 		if (this.autoShowInfo) {
 			this.resetAutoTimeout();
 		}
@@ -1011,23 +1054,11 @@ module.exports = kind(
 	* @private
 	*/
 	autoShowControlsChanged: function () {
-		if (this.$.playerControl.getShowing() && !this.autoShowControls) {
+		if (this.$.playerControl.get('showing') && !this.autoShowControls) {
 			this.$.playerControl.hide();
 		}
 		if (this.autoShowControls) {
 			this.resetAutoTimeout();
-		}
-	},
-
-	/**
-	* @private
-	*/
-	showInfoChanged: function () {
-		this.$.videoInfoHeaderClient.setShowing(this.showInfo);
-
-		if (this.showInfo) {
-			// Kick off any marquees in the video info header
-			this.$.videoInfoHeaderClient.waterfallDown('onRequestStartMarquee');
 		}
 	},
 
@@ -1087,7 +1118,6 @@ module.exports = kind(
 		if (this.isDescendantOf(e.panels)) return;
 		this._panelsShowing = true;
 		this._controlsShowing = false;
-		this._infoShowing = false;
 		this.updateSpotability();
 		if (e.initialization) {
 			return;
@@ -1119,8 +1149,7 @@ module.exports = kind(
 	* @private
 	*/
 	panelsHandleFocused: function (sender, e) {
-		this._infoShowing = this.$.videoInfoHeaderClient.getShowing();
-		this._controlsShowing = this.$.playerControl.getShowing();
+		this._controlsShowing = this.$.playerControl.get('showing');
 		this.hideFSControls(true);
 	},
 
@@ -1129,9 +1158,6 @@ module.exports = kind(
 	*/
 	panelsHandleBlurred: function (sender, e) {
 		if (this.isLarge() && !this.isOverlayShowing()) {
-			if (this._infoShowing) {
-				this.showFSInfo();
-			}
 			if (this._controlsShowing) {
 				util.asyncMethod(this, 'showFSBottomControls');
 			}
@@ -1174,36 +1200,18 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	spotlightUpHandler: function (sender, e) {
-		if (this._sentHold) return;
-
-		if (this.hasClass('spotlight-5way-mode')) this.removeClass('spotlight-5way-mode');
-		if (this._shouldHandleUpDown) {
-			var current = Spotlight.getCurrent();
-
-			if (current.isDescendantOf(this.$.slider)) {
-				if (this.$.controlsContainer.get('index')) return false;
-				else Spotlight.spot(this.$.fsPlayPause);
-			}
-			else if (current == this || current.isDescendantOf(this.$.controls)) {
-				// Toggle info header on 'up' press
-				if (!this.$.videoInfoHeaderClient.getShowing()) {
-					this.showFSInfo();
-				} else {
-					if (this.allowBackKey) EnyoHistory.drop();
-					this.hideFSInfo();
-				}
-			}
-			return true;
-		}
-	},
-
-	/**
-	* @private
-	*/
-	spotlightKeyUpHandler: function(sender, e) {
+	spotlightUpHandler: function(sender, e) {
 		this.resetAutoTimeout();
-		gesture.drag.endHold();
+
+		var current = Spotlight.getCurrent();
+		if (current == this) {
+			this.hideFSBottomControls();
+			gesture.drag.endHold();
+			if (this.allowBackKey) EnyoHistory.drop();
+		}
+		else if (current.isDescendantOf(this.$.slider)) {
+			this.addClass('spotlight-5way-mode');
+		}
 	},
 
 	/**
@@ -1215,13 +1223,13 @@ module.exports = kind(
 		if (this._shouldHandleUpDown) {
 			var current = Spotlight.getCurrent();
 
-			if (current == this) this.showFSBottomControls();
-			else if (current.isDescendantOf(this.$.controls)) {
-				this.addClass('spotlight-5way-mode');
-				Spotlight.spot(this.$.slider);
+			if (current == this) {
+				this.showFSBottomControls();
 			}
 			else if (current.isDescendantOf(this.$.slider)) {
-				if (this.allowBackKey) EnyoHistory.drop();
+				Spotlight.spot(this.$.controls);
+			}
+			else if (current.isDescendantOf(this.$.controls)) {
 				this.hideFSBottomControls();
 			}
 			return true;
@@ -1244,7 +1252,7 @@ module.exports = kind(
 	* @private
 	*/
 	isOverlayShowing: function () {
-		return this.$.videoInfoHeaderClient.getShowing() || this.$.playerControl.getShowing();
+		return this.$.playerControl.get('showing');
 	},
 
 	/**
@@ -1266,24 +1274,38 @@ module.exports = kind(
 	* @private
 	*/
 	showFSControls: function (sender, e) {
-		this.showFSInfo();
 		this.showFSBottomControls();
 	},
 
 	/**
 	* @private
 	*/
+	showBadges: function () {
+		if (this.$.infoClient.children.length) {
+			// Slide title up a bit, to make some room
+			this.$.title.addClass('with-badges');
+			this.$.infoClient.show();
+		}
+	},
+
+	/**
+	* @private
+	*/
+	hideBadges: function () {
+		// Slide title back down in all cases.
+		this.$.title.removeClass('with-badges');
+		this.$.infoClient.hide();
+	},
+
+	/**
+	* @private
+	*/
 	hideFSControls: function (spottingHandled) {
-		var dropCount;
 		if (this.isOverlayShowing()) {
 			if (this.allowBackKey) {
-				dropCount = 0;
-				if (this.$.videoInfoHeaderClient.get('showing')) dropCount++;
-				if (this.$.playerControl.get('showing')) dropCount++;
-				EnyoHistory.drop(dropCount);
+				EnyoHistory.drop(1);
 			}
 
-			this.hideFSInfo();
 			this.hideFSBottomControls();
 		}
 		if (!spottingHandled) {
@@ -1302,6 +1324,7 @@ module.exports = kind(
 		if (this.autoShowOverlay && this.autoShowControls) {
 			this.resetAutoTimeout();
 			this.showScrim(true);
+			this.$.titleContainer.show();
 			this.$.playerControl.setShowing(true);
 			this.$.playerControl.resize();
 			if (!this.showPlaybackControls) {
@@ -1321,7 +1344,26 @@ module.exports = kind(
 			if (this.allowBackKey) {
 				this.pushBackHistory();
 			}
+			this.startHideTitle();
 		}
+	},
+
+	/**
+	* Starts the countdown to eventually hide the title element.
+	*
+	* @private
+	*/
+	startHideTitle: function () {
+		this.startJob('hideTitle', function () { this.$.titleContainer.hide(); }, this.autoHideTitleTimeout);
+	},
+
+	/**
+	* Stops and resets the countdown so the title element doesn't hide.
+	*
+	* @private
+	*/
+	stopHideTitle: function () {
+		this.stopJob('hideTitle');
 	},
 
 	/**
@@ -1370,36 +1412,6 @@ module.exports = kind(
 		}
 		this.showScrim(false);
 		this.$.playerControl.setShowing(false);
-	},
-
-	/**
-	* Sets `this.visible` to `true` and clears hide job.
-	*
-	* @private
-	*/
-	showFSInfo: function () {
-		if (this.autoShowOverlay && this.autoShowInfo) {
-			this.resetAutoTimeout();
-			this.$.videoInfoHeaderClient.setShowing(true);
-			this.$.videoInfoHeaderClient.resize();
-
-			// Kick off any marquees in the video info header
-			this.$.videoInfoHeaderClient.waterfallDown('onRequestStartMarquee');
-			if (this.allowBackKey) {
-				this.pushBackHistory();
-			}
-		}
-	},
-
-	/**
-	* Sets `this.visible` to `false`.
-	*
-	* @private
-	*/
-	hideFSInfo: function () {
-		if (!this.showInfo) {
-			this.$.videoInfoHeaderClient.setShowing(false);
-		}
 	},
 
 	/**
@@ -1822,7 +1834,7 @@ module.exports = kind(
 			ratio = videoAspectRatio[0] / videoAspectRatio[1];
 			this.applyStyle('width', dom.unit(parseInt(height, 10) * ratio, 'rem'));
 		// If fixedHeight is false, update height based on aspect ratio
-		} else if (!this.fixedHeight) {
+		} else {
 			// Case 1: Automatic resize based on video aspect ratio (fixed width):
 			// Case 3: Fixed aspect ratio provided by user (fixed-width):
 			ratio = videoAspectRatio[1] / videoAspectRatio[0];
@@ -1847,10 +1859,11 @@ module.exports = kind(
 	* @private
 	*/
 	formatTime: function (val) {
-		var hour = Math.floor(val / (60*60));
-		var min = Math.floor((val / 60) % 60);
-		var sec = Math.floor(val % 60);
-		var time = {minute: min, second: sec};
+		var hour = Math.floor(val / (60*60)),
+			min = Math.floor((val / 60) % 60),
+			sec = Math.floor(val % 60),
+			time = {minute: min, second: sec};
+
 		if (hour) {
 			time.hour = hour;
 		}
@@ -1863,7 +1876,7 @@ module.exports = kind(
 	* @private
 	*/
 	padDigit: function (val) {
-		return (val) ? (String(val).length < 2) ? '0'+val : val : '00';
+		return (val < 10) ? ('0'+val) : val;
 	},
 
 	/**
@@ -1874,12 +1887,9 @@ module.exports = kind(
 	updatePlayPauseButtons: function () {
 		if (this._isPlaying) {
 			this.retrieveIconsSrcOrFont(this.$.fsPlayPause, this.pauseIcon);
-		} else {
-			this.retrieveIconsSrcOrFont(this.$.fsPlayPause, this.playIcon);
-		}
-		if (this._isPlaying) {
 			this.retrieveIconsSrcOrFont(this.$.ilPlayPause, this.inlinePauseIcon);
 		} else {
+			this.retrieveIconsSrcOrFont(this.$.fsPlayPause, this.playIcon);
 			this.retrieveIconsSrcOrFont(this.$.ilPlayPause, this.inlinePlayIcon);
 		}
 	},
@@ -1890,16 +1900,11 @@ module.exports = kind(
 	* @private
 	*/
 	retrieveIconsSrcOrFont:function (src, icon) {
-		var iconPath,
-			iconType = this.checkIconType(icon);
+		var iconType = this.checkIconType(icon);
 
 		if (iconType == 'image') {
-			// To maintain compatibility with iconPath which isn't resolved by the build tools and
-			// therefore is an app-scoped path vs a library-scoped path, we check the path of the
-			// image and only prepend iconPath if the icon isn't in the library's path
-			iconPath = icon.indexOf(libPath) === 0 ? icon : this.iconPath + icon;
 			src.set('icon', null);
-			src.set('src', iconPath);
+			src.set('src', this.iconPath + icon);
 		} else {
 			src.set('src', null);
 			src.set('icon', icon);
@@ -1915,9 +1920,9 @@ module.exports = kind(
 		var spinner = this.$.spinner;
 		if (this.autoShowSpinner && this._isPlaying && !this._canPlay && !this._errorCode) {
 			spinner.start();
-			this.addClass("spinner-showing");
-		} else if (spinner.getShowing()) {
-			this.removeClass("spinner-showing");
+			this.addClass('spinner-showing');
+		} else if (spinner.get('showing')) {
+			this.removeClass('spinner-showing');
 			spinner.stop();
 		}
 	},
@@ -1943,10 +1948,15 @@ module.exports = kind(
 			this.retrieveIconsSrcOrFont(this.$.moreButton, this.lessControlsIcon);
 			this.toggleSpotlightForMoreControls(true);
 			this.$.controlsContainer.next();
+			this.stopHideTitle();
+			this.$.titleContainer.show();
+			this.showBadges();
 		} else {
 			this.retrieveIconsSrcOrFont(this.$.moreButton, this.moreControlsIcon);
 			this.toggleSpotlightForMoreControls(false);
 			this.$.controlsContainer.previous();
+			this.startHideTitle();
+			this.hideBadges();
 		}
 	},
 
@@ -1979,7 +1989,7 @@ module.exports = kind(
 	*/
 	timeUpdate: function (sender, e) {
 		//* Update _this.duration_ and _this.currentTime_
-		if (!e && e.srcElement || e.currentTime === null) {
+		if (!e && e.target || e.currentTime === null) {
 			return;
 		}
 
@@ -2063,7 +2073,7 @@ module.exports = kind(
 	* @private
 	*/
 	_progress: function (sender, e) {
-		var buffered = this._getBufferedProgress(e.srcElement);
+		var buffered = this._getBufferedProgress(e.target);
 		if (this.isFullscreen() || !this.getInline()) {
 			this.$.slider.setBgProgress(buffered.value);
 		} else {
@@ -2096,10 +2106,10 @@ module.exports = kind(
 	*/
 	_pause: function (sender, e) {
 		// Don't send pause feedback if we are rewinding
-		if (e.srcElement.playbackRate < 0) {
+		if (e.target.playbackRate < 0) {
 			return;
 		}
-		if (e.srcElement.currentTime === 0) {
+		if (e.target.currentTime === 0) {
 			this.sendFeedback('Stop', {}, true);
 			return;
 		}
@@ -2227,7 +2237,7 @@ module.exports = kind(
 				break;
 			}
 			if (showControls) {
-				if(!this.$.playerControl.getShowing()) {
+				if(!this.$.playerControl.get('showing')) {
 					this.showFSBottomControls();
 				} else {
 					this.resetAutoTimeout();
@@ -2241,22 +2251,12 @@ module.exports = kind(
 	* @private
 	*/
 	backKeyHandler: function () {
-		var visibleUp = this.$.videoInfoHeaderClient.getShowing(),
-			visibleDown = this.$.playerControl.getShowing();
-
-		// if videoInfoHeaderClient and playerControl are visible
-		// it means that we pushed video player into history stack twice.
-		// to set correct target for next back key, we should pop one instance.
-		if (visibleUp && visibleDown) {
-			EnyoHistory.drop();
+		// if playerControls are visible, hide them
+		if (this.isOverlayShowing()) {
+			this.hideFSBottomControls();
 		}
-
-		if (visibleUp) this.hideFSInfo();
-		if (visibleDown) this.hideFSBottomControls();
-
-		// if both the videoInfoHeaderClient and playerControl are hidden, then the remaining action
-		// to "reverse" is fullscreen mode
-		if (!visibleUp && !visibleDown && this.isFullscreen()) {
+		// if playerControls are hidden, then the remaining action to "reverse" is fullscreen mode
+		else if (this.isFullscreen()) {
 			this.cancelFullscreen();
 		}
 
@@ -2279,8 +2279,8 @@ module.exports = kind(
 				label = index === 0 ? $L('More') : $L('Back');
 			this.$.moreButton.set('accessibilityLabel', label);
 		}},
-		{path: '$.videoInfoHeaderClient.showing', method: function () {
-			var client = this.$.videoInfoHeaderClient,
+		{path: '$.titleContainer.showing', method: function () {
+			var client = this.$.titleContainer,
 				showing = client.get('showing');
 
 			client.set('accessibilityAlert', showing);
@@ -2290,7 +2290,7 @@ module.exports = kind(
 			}
 		}},
 		{path: '$.playerControl.showing', method: function () {
-			var client = this.$.videoInfoHeaderClient;
+			var client = this.$.titleContainer;
 			if (client.get('showing')) {
 				client.set('accessibilityDisabled', true);
 			}
