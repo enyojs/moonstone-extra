@@ -14,16 +14,14 @@
 	// --- Fullscreen Player Controls ---
 	.moon-video-player-bottom {
 		position: absolute;
-		bottom: 0;
-		left: 0;
-		right: 0;
+		bottom: 30px;
+		left: @moon-video-player-side-padding;
+		right: @moon-video-player-side-padding;
 		background-color: @moon-video-player-bottom-bg-color;
 		direction: ltr;
 	}
 
 	.moon-video-player-controls-frame {
-		padding: 0 @moon-video-player-side-padding 24px @moon-video-player-side-padding;
-
 		.moon-video-player-controls-frame-center {
 			position: relative;
 		}
@@ -64,4 +62,14 @@
 .moon-video-player-premium-placeholder-left,
 .moon-video-player-premium-placeholder-right {
 	height: @moon-icon-button-size;
+}
+.moon-video-player-premium-placeholder-left {
+	:first-child {
+		.margin-start-end(0, @moon-spotlight-outset);
+	}
+}
+.moon-video-player-premium-placeholder-right {
+	:first-child {
+		.margin-start-end(@moon-spotlight-outset, 0);
+	}
 }

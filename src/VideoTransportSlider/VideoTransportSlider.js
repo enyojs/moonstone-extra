@@ -224,7 +224,7 @@ module.exports = kind(
 		* @default 144 - controls height(132) + margin (12)
 		* @public
 		*/
-		popupOffset: 39,
+		popupOffset: -45,
 
 		/**
 		* Threshold value (percentage) for using animation effect on slider progress change.
@@ -242,7 +242,7 @@ module.exports = kind(
 		* @default 67
 		* @public
 		*/
-		popupHeight: 48,
+		popupHeight: 36,
 
 		/**
 		* Sliders will increase or decrease as much as knobIncrement in either direction

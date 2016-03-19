@@ -267,7 +267,16 @@ module.exports = kind(
 		* @default 7000
 		* @public
 		*/
-		autoCloseTimeout: 7000,
+		autoCloseTimeout: 5000,
+
+		/**
+		* Amount of time (in milliseconds) after which control buttons are automatically hidden.
+		*
+		* @type {Number}
+		* @default 7000
+		* @public
+		*/
+		autoHideTitleTimeout: 5000,
 
 		/**
 		* Duration of the video.
@@ -719,7 +728,7 @@ module.exports = kind(
 		//* Fullscreen controls
 		{name: 'fullscreenControl', kind: Control, classes: 'moon-video-player-fullscreen enyo-fit scrim', onmousemove: 'mousemove', components: [
 			{name: 'playerControl', kind: Control, classes: 'moon-video-player-bottom', showing: false, components: [
-				{name: 'videoInfoHeaderClient', kind: Control, classes: 'moon-video-player-title', mixins: [ShowingTransitionSupport], hidingDuration: 1000, components: [
+				{name: 'titleContainer', kind: Control, classes: 'moon-video-player-title', mixins: [ShowingTransitionSupport], hidingDuration: 1000, components: [
 					{name: 'title', kind: MarqueeText, classes: 'moon-video-player-title-text'},
 					{name: 'infoClient', kind: Control, defaultKind: InfoBadge, classes: 'moon-video-player-info-badges', showing: false, mixins: [ShowingTransitionSupport], showingDuration: 500}
 				]},
@@ -1271,6 +1280,26 @@ module.exports = kind(
 	/**
 	* @private
 	*/
+	showBadges: function () {
+		if (this.$.infoClient.children.length) {
+			// Slide title up a bit, to make some room
+			this.$.title.addClass('with-badges');
+			this.$.infoClient.show();
+		}
+	},
+
+	/**
+	* @private
+	*/
+	hideBadges: function () {
+		// Slide title back down in all cases.
+		this.$.title.removeClass('with-badges');
+		this.$.infoClient.hide();
+	},
+
+	/**
+	* @private
+	*/
 	hideFSControls: function (spottingHandled) {
 		if (this.isOverlayShowing()) {
 			if (this.allowBackKey) {
@@ -1295,6 +1324,7 @@ module.exports = kind(
 		if (this.autoShowOverlay && this.autoShowControls) {
 			this.resetAutoTimeout();
 			this.showScrim(true);
+			this.$.titleContainer.show();
 			this.$.playerControl.setShowing(true);
 			this.$.playerControl.resize();
 			if (!this.showPlaybackControls) {
@@ -1314,7 +1344,26 @@ module.exports = kind(
 			if (this.allowBackKey) {
 				this.pushBackHistory();
 			}
+			this.startHideTitle();
 		}
+	},
+
+	/**
+	* Starts the countdown to eventually hide the title element.
+	*
+	* @private
+	*/
+	startHideTitle: function () {
+		this.startJob('hideTitle', function () { this.$.titleContainer.hide(); }, this.autoHideTitleTimeout);
+	},
+
+	/**
+	* Stops and resets the countdown so the title element doesn't hide.
+	*
+	* @private
+	*/
+	stopHideTitle: function () {
+		this.stopJob('hideTitle');
 	},
 
 	/**
@@ -1899,12 +1948,15 @@ module.exports = kind(
 			this.retrieveIconsSrcOrFont(this.$.moreButton, this.lessControlsIcon);
 			this.toggleSpotlightForMoreControls(true);
 			this.$.controlsContainer.next();
-			this.$.infoClient.show();
+			this.stopHideTitle();
+			this.$.titleContainer.show();
+			this.showBadges();
 		} else {
 			this.retrieveIconsSrcOrFont(this.$.moreButton, this.moreControlsIcon);
 			this.toggleSpotlightForMoreControls(false);
 			this.$.controlsContainer.previous();
-			this.$.infoClient.hide();
+			this.startHideTitle();
+			this.hideBadges();
 		}
 	},
 
@@ -2227,8 +2279,8 @@ module.exports = kind(
 				label = index === 0 ? $L('More') : $L('Back');
 			this.$.moreButton.set('accessibilityLabel', label);
 		}},
-		{path: '$.videoInfoHeaderClient.showing', method: function () {
-			var client = this.$.videoInfoHeaderClient,
+		{path: '$.titleContainer.showing', method: function () {
+			var client = this.$.titleContainer,
 				showing = client.get('showing');
 
 			client.set('accessibilityAlert', showing);
@@ -2238,7 +2290,7 @@ module.exports = kind(
 			}
 		}},
 		{path: '$.playerControl.showing', method: function () {
-			var client = this.$.videoInfoHeaderClient;
+			var client = this.$.titleContainer;
 			if (client.get('showing')) {
 				client.set('accessibilityDisabled', true);
 			}
