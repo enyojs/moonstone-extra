@@ -1225,14 +1225,12 @@ module.exports = kind(
 
 			if (current == this) {
 				this.showFSBottomControls();
-			}
-			else if (current.isDescendantOf(this.$.slider)) {
-				Spotlight.spot(this.$.controls);
+				return true;
 			}
 			else if (current.isDescendantOf(this.$.controls)) {
 				this.hideFSBottomControls();
+				return true;
 			}
-			return true;
 		}
 	},
 
@@ -1373,8 +1371,8 @@ module.exports = kind(
 		if (this.showPlaybackControls) {
 			if (this.$.controlsContainer.get('index') === 0) {
 				if (Spotlight.spot(this.$.fsPlayPause) === false) {
-					if(Spotlight.spot(this.$.fastForward) === false){
-						if(Spotlight.spot(this.$.jumpForward) === false) {
+					if (Spotlight.spot(this.$.fastForward) === false) {
+						if (Spotlight.spot(this.$.jumpForward) === false) {
 							Spotlight.spot(Spotlight.getFirstChild(this.$.controls));
 						}
 					}
