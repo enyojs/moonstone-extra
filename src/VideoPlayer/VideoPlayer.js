@@ -317,16 +317,6 @@ module.exports = kind(
 		shakeAndWake: false,
 
 		/**
-		* If `false`, the top [infoComponents]{@link module:moonstone-extra/VideoPlayer~VideoPlayer#infoComponents} are
-		* not automatically shown or hidden in response to `up` events.
-		*
-		* @type {Boolean}
-		* @default true
-		* @public
-		*/
-		autoShowInfo: true,
-
-		/**
 		* If `false`, the bottom slider/controls are not automatically shown or hidden in
 		* response to `down` events.
 		*
@@ -335,17 +325,6 @@ module.exports = kind(
 		* @public
 		*/
 		autoShowControls: true,
-
-		/**
-		* When `true`, the top [infoComponents]{@link module:moonstone-extra/VideoPlayer~VideoPlayer#infoComponents} are
-		* shown with no timeout; when `false` (the default), they are shown based on the
-		* value of the [autoShowInfo]{@link module:moonstone-extra/VideoPlayer~VideoPlayer#autoShowInfo} property.
-		*
-		* @type {Boolean}
-		* @default false
-		* @public
-		*/
-		showInfo: false,
 
 		/**
 		* When `false`, the player starts in fullscreen mode; when `true`, it starts in
@@ -783,7 +762,6 @@ module.exports = kind(
 		this.durfmt = new DurationFmt({length: 'medium', style: 'clock', useNative: false});
 		this.updateSource();
 		this.inlineChanged();
-		this.autoShowInfoChanged();
 		this.autoShowControlsChanged();
 		this.autoplayChanged();
 		this.updateMoreButton();
@@ -1034,18 +1012,8 @@ module.exports = kind(
 	* @private
 	*/
 	autoShowOverlayChanged: function () {
-		this.autoShowInfoChanged();
 		this.autoShowControlsChanged();
 		if (this.autoShowOverlay) {
-			this.resetAutoTimeout();
-		}
-	},
-
-	/**
-	* @private
-	*/
-	autoShowInfoChanged: function () {
-		if (this.autoShowInfo) {
 			this.resetAutoTimeout();
 		}
 	},
