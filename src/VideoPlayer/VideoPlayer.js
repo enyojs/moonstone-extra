@@ -619,6 +619,7 @@ module.exports = kind(
 		onSpotlightDown: 'spotlightDownHandler',
 		onSpotlightLeft: 'spotlightLeftRightFilter',
 		onSpotlightRight: 'spotlightLeftRightFilter',
+		onSpotlightSelect: 'videoFSTapped',
 		onresize: 'handleResize',
 		onholdpulse: 'onHoldPulseHandler',
 		onrelease: 'onReleaseHandler'
@@ -705,7 +706,7 @@ module.exports = kind(
 		]},
 
 		//* Fullscreen controls
-		{name: 'fullscreenControl', kind: Control, classes: 'moon-video-player-fullscreen enyo-fit scrim', onmousemove: 'mousemove', components: [
+		{name: 'fullscreenControl', kind: Control, classes: 'moon-video-player-fullscreen enyo-fit scrim', onmousemove: 'mousemove', ontap: 'videoFSTapped', components: [
 			{name: 'playerControl', kind: Control, classes: 'moon-video-player-bottom', showing: false, components: [
 				{name: 'titleContainer', kind: Control, classes: 'moon-video-player-title', mixins: [ShowingTransitionSupport], hidingDuration: 1000, components: [
 					{name: 'title', kind: MarqueeText, classes: 'moon-video-player-title-text'},
@@ -1378,6 +1379,22 @@ module.exports = kind(
 		}
 		this.showScrim(false);
 		this.$.playerControl.setShowing(false);
+	},
+
+	/**
+	* @private
+	*/
+	videoFSTapped: function (sender, ev) {
+		if (this.isFullscreen() || !this.getInline()) {
+			if (ev.originator == this || ev.originator == this.$.fullscreenControl) {
+				if (this.isOverlayShowing()) {
+					this.hideFSControls();
+				} else {
+					this.showFSControls();
+				}
+				return true;
+			}
+		}
 	},
 
 	/**
