@@ -18,14 +18,12 @@
 		left: @moon-video-player-side-padding;
 		right: @moon-video-player-side-padding;
 		background-color: @moon-video-player-bottom-bg-color;
-		direction: ltr;
 	}
 
 	.moon-video-player-controls-frame {
-		.moon-video-player-controls-frame-center {
-			position: relative;
-		}
+		position: relative;
 
+		&,
 		.moon-video-player-controls-container {
 			height: @moon-icon-button-size;
 		}
@@ -57,19 +55,34 @@
 			margin: 0 18px;
 		}
 	}
+
+	.moon-video-player-more-button {
+		.margin-start-end(@moon-grid-gutter-width, 0);
+
+		.enyo-locale-right-to-left & {
+			-webkit-transform: scaleX(-1);
+			transform: scaleX(-1);
+		}
+	}
 }
 
 .moon-video-player-premium-placeholder-left,
 .moon-video-player-premium-placeholder-right {
-	height: @moon-icon-button-size;
+	> * {
+		display: inline-block;
+	}
 }
 .moon-video-player-premium-placeholder-left {
-	:first-child {
-		.margin-start-end(0, @moon-spotlight-outset);
+	float: left;
+
+	.enyo-locale-right-to-left & {
+		float: right;
 	}
 }
 .moon-video-player-premium-placeholder-right {
-	:first-child {
-		.margin-start-end(@moon-spotlight-outset, 0);
+	float: right;
+
+	.enyo-locale-right-to-left & {
+		float: left;
 	}
 }

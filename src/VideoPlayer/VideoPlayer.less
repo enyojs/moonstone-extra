@@ -85,6 +85,14 @@
 				background-color: @moon-videoplayer-redicon-bg-color;
 				color: @moon-videoplayer-redicon-text-color;
 			}
+
+			.font-lg-icons {
+				font-family: "LG Icons";
+			}
+
+			.enyo-locale-right-to-left & {
+				text-align: right;
+			}
 		}
 	}
 
@@ -102,12 +110,5 @@
 
 	&:not(.enyo-fullscreen) {
 		margin: 0 @moon-spotlight-outset;
-	}
-
-	.moon-video-player-premium-placeholder-right .moon-icon-button {
-		.enyo-locale-right-to-left & {
-			-webkit-transform: scaleX(-1);
-			transform: scaleX(-1);
-		}
 	}
 }

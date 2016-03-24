@@ -65,6 +65,11 @@ var InfoBadge = kind(
 	/**
 	* @private
 	*/
+	allowHtml: true,
+
+	/**
+	* @private
+	*/
 	classes: 'moon-video-badge-text badge-text-icon'
 });
 
@@ -219,6 +224,26 @@ module.exports = kind(
 		* @public
 		*/
 		infoComponents: null,
+
+		/**
+		* A [component]{@link module:enyo/Component~Component} definition block describing components to
+		* be created in the bottom left "premium" control space, to the left of the playback controls.
+		*
+		* @type {Object}
+		* @default null
+		* @public
+		*/
+		leftComponents: null,
+
+		/**
+		* A [component]{@link module:enyo/Component~Component} definition block describing components to
+		* be created in the bottom left "premium" control space, to the left of the playback controls.
+		*
+		* @type {Object}
+		* @default null
+		* @public
+		*/
+		rightComponents: null,
 
 		/**
 		* If `true`, the video player is resized after metadata is loaded, based on the
@@ -688,6 +713,8 @@ module.exports = kind(
 	* @private
 	*/
 	contentAreas: [
+		{target: 'leftPremiumPlaceHolder', content: 'leftComponents'},
+		{target: 'rightPlaceHolder', content: 'rightComponents'},
 		{target: 'infoClient', content: 'infoComponents'}
 	],
 
@@ -717,11 +744,8 @@ module.exports = kind(
 						onEnterTapArea: 'onEnterSlider', onLeaveTapArea: 'onLeaveSlider', ontap:'playbackControlsTapped'
 					}
 				]},
-				{name: 'controls', kind: FittableColumns, classes: 'moon-video-player-controls-frame', ontap: 'resetAutoTimeout', components: [
-
-					{name: 'leftPremiumPlaceHolder', kind: Control, classes: 'moon-video-player-premium-placeholder-left'},
-					{classes: 'moon-video-player-controls-frame-center', fit: true, components: [
-
+				{name: 'controls', kind: Control, classes: 'moon-video-player-controls-frame', ontap: 'resetAutoTimeout', components: [
+					{classes: 'moon-video-player-controls-frame-center',components: [
 						{name: 'controlsContainer', kind: Panels, reverseForRtl: true, index: 0, popOnBack: false, cacheViews: false, classes: 'moon-video-player-controls-container', components: [
 							{name: 'trickPlay', kind: Control, ontap:'playbackControlsTapped', components: [
 								{name: 'playbackControls', kind: Control, rtl: false, classes: 'moon-video-player-control-buttons', components: [
@@ -735,9 +759,10 @@ module.exports = kind(
 							{name: 'client', kind: Control, rtl: false,  classes: 'moon-video-player-more-controls'}
 						]}
 					]},
-
+					{name: 'leftPremiumPlaceHolder', kind: Control, classes: 'moon-video-player-premium-placeholder-left moon-hspacing'},
 					{name: 'rightPremiumPlaceHolder', kind: Control, classes: 'moon-video-player-premium-placeholder-right', components: [
-						{name: 'moreButton', kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'moreButtonTapped', accessibilityLabel: $L('More')}
+						{name: 'rightPlaceHolder', classes: 'moon-hspacing'},
+						{name: 'moreButton', kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'moreButtonTapped', accessibilityLabel: $L('More'), classes: 'moon-video-player-more-button'}
 					]}
 				]}
 			]}
@@ -850,7 +875,7 @@ module.exports = kind(
 	*/
 	showPlaybackControlsChanged: function (was) {
 		this.$.trickPlay.set('showing', this.showPlaybackControls);
-		this.$.moreButton.set('showing', this.showPlaybackControls && this.clientComponentsCount > 2);
+		this.$.moreButton.set('showing', this.showPlaybackControls && this.$.client.children.length);
 		this.toggleSpotlightForMoreControls(!this.showPlaybackControls);
 		this.$.client.addRemoveClass('moon-video-player-more-controls', this.showPlaybackControls);
 	},
@@ -891,35 +916,6 @@ module.exports = kind(
 	*/
 	getVideo: function () {
 		return this.$.video;
-	},
-
-	/**
-	* @private
-	*/
-	createClientComponents: function (comps) {
-		comps = (comps) ? util.clone(comps) : [];
-		this.clientComponentsCount = comps.length;
-		if (!this._buttonsSetup) {
-			this._buttonsSetup = true;
-			if (!comps || comps.length === 0) {
-				// No components - destroy more button
-				this.$.leftPremiumPlaceHolder.hide();
-				this.$.rightPremiumPlaceHolder.hide();
-			} else if (comps.length <= 2) {
-				// One or two components - destroy more button and utilize left/right premium placeholders
-				this.$.leftPremiumPlaceHolder.createComponent(comps.shift(), {owner: this.getInstanceOwner()});
-				if (comps.length === 1) {
-					this.$.rightPremiumPlaceHolder.createComponent(comps.shift(), {owner: this.getInstanceOwner()});
-				}
-			} else {
-				// More than two components - use extra panel, with left premium plaeholder for first component
-				this.$.leftPremiumPlaceHolder.createComponent(comps.shift(), {owner: this.getInstanceOwner()});
-			}
-			// Create the rest of the components in the client (panels)
-			this.createComponents(comps, {owner: this.getInstanceOwner()});
-		} else {
-			Control.prototype.createClientComponents.apply(this, arguments);
-		}
 	},
 
 	/**
@@ -1207,6 +1203,10 @@ module.exports = kind(
 	* @private
 	*/
 	spotlightKeyDownHandler: function (sender, e) {
+		if (e.keyCode == 32) {	// Play/Pause on spacebar.
+			this.playPause();
+			this.updatePlayPauseButtons();
+		}
 		if (!Spotlight.Accelerator.isAccelerating()) {
 			gesture.drag.beginHold(e);
 		}
@@ -1614,6 +1614,7 @@ module.exports = kind(
 	videoTapped: function () {
 		if (this.getInline() && !this.isFullscreen()) {
 			this.playPause();
+			this.updatePlayPauseButtons();
 		}
 	},
 
@@ -1926,19 +1927,26 @@ module.exports = kind(
 	moreButtonTapped: function (sender, e) {
 		if (this.$.controlsContainer.isTransitioning()) return true;
 
+		// Need a delayed job here to account for the light panels transition. Can't use
+		// `postTransition: 'updateMoreButton'` due to postTransition being scoped to the panel and
+		// not the owner (this, us).
+		this.startJob('changeMoreButton', this.updateMoreButton, this.$.controlsContainer.duration);
+
 		var index = this.$.controlsContainer.get('index');
 		if (index === 0) {
-			this.retrieveIconsSrcOrFont(this.$.moreButton, this.lessControlsIcon);
 			this.toggleSpotlightForMoreControls(true);
 			this.$.controlsContainer.next();
 			this.stopHideTitle();
 			this.$.titleContainer.show();
+			this.$.leftPremiumPlaceHolder.hide();
+			this.$.rightPlaceHolder.hide();
 			this.showBadges();
 		} else {
-			this.retrieveIconsSrcOrFont(this.$.moreButton, this.moreControlsIcon);
 			this.toggleSpotlightForMoreControls(false);
 			this.$.controlsContainer.previous();
 			this.startHideTitle();
+			this.$.leftPremiumPlaceHolder.show();
+			this.$.rightPlaceHolder.show();
 			this.hideBadges();
 		}
 	},
