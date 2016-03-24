@@ -39,6 +39,11 @@ var
 	VideoFullscreenToggleButton = require('../VideoFullscreenToggleButton'),
 	VideoTransportSlider = require('../VideoTransportSlider');
 
+var
+	ARIA_READ_ALL = 1,
+	ARIA_READ_INFO = 2,
+	ARIA_READ_NONE = 3;
+
 /**
 * {@link module:moonstone/VideoPlayer~InfoBadge} is a simple kind used to display a badge
 * containing channel information. It is the default kind for components added
@@ -735,9 +740,9 @@ module.exports = kind(
 		//* Fullscreen controls
 		{name: 'fullscreenControl', kind: Control, classes: 'moon-video-player-fullscreen enyo-fit scrim', onmousemove: 'mousemove', ontap: 'videoFSTapped', components: [
 			{name: 'playerControl', kind: Control, classes: 'moon-video-player-bottom', showing: false, components: [
-				{name: 'titleContainer', kind: Control, classes: 'moon-video-player-title', mixins: [ShowingTransitionSupport], hidingDuration: 1000, components: [
+				{name: 'titleContainer', kind: Control, classes: 'moon-video-player-title', mixins: [ShowingTransitionSupport], hidingDuration: 1000, accessibilityLive: 'off', components: [
 					{name: 'title', kind: MarqueeText, classes: 'moon-video-player-title-text'},
-					{name: 'infoClient', kind: Control, defaultKind: InfoBadge, classes: 'moon-video-player-info-badges', showing: false, mixins: [ShowingTransitionSupport], showingDuration: 500}
+					{name: 'infoClient', kind: Control, defaultKind: InfoBadge, classes: 'moon-video-player-info-badges', showing: false, mixins: [ShowingTransitionSupport], showingDuration: 500, tabIndex: -1}
 				]},
 				{name: 'sliderContainer', kind: Control, classes: 'moon-video-player-slider-frame', components: [
 					{name: 'slider', kind: VideoTransportSlider, rtl: false, disabled: true, onSeekStart: 'sliderSeekStart', onSeek: 'sliderSeek', onSeekFinish: 'sliderSeekFinish',
@@ -2257,10 +2262,13 @@ module.exports = kind(
 	// Accessibility
 
 	/**
-	* Flag for reading a video info on first time when playerControl is shown. 
+	* Video title should be read only one time when player controls are shown. Further, the
+	* infoClient controls should be read when they are shown. To coordinate both, this tri-value
+	* property tracks which has been read and resets when the video is unloaded.
+	*
 	* @private
 	*/
-	_enableInfoReadOut: true,
+	_enableInfoReadOut: ARIA_READ_ALL,
 
 	/**
 	* @private
@@ -2273,20 +2281,33 @@ module.exports = kind(
 		}},
 		{path: '$.controlsContainer.index', method: function () {
 			var index = this.$.controlsContainer.index,
-				label = index === 0 ? $L('More') : $L('Back');
+				isControls = index === 0,
+				label = isControls ? $L('More') : $L('Back');
 			this.$.moreButton.set('accessibilityLabel', label);
+
+			this.stopJob('focus infoClient');
+			if (!isControls && this._enableInfoReadOut == ARIA_READ_INFO) {
+				this._enableInfoReadOut = ARIA_READ_NONE;
+				// you can't focus() a visibility: hidden control (which infoClient is due to
+				// ShowingTransitionSupport) so we have to defer a moment to allow the mixin to
+				// unhide it before focusing. Tried hooking this.$.infoClient.showing but the DOM
+				// hadn't been updated yet to remove visibility at that point.
+				this.startJob('focus infoClient', function () {
+					this.$.infoClient.focus();
+				}, 100);
+			}
 		}},
 		{path: '_loaded', method: function () {
-			this.set('_enableInfoReadOut', this._loaded);
+			this.set('_enableInfoReadOut', this._loaded === true ? ARIA_READ_ALL : ARIA_READ_NONE);
 		}},
 		{path: ['src', 'sources'], method: function () {
-			this.set('_enableInfoReadOut', true);
+			this.set('_enableInfoReadOut', ARIA_READ_ALL);
 		}},
 		{path: ['$.playerControl.showing', '_enableInfoReadOut'], method: function () {
-			var alert = this.$.playerControl.showing && this._enableInfoReadOut;
-			this.$.titleContainer.set('accessibilityAlert', alert);
+			var alert = this.$.playerControl.showing && this._enableInfoReadOut == ARIA_READ_ALL;
+			this.$.title.set('accessibilityAlert', alert);
 			// skipping notifications since it'll bring us right back here
-			if (alert) this._enableInfoReadOut = false;
+			if (alert) this._enableInfoReadOut = ARIA_READ_INFO;
 		}}
 	]
 });
