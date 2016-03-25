@@ -283,7 +283,7 @@ module.exports = kind(
 	* @private
 	*/
 	tickComponents: [
-		{name: 'endWrapper', classes: 'indicator-wrapper end', components: [
+		{name: 'endWrapper', classes: 'indicator-wrapper end', rtl: true, components: [
 			{name: 'beginTickText', classes: 'indicator-text left', content: '00:00'},
 			{content: '/', classes: 'indicator-text separator'},
 			{name: 'endTickText', classes: 'indicator-text right', content: '00:00'}
@@ -302,7 +302,7 @@ module.exports = kind(
 	* @private
 	*/
 	popupLabelComponents: [
-		{name: 'feedback', kind: VideoFeedback, showing:false},
+		{name: 'feedback', kind: VideoFeedback, showing: false},
 		{name: 'popupLabelText', kind: Control}
 	],
 
@@ -524,7 +524,7 @@ module.exports = kind(
 	*/
 	startPreview: function (sender, e) {
 		this._previewMode = true;
-		this.$.feedback.setShowing(false);
+		this.$.feedback.hide();
 	},
 
 	/**
@@ -534,8 +534,9 @@ module.exports = kind(
 		this._previewMode = false;
 		this.updatePopupLabel(this.value);
 		if (this.$.feedback.isPersistShowing()) {
-			this.$.feedback.setShowing(true);
+			this.$.feedback.show();
 		}
+		this._updateKnobPosition(this.value);
 	},
 
 	/**
@@ -669,6 +670,18 @@ module.exports = kind(
 	},
 
 	/**
+	* Overrides Slider's progressChanged
+	*
+	* @private
+	*/
+	progressChanged: kind.inherit(function (sup) {
+		return function () {
+			sup.apply(this, arguments);
+			this.updateBarPosition(this.calcPercent(this.progress));
+		};
+	}),
+
+	/**
 	* Override Slider.updateKnobPosition to only update the popupLabelText
 	*
 	* @private
@@ -687,13 +700,15 @@ module.exports = kind(
 	* @private
 	*/
 	_updateKnobPosition: function (val) {
-		// If knob is visible, we need update its current position
-		if (this.hasClass('visible')) {
-			var p = this.clampValue(this.min, this.max, val);
-			p = this._calcPercent(p);
-			var slider = this.inverseToSlider(p);
-			this.$.knob.applyStyle('left', slider + '%');
-		}
+		var p = this._calcPercent(this.clampValue(this.min, this.max, val)),
+			slider = this.inverseToSlider(p),
+			flip = (p > 50);
+
+		this.$.knob.applyStyle('left', slider + '%');
+		this.$.popup.applyStyle('left', slider + '%');
+
+		this.$.popup.addRemoveClass('moon-progress-bar-popup-flip-h', flip);
+		this.$.popupLabel.addRemoveClass('moon-progress-bar-popup-flip-h', flip);
 
 		this.updatePopupLabel(val);
 	},
