@@ -469,10 +469,10 @@ module.exports = kind(
 	* @private
 	*/
 	spotRight: function (sender, e) {
-		if (this.selected && this.knobPosValue < this.max - 1) {
+		if (this.selected && this.knobPosValue < this.max) {
 			var value = (typeof this.knobPosValue != 'undefined') ? this.knobPosValue : this.getValue(),
 				v = this.clampValue(this.min, this.max, value);
-			v = (v + this._knobIncrement > this.max) ? this.max - 1 : v + this._knobIncrement;
+			v = (v + this._knobIncrement > this.max) ? this.max : v + this._knobIncrement;
 			this._updateKnobPosition(v);
 			this.set('knobPosValue', v);
 			this.set('_enterEnable', false);
@@ -698,7 +698,9 @@ module.exports = kind(
 	showKnobStatus: kind.inherit(function (sup) {
 		return function () {
 			sup.apply(this, arguments);
-			this.startHidePopup();
+			if (!this.isInPreview()) {
+				this.startHidePopup();
+			}
 		};
 	}),
 
