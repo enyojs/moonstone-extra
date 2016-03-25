@@ -263,9 +263,7 @@ module.exports = kind(
 	handlers: {
 		onresize: 'handleResize',
 		onSpotlightKeyDown: 'spotlightKeyDownHandler',
-		onmove: 'preview',
-		onmousedown: 'mouseDownTapArea',
-		onmouseup: 'mouseUpTapArea'
+		onmove: 'preview'
 	},
 
 	/**
@@ -382,22 +380,6 @@ module.exports = kind(
 	},
 
 	/**
-	* @private
-	*/
-	mouseDownTapArea: function (sender, e) {
-		if (!this.disabled) {
-			this.addClass('pressed');
-		}
-	},
-
-	/**
-	* @private
-	*/
-	mouseUpTapArea: function (sender, e) {
-		this.removeClass('pressed');
-	},
-
-	/**
 	* If user presses enter on `this.$.tapArea`, seeks to that point.
 	*
 	* @private
@@ -405,8 +387,10 @@ module.exports = kind(
 	spotlightKeyDownHandler: function (sender, e) {
 		var val;
 		if (this.tappable && !this.disabled && e.keyCode == 13) {
-			this.mouseDownTapArea();
-			this.startJob('simulateTapEnd', this.mouseUpTapArea, 200);
+			this.set('knobSelected', true);
+			this.startJob('simulateTapEnd', function () {
+				this.set('knobSelected', false);
+			}, 200);
 			val = this.transformToVideo(this.knobPosValue);
 			this.sendSeekEvent(val);
 			this.set('_enterEnable', true);
@@ -597,6 +581,14 @@ module.exports = kind(
 	setRangeEnd: function (val) {
 		this.rangeEnd = this.clampValue(this.getMin(), this.getMax(), val);
 		this.rangeEndChanged();
+	},
+
+	/**
+	* @private
+	*/
+	knobSelectedChanged: function () {
+		Slider.prototype.knobSelectedChanged.apply(this, arguments);
+		this.$.knob.addRemoveClass('pressed', this.knobSelected);
 	},
 
 	/**
@@ -847,7 +839,7 @@ module.exports = kind(
 		Spotlight.unfreeze();
 
 		this.$.knob.removeClass('active');
-		this.dragging = false;
+		this.set('dragging', false);
 		return true;
 	},
 
