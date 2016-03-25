@@ -153,6 +153,10 @@
 		width: 100%;
 		height: @moon-video-player-transport-slider-tap-area;
 	}
+	// When dragging, remove the tap area, as it is interfering with the live-drag-preview
+	&.pressed::after {
+		content: none;
+	}
 }
 
 .enyo-locale-non-latin .moon-video-player-transport-slider {

@@ -718,6 +718,9 @@ module.exports = kind(
 	progressChanged: kind.inherit(function (sup) {
 		return function () {
 			sup.apply(this, arguments);
+			if (!this.isInPreview()) {
+				this._updateKnobPosition(this.value);
+			}
 			this.updateBarPosition(this.calcPercent(this.progress));
 		};
 	}),
