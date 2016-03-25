@@ -22,7 +22,6 @@
 		height: (@moon-video-player-transport-slider-knob-size * 2);
 		border-radius: @moon-video-player-transport-slider-knob-size;
 		background-color: #fff;
-		z-index: 1;
 		display: none;
 		// box-shadow: 0 6px 8px 2px rgba(0, 0, 0, 0.3);
 		-webkit-transform: translateZ(0) translateX(-50%) scale(0.5);
@@ -138,22 +137,13 @@
 		}
 	}
 
-	// Disable the slider taparea since video slider is big enough for tapping on its own
+	// Reassign video-player specific sizing to the slider's tap-area
 	&::before {
-		content: none;
-	}
-
-	&::after {
-		content: '';
-		display: block;
-		position: absolute;
 		top: (@moon-video-player-transport-slider-height / 2) - (@moon-video-player-transport-slider-tap-area / 2);
-		width: 100%;
+		right: auto;
+		bottom: auto;
+		left: auto;
 		height: @moon-video-player-transport-slider-tap-area;
-	}
-	// When dragging, remove the tap area, as it is interfering with the live-drag-preview
-	&.pressed::after {
-		content: none;
 	}
 }
 
