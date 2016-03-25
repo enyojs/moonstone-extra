@@ -39,6 +39,11 @@ var
 	VideoFullscreenToggleButton = require('../VideoFullscreenToggleButton'),
 	VideoTransportSlider = require('../VideoTransportSlider');
 
+var
+	ARIA_READ_ALL = 1,
+	ARIA_READ_INFO = 2,
+	ARIA_READ_NONE = 3;
+
 /**
 * {@link module:moonstone/VideoPlayer~InfoBadge} is a simple kind used to display a badge
 * containing channel information. It is the default kind for components added
@@ -735,9 +740,9 @@ module.exports = kind(
 		//* Fullscreen controls
 		{name: 'fullscreenControl', kind: Control, classes: 'moon-video-player-fullscreen enyo-fit scrim', onmousemove: 'mousemove', ontap: 'videoFSTapped', components: [
 			{name: 'playerControl', kind: Control, classes: 'moon-video-player-bottom', showing: false, components: [
-				{name: 'titleContainer', kind: Control, classes: 'moon-video-player-title', mixins: [ShowingTransitionSupport], hidingDuration: 1000, components: [
+				{name: 'titleContainer', kind: Control, classes: 'moon-video-player-title', mixins: [ShowingTransitionSupport], hidingDuration: 1000, accessibilityLive: 'off', components: [
 					{name: 'title', kind: MarqueeText, classes: 'moon-video-player-title-text'},
-					{name: 'infoClient', kind: Control, defaultKind: InfoBadge, classes: 'moon-video-player-info-badges', showing: false, mixins: [ShowingTransitionSupport], showingDuration: 500}
+					{name: 'infoClient', kind: Control, defaultKind: InfoBadge, classes: 'moon-video-player-info-badges', showing: false, mixins: [ShowingTransitionSupport], showingDuration: 500, tabIndex: -1}
 				]},
 				{name: 'sliderContainer', kind: Control, classes: 'moon-video-player-slider-frame', components: [
 					{name: 'slider', kind: VideoTransportSlider, rtl: false, disabled: true, onSeekStart: 'sliderSeekStart', onSeek: 'sliderSeek', onSeekFinish: 'sliderSeekFinish',
@@ -1052,7 +1057,7 @@ module.exports = kind(
 	unload: function () {
 		this.$.video.unload();
 		this._resetTime();
-		this._loaded = false;
+		this.set('_loaded', false);
 		this.set('_isPlaying', false);
 		this._canPlay = false;
 		this._errorCode = null;
@@ -2029,7 +2034,7 @@ module.exports = kind(
 	* @private
 	*/
 	dataloaded: function (sender, e) {
-		this._loaded = true;
+		this.set('_loaded', true);
 		this.updateSliderState();
 		this.durationUpdate(sender, e);
 	},
@@ -2183,7 +2188,7 @@ module.exports = kind(
 		// 1: MEDIA_ERR_ABORTED, 2: MEDIA_ERR_NETWORK, 3: MEDIA_ERR_DECODE,
 		// 4: MEDIA_ERR_SRC_NOT_SUPPORTED
 		this._errorCode = e.currentTarget.error.code;
-		this._loaded = false;
+		this.set('_loaded', false);
 		this.set('_isPlaying', false);
 		this._canPlay = false;
 		this.$.currTime.setContent($L('Error'));
@@ -2257,6 +2262,15 @@ module.exports = kind(
 	// Accessibility
 
 	/**
+	* Video title should be read only one time when player controls are shown. Further, the
+	* infoClient controls should be read when they are shown. To coordinate both, this tri-value
+	* property tracks which has been read and resets when the video is unloaded.
+	*
+	* @private
+	*/
+	_enableInfoReadOut: ARIA_READ_ALL,
+
+	/**
 	* @private
 	*/
 	ariaObservers: [
@@ -2267,24 +2281,33 @@ module.exports = kind(
 		}},
 		{path: '$.controlsContainer.index', method: function () {
 			var index = this.$.controlsContainer.index,
-				label = index === 0 ? $L('More') : $L('Back');
+				isControls = index === 0,
+				label = isControls ? $L('More') : $L('Back');
 			this.$.moreButton.set('accessibilityLabel', label);
-		}},
-		{path: '$.titleContainer.showing', method: function () {
-			var client = this.$.titleContainer,
-				showing = client.get('showing');
 
-			client.set('accessibilityAlert', showing);
-			client.setAriaAttribute('aria-live', showing ? 'off' : null);
-			if (!showing) {
-				client.set('accessibilityDisabled', false);
+			this.stopJob('focus infoClient');
+			if (!isControls && this._enableInfoReadOut == ARIA_READ_INFO) {
+				this._enableInfoReadOut = ARIA_READ_NONE;
+				// you can't focus() a visibility: hidden control (which infoClient is due to
+				// ShowingTransitionSupport) so we have to defer a moment to allow the mixin to
+				// unhide it before focusing. Tried hooking this.$.infoClient.showing but the DOM
+				// hadn't been updated yet to remove visibility at that point.
+				this.startJob('focus infoClient', function () {
+					this.$.infoClient.focus();
+				}, 100);
 			}
 		}},
-		{path: '$.playerControl.showing', method: function () {
-			var client = this.$.titleContainer;
-			if (client.get('showing')) {
-				client.set('accessibilityDisabled', true);
-			}
+		{path: '_loaded', method: function () {
+			this.set('_enableInfoReadOut', this._loaded === true ? ARIA_READ_ALL : ARIA_READ_NONE);
+		}},
+		{path: ['src', 'sources'], method: function () {
+			this.set('_enableInfoReadOut', ARIA_READ_ALL);
+		}},
+		{path: ['$.playerControl.showing', '_enableInfoReadOut'], method: function () {
+			var alert = this.$.playerControl.showing && this._enableInfoReadOut == ARIA_READ_ALL;
+			this.$.title.set('accessibilityAlert', alert);
+			// skipping notifications since it'll bring us right back here
+			if (alert) this._enableInfoReadOut = ARIA_READ_INFO;
 		}}
 	]
 });
