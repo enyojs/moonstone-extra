@@ -54,6 +54,8 @@
 			color: @moon-white;
 			text-shadow: @moon-video-player-title-text-shadow;
 			line-height: 36px;
+			position: absolute;	// Allows flip-h to work
+			margin: 0 30px;
 
 			.moon-icon {
 				color: inherit;
@@ -148,6 +150,10 @@
 		top: (@moon-video-player-transport-slider-height / 2) - (@moon-video-player-transport-slider-tap-area / 2);
 		width: 100%;
 		height: @moon-video-player-transport-slider-tap-area;
+	}
+	// When dragging, remove the tap area, as it is interfering with the live-drag-preview
+	&.pressed::after {
+		content: none;
 	}
 }
 
