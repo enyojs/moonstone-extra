@@ -22,7 +22,6 @@
 		height: (@moon-video-player-transport-slider-knob-size * 2);
 		border-radius: @moon-video-player-transport-slider-knob-size;
 		background-color: #fff;
-		pointer-events: none;
 		display: none;
 		// box-shadow: 0 6px 8px 2px rgba(0, 0, 0, 0.3);
 		-webkit-transform: translateZ(0) translateX(-50%) scale(0.5);
@@ -34,17 +33,26 @@
 			-webkit-transition: -webkit-transform @activate-transition-function 0.2s, left @slide-transition-function 0.2s;
 			transition:                 transform @activate-transition-function 0.2s, left @slide-transition-function 0.2s;
 		}
+
+		.moon-taparea( -(@moon-video-player-transport-slider-knob-size) ); // The end result of this should be a knob taparea that's the same height as the slider's tap area
+		// This allows the tap area to extend past the edge of the screen, for when the cursor moves
+		// past the end of the slider, and into the little gap that separates the edge of the
+		// normally square tap area, to the edge of the screen. This code widens the taparea so
+		// there's no gap, and the knob still receives the click event.
+		&::before {
+			left: (-(@moon-video-player-side-padding * 2));
+			right: (-(@moon-video-player-side-padding * 2));
+		}
 	}
 	&.visible {
 		.knob {
 			display: block;
 		}
-
-		&.pressed {
-			.knob {
-				-webkit-transform: translateZ(0) translateX(-50%) scale(0.75);
-				transform:         translateZ(0) translateX(-50%) scale(0.75);
-			}
+	}
+	&.pressed {
+		.knob {
+			-webkit-transform: translateZ(0) translateX(-50%) scale(0.75);
+			transform:         translateZ(0) translateX(-50%) scale(0.75);
 		}
 	}
 
@@ -140,22 +148,13 @@
 		}
 	}
 
-	// Disable the slider taparea since video slider is big enough for tapping on its own
+	// Reassign video-player specific sizing to the slider's tap-area
 	&::before {
-		content: none;
-	}
-
-	&::after {
-		content: '';
-		display: block;
-		position: absolute;
 		top: (@moon-video-player-transport-slider-height / 2) - (@moon-video-player-transport-slider-tap-area / 2);
-		width: 100%;
+		right: -@moon-video-player-side-padding;
+		bottom: auto;
+		left: -@moon-video-player-side-padding;
 		height: @moon-video-player-transport-slider-tap-area;
-	}
-	// When dragging, remove the tap area, as it is interfering with the live-drag-preview
-	&.pressed::after {
-		content: none;
 	}
 }
 
