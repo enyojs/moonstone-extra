@@ -618,7 +618,7 @@ module.exports = kind(
 	*/
 	knobSelectedChanged: function () {
 		Slider.prototype.knobSelectedChanged.apply(this, arguments);
-		this.$.knob.addRemoveClass('pressed', this.knobSelected);
+		this.addRemoveClass('pressed', this.knobSelected);
 	},
 
 	/**
@@ -774,6 +774,7 @@ module.exports = kind(
 	* @private
 	*/
 	transformToVideo: function (val) {
+		val = this.clampValue(this.getMin(), this.getMax(), val);
 		return (val - this.rangeStart) / this.scaleFactor;
 	},
 
