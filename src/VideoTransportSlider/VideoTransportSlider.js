@@ -212,10 +212,10 @@ module.exports = kind(
 		* Color of value popup
 		*
 		* @type {String}
-		* @default '#fff'
+		* @default 'transparent'
 		* @public
 		*/
-		popupColor: '#4B4B4B',
+		popupColor: 'transparent',
 
 		/**
 		* Popup offset in pixels.
@@ -224,7 +224,16 @@ module.exports = kind(
 		* @default 144 - controls height(132) + margin (12)
 		* @public
 		*/
-		popupOffset: 144,
+		popupOffset: -45,
+
+		/**
+		* After focus leaves the slider, the popup will hide after this amount of milliseconds.
+		*
+		* @type {Number}
+		* @default 2500
+		* @public
+		*/
+		autoHidePopupTimeout: 2500,
 
 		/**
 		* Threshold value (percentage) for using animation effect on slider progress change.
@@ -242,7 +251,7 @@ module.exports = kind(
 		* @default 67
 		* @public
 		*/
-		popupHeight: 48,
+		popupHeight: 36,
 
 		/**
 		* Sliders will increase or decrease as much as knobIncrement in either direction
@@ -263,9 +272,7 @@ module.exports = kind(
 	handlers: {
 		onresize: 'handleResize',
 		onSpotlightKeyDown: 'spotlightKeyDownHandler',
-		onmove: 'preview',
-		onmousedown: 'mouseDownTapArea',
-		onmouseup: 'mouseUpTapArea'
+		onmove: 'preview'
 	},
 
 	/**
@@ -283,10 +290,9 @@ module.exports = kind(
 	* @private
 	*/
 	tickComponents: [
-		{name: 'startWrapper', classes: 'indicator-wrapper start', components: [
-			{name: 'beginTickText', classes: 'indicator-text left', content: '00:00'}
-		]},
-		{name: 'endWrapper', classes: 'indicator-wrapper end', components: [
+		{name: 'endWrapper', classes: 'indicator-wrapper end', rtl: true, components: [
+			{name: 'beginTickText', classes: 'indicator-text left', content: '00:00'},
+			{content: '/', classes: 'indicator-text separator'},
 			{name: 'endTickText', classes: 'indicator-text right', content: '00:00'}
 		]}
 	],
@@ -303,7 +309,7 @@ module.exports = kind(
 	* @private
 	*/
 	popupLabelComponents: [
-		{name: 'feedback', kind: VideoFeedback, showing:false},
+		{name: 'feedback', kind: VideoFeedback, showing: false},
 		{name: 'popupLabelText', kind: Control}
 	],
 
@@ -383,22 +389,6 @@ module.exports = kind(
 	},
 
 	/**
-	* @private
-	*/
-	mouseDownTapArea: function (sender, e) {
-		if (!this.disabled) {
-			this.addClass('pressed');
-		}
-	},
-
-	/**
-	* @private
-	*/
-	mouseUpTapArea: function (sender, e) {
-		this.removeClass('pressed');
-	},
-
-	/**
 	* If user presses enter on `this.$.tapArea`, seeks to that point.
 	*
 	* @private
@@ -406,8 +396,10 @@ module.exports = kind(
 	spotlightKeyDownHandler: function (sender, e) {
 		var val;
 		if (this.tappable && !this.disabled && e.keyCode == 13) {
-			this.mouseDownTapArea();
-			this.startJob('simulateTapEnd', this.mouseUpTapArea, 200);
+			this.set('knobSelected', true);
+			this.startJob('simulateTapEnd', function () {
+				this.set('knobSelected', false);
+			}, 200);
 			val = this.transformToVideo(this.knobPosValue);
 			this.sendSeekEvent(val);
 			this.set('_enterEnable', true);
@@ -477,10 +469,10 @@ module.exports = kind(
 	* @private
 	*/
 	spotRight: function (sender, e) {
-		if (this.selected && this.knobPosValue < this.max - 1) {
+		if (this.selected && this.knobPosValue < this.max) {
 			var value = (typeof this.knobPosValue != 'undefined') ? this.knobPosValue : this.getValue(),
 				v = this.clampValue(this.min, this.max, value);
-			v = (v + this._knobIncrement > this.max) ? this.max - 1 : v + this._knobIncrement;
+			v = (v + this._knobIncrement > this.max) ? this.max : v + this._knobIncrement;
 			this._updateKnobPosition(v);
 			this.set('knobPosValue', v);
 			this.set('_enterEnable', false);
@@ -525,7 +517,8 @@ module.exports = kind(
 	*/
 	startPreview: function (sender, e) {
 		this._previewMode = true;
-		this.$.feedback.setShowing(false);
+		this.$.feedback.hide();
+		this.stopHidePopup();
 	},
 
 	/**
@@ -535,8 +528,10 @@ module.exports = kind(
 		this._previewMode = false;
 		this.updatePopupLabel(this.value);
 		if (this.$.feedback.isPersistShowing()) {
-			this.$.feedback.setShowing(true);
+			this.$.feedback.show();
 		}
+		this.startHidePopup();
+		this._updateKnobPosition(this.value);
 	},
 
 	/**
@@ -544,6 +539,24 @@ module.exports = kind(
 	*/
 	isInPreview: function (sender, e) {
 		return this._previewMode;
+	},
+
+	/**
+	* Starts the countdown to eventually hide the popup.
+	*
+	* @private
+	*/
+	startHidePopup: function () {
+		this.startJob('hidePopup', function () { this.$.popup.hide(); }, this.autoHidePopupTimeout);
+	},
+
+	/**
+	* Stops and resets the countdown so the popup doesn't hide.
+	*
+	* @private
+	*/
+	stopHidePopup: function () {
+		this.stopJob('hidePopup');
 	},
 
 	/**
@@ -603,9 +616,16 @@ module.exports = kind(
 	/**
 	* @private
 	*/
+	knobSelectedChanged: function () {
+		Slider.prototype.knobSelectedChanged.apply(this, arguments);
+		this.addRemoveClass('pressed', this.knobSelected);
+	},
+
+	/**
+	* @private
+	*/
 	showTickTextChanged: function () {
-		this.$.beginTickText.setShowing(this.getShowTickText());
-		this.$.endTickText.setShowing(this.getShowTickText());
+		this.$.endWrapper.set('showing', this.getShowTickText());
 	},
 
 	/**
@@ -671,6 +691,35 @@ module.exports = kind(
 	},
 
 	/**
+	* Overrides Slider's showKnobStatus
+	*
+	* @private
+	*/
+	showKnobStatus: kind.inherit(function (sup) {
+		return function () {
+			sup.apply(this, arguments);
+			if (!this.isInPreview()) {
+				this.startHidePopup();
+			}
+		};
+	}),
+
+	/**
+	* Overrides Slider's progressChanged
+	*
+	* @private
+	*/
+	progressChanged: kind.inherit(function (sup) {
+		return function () {
+			sup.apply(this, arguments);
+			if (!this.isInPreview()) {
+				this._updateKnobPosition(this.value);
+			}
+			this.updateBarPosition(this.calcPercent(this.progress));
+		};
+	}),
+
+	/**
 	* Override Slider.updateKnobPosition to only update the popupLabelText
 	*
 	* @private
@@ -689,13 +738,15 @@ module.exports = kind(
 	* @private
 	*/
 	_updateKnobPosition: function (val) {
-		// If knob is visible, we need update its current position
-		if (this.hasClass('visible')) {
-			var p = this.clampValue(this.min, this.max, val);
-			p = this._calcPercent(p);
-			var slider = this.inverseToSlider(p);
-			this.$.knob.applyStyle('left', slider + '%');
-		}
+		var p = this._calcPercent(this.clampValue(this.min, this.max, val)),
+			slider = this.inverseToSlider(p),
+			flip = (p > 50);
+
+		this.$.knob.applyStyle('left', slider + '%');
+		this.$.popup.applyStyle('left', slider + '%');
+
+		this.$.popup.addRemoveClass('moon-progress-bar-popup-flip-h', flip);
+		this.$.popupLabel.addRemoveClass('moon-progress-bar-popup-flip-h', flip);
 
 		this.updatePopupLabel(val);
 	},
@@ -725,6 +776,7 @@ module.exports = kind(
 	* @private
 	*/
 	transformToVideo: function (val) {
+		val = this.clampValue(this.getMin(), this.getMax(), val);
 		return (val - this.rangeStart) / this.scaleFactor;
 	},
 
@@ -821,36 +873,57 @@ module.exports = kind(
 	},
 
 	/**
-	* If `dragfinish`, bubbles
-	* [onSeekFinish]{@link module:moonstone-extra/VideoTransportSlider~VideoTransportSlider#onSeekFinish} event and overrides
-	* parent `dragfinish` handler.
-	*
-	* @fires module:moonstone-extra/VideoTransportSlider~VideoTransportSlider#onSeekFinish
 	* @private
 	*/
 	dragfinish: function (sender, e) {
 		if (this.disabled) {
 			return;
 		}
-		var v = this.calcKnobPosition(e);
-		v = this.transformToVideo(v);
-		var z = this.elasticTo;
-		if (this.constrainToBgProgress === true) {
-			z = (this.increment) ? this.calcConstrainedIncrement(z) : z;
-			this.animateTo(this.elasticFrom, z);
-			v = z;
-		} else {
-			v = (this.increment) ? this.calcIncrement(v) : v;
-			this._setValue(v);
-		}
+		this.cleanUpDrag(e);
 		e.preventTap();
-		// this.hideKnobStatus();
-		this.doSeekFinish({value: v});
-		Spotlight.unfreeze();
-
-		this.$.knob.removeClass('active');
-		this.dragging = false;
 		return true;
+	},
+
+	/**
+	* @fires module:moonstone-extra/VideoTransportSlider~VideoTransportSlider#onSeekFinish
+	* @private
+	*/
+	cleanUpDrag: function (ev) {
+		var v, z;
+		if (this.get('dragging')) {
+			if (ev) {
+				v = this.calcKnobPosition(ev);
+				v = this.transformToVideo(v);
+			} else { // use the last known-good time value (i.e. from the last drag event)
+				v = this.currentTime;
+			}
+			z = this.elasticTo;
+			if (this.constrainToBgProgress === true) {
+				z = (this.increment) ? this.calcConstrainedIncrement(z) : z;
+				this.animateTo(this.elasticFrom, z);
+				v = z;
+			} else {
+				v = (this.increment) ? this.calcIncrement(v) : v;
+				this._setValue(v);
+			}
+			this.doSeekFinish({value: v});
+			Spotlight.unfreeze();
+
+			this.endPreview();
+
+			this.$.knob.removeClass('active');
+			this.set('dragging', false);
+		}
+	},
+
+	/**
+	* @private
+	*/
+	showingChangedHandler: function (sender, ev) {
+		Slider.prototype.showingChangedHandler.apply(this, arguments);
+		if (!ev.showing) {
+			this.cleanUpDrag(); // clean-up any in-progress drags, if we (or an ancestor) is hidden
+		}
 	},
 
 	/**
@@ -988,7 +1061,7 @@ module.exports = kind(
 		var valueText;
 		if (this.showing && !Spotlight.getPointerMode() && this.$.popupLabelText && this.$.popupLabelText.content && this.selected) {
 			valueText = this._enterEnable ? this.$.popupLabelText.content : $L('jump to ') + this.$.popupLabelText.content;
-			// Screen reader should read valueText when slider is only spotlight focused, but there is a timing issue between spotlight focus and observed 
+			// Screen reader should read valueText when slider is only spotlight focused, but there is a timing issue between spotlight focus and observed
 			// popupLabelText's content, so Screen reader reads valueText twice. We added below timer code for preventing this issue.
 			setTimeout(this.bindSafely(function(){
 				this.set('accessibilityDisabled', false);
