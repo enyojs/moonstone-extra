@@ -23,7 +23,6 @@ var
 	Spotlight = require('spotlight');
 
 var
-	FittableColumns = require('layout/FittableColumns'),
 	Panels = require('enyo/LightPanels');
 
 var
@@ -746,7 +745,7 @@ module.exports = kind(
 				]},
 				{name: 'sliderContainer', kind: Control, classes: 'moon-video-player-slider-frame', components: [
 					{name: 'slider', kind: VideoTransportSlider, rtl: false, disabled: true, onSeekStart: 'sliderSeekStart', onSeek: 'sliderSeek', onSeekFinish: 'sliderSeekFinish',
-						onEnterTapArea: 'onEnterSlider', onLeaveTapArea: 'onLeaveSlider', ontap:'playbackControlsTapped'
+						onEnterTapArea: 'onEnterSlider', onLeaveTapArea: 'onLeaveSlider', ontap: 'playbackControlsTapped'
 					}
 				]},
 				{name: 'controls', kind: Control, classes: 'moon-video-player-controls-frame', ontap: 'resetAutoTimeout', components: [
@@ -1173,14 +1172,11 @@ module.exports = kind(
 	spotlightUpHandler: function(sender, e) {
 		this.resetAutoTimeout();
 
-		var current = Spotlight.getCurrent();
-		if (current == this) {
+		if (Spotlight.getCurrent() === this.$.slider) {
 			this.hideFSBottomControls();
 			gesture.drag.endHold();
 			if (this.allowBackKey) EnyoHistory.drop();
-		}
-		else if (current.isDescendantOf(this.$.slider)) {
-			this.addClass('spotlight-5way-mode');
+			return true;
 		}
 	},
 
@@ -1370,8 +1366,6 @@ module.exports = kind(
 		// so that it is spottable (since it won't have any spottable children),
 		// and then spot itself
 		this.set('spotlight', true);
-		// when FSBottomControls is closed with timeout, we should recover to get mouse event
-		if (this.hasClass('spotlight-5way-mode')) this.removeClass('spotlight-5way-mode');
 		// Only spot the player if hiding is triggered from player control
 		if (Spotlight.hasCurrent() && Spotlight.getParent(Spotlight.getCurrent()) === this) {
 			Spotlight.spot(this);
@@ -1485,7 +1479,6 @@ module.exports = kind(
 		if (this.hideButtonsOnSlider && !this.$.slider.isDragging()) {
 			this.$.controls.setShowing(true);
 		}
-		if (this.hasClass('spotlight-5way-mode')) this.removeClass('spotlight-5way-mode');
 	},
 
 	/**
