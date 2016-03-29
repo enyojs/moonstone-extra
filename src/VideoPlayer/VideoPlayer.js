@@ -643,6 +643,7 @@ module.exports = kind(
 	handlers: {
 		onRequestTimeChange: 'timeChange',
 		onRequestToggleFullscreen: 'toggleFullscreen',
+		onSpotlightKeyUp: 'spotlightKeyUpHandler',
 		onSpotlightKeyDown: 'spotlightKeyDownHandler',
 		onSpotlightUp: 'spotlightUpHandler',
 		onSpotlightDown: 'spotlightDownHandler',
@@ -1170,11 +1171,8 @@ module.exports = kind(
 	* @private
 	*/
 	spotlightUpHandler: function(sender, e) {
-		this.resetAutoTimeout();
-
 		if (Spotlight.getCurrent() === this.$.slider) {
 			this.hideFSBottomControls();
-			gesture.drag.endHold();
 			if (this.allowBackKey) EnyoHistory.drop();
 			return true;
 		}
@@ -1198,6 +1196,14 @@ module.exports = kind(
 				return true;
 			}
 		}
+	},
+
+	/**
+	* @private
+	*/
+	spotlightKeyUpHandler: function(sender, e) {
+		this.resetAutoTimeout();
+		gesture.drag.endHold();
 	},
 
 	/**
