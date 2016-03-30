@@ -44,9 +44,9 @@ var
 	ARIA_READ_NONE = 3;
 
 /**
-* {@link module:moonstone/VideoPlayer~InfoBadge} is a simple kind used to display a badge
+* {@link module:moonstone-extra/VideoPlayer~InfoBadge} is a simple kind used to display a badge
 * containing channel information. It is the default kind for components added
-* to {@link module:moonstone/VideoPlayer}.
+* to {@link module:moonstone-extra/VideoPlayer}.
 *
 * @class InfoBadge
 * @extends module:enyo/Control~Control
@@ -54,7 +54,7 @@ var
 * @public
 */
 var InfoBadge = kind(
-	/** @lends module:moonstone/VideoPlayer~InfoBadge.prototype */ {
+	/** @lends module:moonstone-extra/VideoPlayer~InfoBadge.prototype */ {
 
 	/**
 	* @private
@@ -121,7 +121,10 @@ var InfoBadge = kind(
 * controls.
 *
 * Client components addded to the [infoComponents]{@link module:moonstone-extra/VideoPlayer~VideoPlayer#infoComponents}
-* block will be created as a header for the video.
+* block will be created as a header for the video. Client components added to the
+* [leftComponents]{@link module:moonstone-extra/VideoPlayer~VideoPlayer#leftComponents} and
+* [rightComponents]{@link module:moonstone-extra/VideoPlayer~VideoPlayer#rightComponents} will be
+* placed into their respective premium content areas.
 *
 * ```javascript
 * var VideoPlayer = require('moonstone-extra/VideoPlayer');
@@ -136,9 +139,14 @@ var InfoBadge = kind(
 *			{kind: IconButton, src: '@../assets/feature3.png', ontap: 'feature3'}
 *		],
 *		infoComponents: [
-*			{kind: VideoHeaderBackground, components: [
-*				{kind: VideoInfoHeader, ... }
-*			]
+*			{content: 'REC 08:22', classes: 'redicon'}
+*		],
+*		leftComponents: [
+*			{kind: IconButton, icon: 'list', small: false, backgroundOpacity: 'translucent'},
+*			{kind: IconButton, icon: 'search', small: false, backgroundOpacity: 'translucent'}
+*		],
+*		rightComponents: [
+*			{kind: IconButton, icon: 'hollowstar', small: false, backgroundOpacity: 'translucent'}
 *		]
 * }
 * ```
@@ -219,11 +227,9 @@ module.exports = kind(
 
 		/**
 		* A [component]{@link module:enyo/Component~Component} definition block describing components to
-		* be created as an information block above the video. Usually, this contains a
-		* [moon/VideoInfoBackground]{@link module:moonstone-extra/VideoInfoBackground~VideoInfoBackground} with a
-		* [moon/VideoInfoHeader]{@link module:moonstone-extra/VideoInfoHeader~VideoInfoHeader} in it.
+		* be created as an information block above the video.
 		*
-		* @type {Object}
+		* @type {Object[]}
 		* @default null
 		* @public
 		*/
@@ -233,7 +239,7 @@ module.exports = kind(
 		* A [component]{@link module:enyo/Component~Component} definition block describing components to
 		* be created in the bottom left "premium" control space, to the left of the playback controls.
 		*
-		* @type {Object}
+		* @type {Object[]}
 		* @default null
 		* @public
 		*/
@@ -241,9 +247,9 @@ module.exports = kind(
 
 		/**
 		* A [component]{@link module:enyo/Component~Component} definition block describing components to
-		* be created in the bottom left "premium" control space, to the left of the playback controls.
+		* be created in the bottom right "premium" control space, to the right of the playback controls.
 		*
-		* @type {Object}
+		* @type {Object[]}
 		* @default null
 		* @public
 		*/

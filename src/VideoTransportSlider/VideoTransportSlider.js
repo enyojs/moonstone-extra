@@ -21,14 +21,14 @@ var
 
 var
 	Slider = require('moonstone/Slider'),
-	VideoFeedback = require('../VideoFeedback');
+	VideoFeedback = require('moonstone/VideoFeedback');
 
 var
 	$L = require('../i18n'),
 	defaultKnobIncrement = '5%';
 
 /**
-* The parameter [object]{@glossary Object} used when displaying a {@link module:moonstone-extra/VideoFeedback~VideoFeedback}
+* The parameter [object]{@glossary Object} used when displaying a {@link module:moonstone/VideoFeedback~VideoFeedback}
 * control.
 *
 * @typedef {Object} module:moonstone-extra/VideoTransportSlider~VideoTransportSlider~FeedbackParameterObject
@@ -980,13 +980,13 @@ module.exports = kind(
 	},
 
 	/**
-	* Sends current status to [feedback]{@link module:moonstone-extra/VideoFeedback~VideoFeedback} control in response to
+	* Sends current status to [feedback]{@link module:moonstone/VideoFeedback~VideoFeedback} control in response to
 	* user input.
 	*
 	* @param {String} msg - The string to display.
 	* @param {module:moonstone-extra/VideoTransportSlider~VideoTransportSlider~FeedbackParameterObject} params - A
 	*	[hash]{@glossary Object} of parameters that accompany the message.
-	* @param {Boolean} persist - If `true`, the [feedback]{@link module:moonstone-extra/VideoFeedback~VideoFeedback} control will
+	* @param {Boolean} persist - If `true`, the [feedback]{@link module:moonstone/VideoFeedback~VideoFeedback} control will
 	*	not be automatically hidden.
 	* @param {String} leftSrc - The source url for the image displayed on the left side of
 	*	the feedback control.
