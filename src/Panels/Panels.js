@@ -1683,7 +1683,8 @@ module.exports = kind(
 	*/
 	finishTransition: function () {
 		var fromIndex = this.fromIndex,
-			toIndex = this.toIndex;
+			toIndex = this.toIndex,
+			active, current;
 
 		this.adjustFirstPanelAfterTransition();
 		this.notifyPanels('transitionFinished');
@@ -1691,8 +1692,11 @@ module.exports = kind(
 		Panels.prototype.finishTransition.apply(this, arguments);
 		this.processPanelsToRemove(fromIndex, toIndex);
 		this.processQueuedKey();
+
 		Spotlight.unmute(this);
-		Spotlight.spot(this.getActive());
+		active = this.getActive();
+		current = Spotlight.getCurrent();
+		if (!current || !current.isDescendantOf(active)) Spotlight.spot(active);
 		this.$.appClose && this.$.appClose.customizeCloseButton({'spotlight': true});  // Restore spotlightability of close button.
 	},
 
