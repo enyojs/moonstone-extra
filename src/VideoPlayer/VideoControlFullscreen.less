@@ -24,19 +24,15 @@
 		position: relative;
 
 		&,
-		.moon-video-player-controls-container {
+		.moon-video-player-controls-container,
+		.moon-video-player-controls-frame-center {
 			height: @moon-icon-button-size;
 		}
 
 		.moon-video-player-more-controls {
-			border-left: 3px solid white;
-			padding-left: 6px;
+			text-align: center;
 
 			.enyo-locale-right-to-left & {
-				border-left-style: none;
-				border-right: 3px solid white;
-				padding-left: 0;
-				padding-right: 6px;
 				direction: rtl;
 			}
 
@@ -44,6 +40,12 @@
 				vertical-align: middle;
 			}
 		}
+	}
+
+	.moon-video-player-controls-frame-center {
+		// Staticlly allocate space for the premium buttons so the center buttons can always remain centered
+		margin: 0 (@moon-icon-button-size * 2 + @moon-spotlight-outset * 3);
+		position: relative;  // 'relative' provides a properly sized frame for light-panels to cling to.
 	}
 
 	.moon-video-player-control-buttons {
