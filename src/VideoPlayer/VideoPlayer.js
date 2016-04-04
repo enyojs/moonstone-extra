@@ -17,13 +17,10 @@ var
 	ContentAreaSupport = require('enyo/ContentAreaSupport'),
 	ShowingTransitionSupport = require('enyo/ShowingTransitionSupport'),
 	Signals = require('enyo/Signals'),
+	Panels = require('enyo/LightPanels'),
 	Video = require('enyo/Video');
-
 var
 	Spotlight = require('spotlight');
-
-var
-	Panels = require('enyo/LightPanels');
 
 var
 	DurationFmt = require('enyo-ilib/DurationFmt');
@@ -293,16 +290,16 @@ module.exports = kind(
 		* Amount of time (in milliseconds) after which control buttons are automatically hidden.
 		*
 		* @type {Number}
-		* @default 7000
+		* @default 5000
 		* @public
 		*/
 		autoCloseTimeout: 5000,
 
 		/**
-		* Amount of time (in milliseconds) after which control buttons are automatically hidden.
+		* Amount of time (in milliseconds) after which the title is automatically hidden.
 		*
 		* @type {Number}
-		* @default 7000
+		* @default 5000
 		* @public
 		*/
 		autoHideTitleTimeout: 5000,
@@ -750,6 +747,11 @@ module.exports = kind(
 					}
 				]},
 				{name: 'controls', kind: Control, classes: 'moon-video-player-controls-frame', ontap: 'resetAutoTimeout', components: [
+					{name: 'leftPremiumPlaceHolder', kind: Control, classes: 'moon-video-player-premium-placeholder-left moon-hspacing'},
+					{name: 'rightPremiumPlaceHolder', kind: Control, classes: 'moon-video-player-premium-placeholder-right', components: [
+						{name: 'rightPlaceHolder', classes: 'moon-hspacing'},
+						{name: 'moreButton', kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'moreButtonTapped', accessibilityLabel: $L('More'), classes: 'moon-video-player-more-button'}
+					]},
 					{classes: 'moon-video-player-controls-frame-center',components: [
 						{name: 'controlsContainer', kind: Panels, reverseForRtl: true, index: 0, popOnBack: false, cacheViews: false, classes: 'moon-video-player-controls-container', components: [
 							{name: 'trickPlay', kind: Control, ontap:'playbackControlsTapped', components: [
@@ -763,11 +765,6 @@ module.exports = kind(
 							]},
 							{name: 'client', kind: Control, rtl: false,  classes: 'moon-video-player-more-controls'}
 						]}
-					]},
-					{name: 'leftPremiumPlaceHolder', kind: Control, classes: 'moon-video-player-premium-placeholder-left moon-hspacing'},
-					{name: 'rightPremiumPlaceHolder', kind: Control, classes: 'moon-video-player-premium-placeholder-right', components: [
-						{name: 'rightPlaceHolder', classes: 'moon-hspacing'},
-						{name: 'moreButton', kind: IconButton, small: false, backgroundOpacity: 'translucent', ontap: 'moreButtonTapped', accessibilityLabel: $L('More'), classes: 'moon-video-player-more-button'}
 					]}
 				]}
 			]}
@@ -1940,15 +1937,11 @@ module.exports = kind(
 			this.$.controlsContainer.next();
 			this.stopHideTitle();
 			this.$.titleContainer.show();
-			this.$.leftPremiumPlaceHolder.hide();
-			this.$.rightPlaceHolder.hide();
 			this.showBadges();
 		} else {
 			this.toggleSpotlightForMoreControls(false);
 			this.$.controlsContainer.previous();
 			this.startHideTitle();
-			this.$.leftPremiumPlaceHolder.show();
-			this.$.rightPlaceHolder.show();
 			this.hideBadges();
 		}
 	},
