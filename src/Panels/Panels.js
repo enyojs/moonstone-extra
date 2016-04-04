@@ -1313,7 +1313,7 @@ module.exports = kind(
 	* @public
 	*/
 	setIndex: function (index) {
-		var willAnimate = this.shouldAnimate();
+		var panels, toPanel;
 
 		// Normally this.index cannot be smaller than 0 and larger than panels.length
 		// However, if panels uses handle and there is sequential key input during transition
@@ -1325,8 +1325,6 @@ module.exports = kind(
 		if (index === this.index || this.toIndex != null) {
 			return;
 		}
-
-		var panels, toPanel;
 
 		// Clear before start
 		this.queuedIndex = null;
@@ -1359,7 +1357,7 @@ module.exports = kind(
 		}
 
 		// If panels will move for this index change, kickoff animation. Otherwise skip it.
-		if (willAnimate) {
+		if (this.shouldAnimate()) {
 			Spotlight.mute(this);
 			this.startTransition();
 			this.addClass('transitioning');
