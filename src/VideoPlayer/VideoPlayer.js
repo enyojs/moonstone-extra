@@ -1214,7 +1214,7 @@ module.exports = kind(
 		if (!Spotlight.Accelerator.isAccelerating()) {
 			gesture.drag.beginHold(e);
 		}
-		this._shouldHandleUpDown = this.isLarge() && (e.originator === this || Spotlight.getParent(e.originator) === this);
+		this._shouldHandleUpDown = this.isLarge() && (sender === this || Spotlight.getParent(sender) === this);
 	},
 
 	/**
