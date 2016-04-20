@@ -310,6 +310,16 @@ module.exports = kind(
 	},
 
 	/**
+	* Restarts the job that will hide this control.
+	*
+	* @public
+	*/
+	restartAutoTimer: function () {
+		this.showFeedback();
+		this.setAutoTimer();
+	},
+
+	/**
 	* Starts job that will hide this control.
 	*
 	* @private

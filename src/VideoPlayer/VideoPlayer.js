@@ -1403,7 +1403,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	hideFSControlsWhenInactive: function () {
+	hideFSControlsConditionally: function () {
 		if (!this._playbackRate || this._playbackRate == '1') {
 			this.hideFSControls();
 		}
@@ -1414,7 +1414,7 @@ module.exports = kind(
 	*/
 	resetAutoTimeout: function () {
 		if (this.isFullscreen() || !this.getInline()) {
-			this.startJob('autoHide', this.bindSafely('hideFSControlsWhenInactive'), this.getAutoCloseTimeout());
+			this.startJob('autoHide', this.bindSafely('hideFSControlsConditionally'), this.getAutoCloseTimeout());
 		}
 	},
 
@@ -1984,17 +1984,27 @@ module.exports = kind(
 	* @private
 	*/
 	timeUpdate: function (sender, e) {
+		var duration, currentTime;
+
 		//* Update _this.duration_ and _this.currentTime_
 		if (!e && e.target || e.currentTime === null) {
 			return;
 		}
 
-		this.duration = e.duration;
-		this._currentTime = e.currentTime;
+		duration = e.duration;
+		currentTime = e.currentTime;
+
+		this.duration = duration;
+		this._currentTime = currentTime;
 
 		this.updatePosition();
 
 		this.$.slider.timeUpdate(this._currentTime);
+
+		// auto-hide when reaching either end
+		if (currentTime === 0 || currentTime >= duration) {
+			this.resetAutoTimeout();
+		}
 	},
 
 	/**
