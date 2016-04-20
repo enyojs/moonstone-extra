@@ -1402,9 +1402,18 @@ module.exports = kind(
 	/**
 	* @private
 	*/
+	hideFSControlsWhenInactive: function () {
+		if (!this._playbackRate || this._playbackRate == '1') {
+			this.hideFSControls();
+		}
+	},
+
+	/**
+	* @private
+	*/
 	resetAutoTimeout: function () {
 		if (this.isFullscreen() || !this.getInline()) {
-			this.startJob('autoHide', this.bindSafely('hideFSControls'), this.getAutoCloseTimeout());
+			this.startJob('autoHide', this.bindSafely('hideFSControlsWhenInactive'), this.getAutoCloseTimeout());
 		}
 	},
 
@@ -2168,6 +2177,13 @@ module.exports = kind(
 	_setCanPlay: function (sender, e) {
 		this._canPlay = true;
 		this.updateSpinner();
+	},
+
+	/**
+	* @private
+	*/
+	playbackRateChange: function (sender, e) {
+		this._playbackRate = e.playbackRate;
 	},
 
 	/**
