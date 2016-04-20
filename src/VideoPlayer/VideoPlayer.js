@@ -746,7 +746,7 @@ module.exports = kind(
 						onEnterTapArea: 'onEnterSlider', onLeaveTapArea: 'onLeaveSlider', ontap: 'playbackControlsTapped'
 					}
 				]},
-				{name: 'controls', kind: Control, classes: 'moon-video-player-controls-frame', ontap: 'resetAutoTimeout', components: [
+				{name: 'controls', kind: Control, classes: 'moon-video-player-controls-frame', ontap: 'resetAutoTimeout', onSpotlightFocus: 'checkBottomBounce', components: [
 					{name: 'leftPremiumPlaceHolder', kind: Control, classes: 'moon-video-player-premium-placeholder-left moon-hspacing'},
 					{name: 'rightPremiumPlaceHolder', kind: Control, classes: 'moon-video-player-premium-placeholder-right', components: [
 						{name: 'rightPlaceHolder', classes: 'moon-hspacing'},
@@ -804,6 +804,22 @@ module.exports = kind(
 		this.retrieveIconsSrcOrFont(this.$.jumpForward, this.jumpForwardIcon);
 		this.retrieveIconsSrcOrFont(this.$.ilFullscreen, this.inlineFullscreenIcon);
 		this.$.ilFullscreen.removeClass('moon-icon-exitfullscreen-font-style');
+	},
+
+	/**
+	* @private
+	*/
+	checkBottomBounce: function (sender, e) {
+		var last5WayEvent = Spotlight.getLast5WayEvent();
+
+		if (last5WayEvent) {
+			var sDirection = last5WayEvent.type.replace('onSpotlight', '').toUpperCase();
+
+			if (e.focusType == '5-way bounce' && sDirection === 'DOWN') {
+				this.hideFSBottomControls();
+				return true;
+			}
+		}
 	},
 
 	/**
@@ -1188,10 +1204,6 @@ module.exports = kind(
 				this.showFSBottomControls();
 				return true;
 			}
-			else if (current.isDescendantOf(this.$.controls)) {
-				this.hideFSBottomControls();
-				return true;
-			}
 		}
 	},
 
@@ -1214,7 +1226,7 @@ module.exports = kind(
 		if (!Spotlight.Accelerator.isAccelerating()) {
 			gesture.drag.beginHold(e);
 		}
-		this._shouldHandleUpDown = this.isLarge() && (e.originator === this || Spotlight.getParent(e.originator) === this);
+		this._shouldHandleUpDown = this.isLarge() && e.originator === this;
 	},
 
 	/**
