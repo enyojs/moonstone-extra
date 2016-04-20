@@ -1253,8 +1253,6 @@ module.exports = kind(
 	*/
 	showBadges: function () {
 		if (this.$.infoClient.children.length) {
-			// Slide title up a bit, to make some room
-			this.$.title.addClass('with-badges');
 			this.$.infoClient.show();
 		}
 	},
@@ -1263,8 +1261,6 @@ module.exports = kind(
 	* @private
 	*/
 	hideBadges: function () {
-		// Slide title back down in all cases.
-		this.$.title.removeClass('with-badges');
 		this.$.infoClient.hide();
 	},
 
