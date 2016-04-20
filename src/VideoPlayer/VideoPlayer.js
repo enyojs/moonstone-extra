@@ -2097,10 +2097,10 @@ module.exports = kind(
 			return;
 		}
 		if (e.target.currentTime === 0) {
-			this.sendFeedback('Stop', {}, true);
+			this.sendFeedback('Stop');
 			return;
 		}
-		this.sendFeedback('Pause', {}, true);
+		this.sendFeedback('Pause');
 	},
 
 	/**
