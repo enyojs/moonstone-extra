@@ -1179,9 +1179,10 @@ module.exports = kind(
 	* @private
 	*/
 	spotlightDownHandler: function (sender, e) {
-		if (this._sentHold) return;
+		var shouldHandleUpDown = !this._sentHold && this.isLarge() &&
+			(e.originator === this || Spotlight.getParent(e.originator) === this);
 
-		if (this._shouldHandleUpDown) {
+		if (shouldHandleUpDown) {
 			var current = Spotlight.getCurrent();
 
 			if (current == this) {
@@ -1215,7 +1216,6 @@ module.exports = kind(
 		if (!Spotlight.Accelerator.isAccelerating()) {
 			gesture.drag.beginHold(e);
 		}
-		this._shouldHandleUpDown = this.isLarge() && (e.originator === this || Spotlight.getParent(e.originator) === this);
 	},
 
 	/**
