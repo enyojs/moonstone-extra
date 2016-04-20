@@ -2099,7 +2099,7 @@ module.exports = kind(
 			this.sendFeedback('Stop', {}, true);
 			return;
 		}
-		this.sendFeedback('Pause', {}, true);
+		this.sendFeedback('Pause');
 	},
 
 	/**

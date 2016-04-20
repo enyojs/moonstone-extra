@@ -230,10 +230,10 @@ module.exports = kind(
 		* After focus leaves the slider, the popup will hide after this amount of milliseconds.
 		*
 		* @type {Number}
-		* @default 2500
+		* @default 3000
 		* @public
 		*/
-		autoHidePopupTimeout: 2500,
+		autoHidePopupTimeout: 3000,
 
 		/**
 		* Threshold value (percentage) for using animation effect on slider progress change.
@@ -529,8 +529,9 @@ module.exports = kind(
 		this.currentTime = this.value;
 		if (this.$.feedback.isPersistShowing()) {
 			this.$.feedback.show();
+		} else {
+			this.startHidePopup();
 		}
-		this.startHidePopup();
 		this._updateKnobPosition(this.value);
 	},
 
@@ -698,7 +699,7 @@ module.exports = kind(
 	showKnobStatus: kind.inherit(function (sup) {
 		return function () {
 			sup.apply(this, arguments);
-			if (!this.isInPreview()) {
+			if (!this.isInPreview() && !this.$.feedback.isPersistShowing()) {
 				this.startHidePopup();
 			}
 		};
@@ -995,8 +996,9 @@ module.exports = kind(
 	* @public
 	*/
 	feedback: function (msg, params, persist, leftSrc, rightSrc) {
-		this.showKnobStatus();
+		this.stopHidePopup();
 		this.$.feedback.feedback(msg, params, persist, leftSrc, rightSrc, this.isInPreview());
+		this.showKnobStatus();
 	},
 
 	/**
