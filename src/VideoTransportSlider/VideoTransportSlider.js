@@ -701,6 +701,7 @@ module.exports = kind(
 			sup.apply(this, arguments);
 			if (!this.isInPreview() && !this.$.feedback.isPersistShowing()) {
 				this.startHidePopup();
+				this.$.feedback.restartAutoTimer();
 			}
 		};
 	}),
