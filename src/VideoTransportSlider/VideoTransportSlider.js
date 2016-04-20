@@ -527,10 +527,13 @@ module.exports = kind(
 	endPreview: function (sender, e) {
 		this._previewMode = false;
 		this.currentTime = this.value;
-		if (this.$.feedback.isPersistShowing()) {
-			this.$.feedback.show();
+
+		if (this._persist) {
+			this.$.feedback.showFeedback();
+		} else {
+			this.startHidePopup();
 		}
-		this.startHidePopup();
+
 		this._updateKnobPosition(this.value);
 	},
 
@@ -547,7 +550,7 @@ module.exports = kind(
 	* @private
 	*/
 	startHidePopup: function () {
-		this.startJob('hidePopup', function () { this.$.popup.hide(); }, this.autoHidePopupTimeout);
+		this.startJob('hidePopup', function () { this.$.popup.hide();this.$.feedback.hideFeedback(); }, this.autoHidePopupTimeout);
 	},
 
 	/**
@@ -698,8 +701,10 @@ module.exports = kind(
 	showKnobStatus: kind.inherit(function (sup) {
 		return function () {
 			sup.apply(this, arguments);
-			if (!this.isInPreview()) {
+			if (!this.isInPreview() && !this._persist) {
 				this.startHidePopup();
+			} else {
+				this.stopHidePopup();
 			}
 		};
 	}),
@@ -995,8 +1000,9 @@ module.exports = kind(
 	* @public
 	*/
 	feedback: function (msg, params, persist, leftSrc, rightSrc) {
+		this._persist = persist;
 		this.showKnobStatus();
-		this.$.feedback.feedback(msg, params, persist, leftSrc, rightSrc, this.isInPreview());
+		this.$.feedback.feedback(msg, params, true, leftSrc, rightSrc, this.isInPreview());
 	},
 
 	/**
