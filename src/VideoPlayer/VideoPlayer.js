@@ -30,6 +30,7 @@ var
 	IconButton = require('moonstone/IconButton'),
 	HistorySupport = require('moonstone/HistorySupport'),
 	Marquee = require('moonstone/Marquee'),
+	MarqueeSupport = Marquee.Support,
 	MarqueeText = Marquee.Text,
 	Spinner = require('moonstone/Spinner'),
 	VideoFullscreenToggleButton = require('../VideoFullscreenToggleButton'),
@@ -737,7 +738,7 @@ module.exports = kind(
 		//* Fullscreen controls
 		{name: 'fullscreenControl', kind: Control, classes: 'moon-video-player-fullscreen enyo-fit scrim', onmousemove: 'mousemove', ontap: 'videoFSTapped', components: [
 			{name: 'playerControl', kind: Control, classes: 'moon-video-player-bottom', showing: false, components: [
-				{name: 'titleContainer', kind: Control, classes: 'moon-video-player-title', mixins: [ShowingTransitionSupport], hidingDuration: 1000, accessibilityLive: 'off', components: [
+				{name: 'titleContainer', kind: Control, classes: 'moon-video-player-title', mixins: [ShowingTransitionSupport, MarqueeSupport], hidingDuration: 1000, marqueeOnRender: true, accessibilityLive: 'off', components: [
 					{name: 'title', kind: MarqueeText, classes: 'moon-video-player-title-text'},
 					{name: 'infoClient', kind: Control, defaultKind: InfoBadge, classes: 'moon-video-player-info-badges', showing: false, mixins: [ShowingTransitionSupport], showingDuration: 500, tabIndex: -1}
 				]},
