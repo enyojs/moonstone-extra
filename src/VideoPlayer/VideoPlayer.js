@@ -1403,9 +1403,18 @@ module.exports = kind(
 	/**
 	* @private
 	*/
+	hideFSControlsConditionally: function () {
+		if (!this._playbackRate || this._playbackRate == '1') {
+			this.hideFSControls();
+		}
+	},
+
+	/**
+	* @private
+	*/
 	resetAutoTimeout: function () {
 		if (this.isFullscreen() || !this.getInline()) {
-			this.startJob('autoHide', this.bindSafely('hideFSControls'), this.getAutoCloseTimeout());
+			this.startJob('autoHide', this.bindSafely('hideFSControlsConditionally'), this.getAutoCloseTimeout());
 		}
 	},
 
@@ -1975,17 +1984,27 @@ module.exports = kind(
 	* @private
 	*/
 	timeUpdate: function (sender, e) {
+		var duration, currentTime;
+
 		//* Update _this.duration_ and _this.currentTime_
 		if (!e && e.target || e.currentTime === null) {
 			return;
 		}
 
-		this.duration = e.duration;
-		this._currentTime = e.currentTime;
+		duration = e.duration;
+		currentTime = e.currentTime;
+
+		this.duration = duration;
+		this._currentTime = currentTime;
 
 		this.updatePosition();
 
 		this.$.slider.timeUpdate(this._currentTime);
+
+		// auto-hide when reaching either end
+		if (currentTime === 0 || currentTime >= duration) {
+			this.resetAutoTimeout();
+		}
 	},
 
 	/**
@@ -2100,7 +2119,7 @@ module.exports = kind(
 			this.sendFeedback('Stop', {}, true);
 			return;
 		}
-		this.sendFeedback('Pause', {}, true);
+		this.sendFeedback('Pause');
 	},
 
 	/**
@@ -2169,6 +2188,13 @@ module.exports = kind(
 	_setCanPlay: function (sender, e) {
 		this._canPlay = true;
 		this.updateSpinner();
+	},
+
+	/**
+	* @private
+	*/
+	playbackRateChange: function (sender, e) {
+		this._playbackRate = e.playbackRate;
 	},
 
 	/**
