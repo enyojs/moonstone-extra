@@ -1189,6 +1189,7 @@ module.exports = kind(
 				return true;
 			}
 			else if (current.isDescendantOf(this.$.controls)) {
+				if (this.allowBackKey) EnyoHistory.drop();
 				this.hideFSBottomControls();
 				return true;
 			}
