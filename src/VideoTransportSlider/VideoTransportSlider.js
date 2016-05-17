@@ -458,9 +458,9 @@ module.exports = kind(
 			// If in the process of animating, work from the previously set value
 			var v = this.clampValue(this.min, this.max, this.knobPosValue || this.getValue());
 			v = (v - this._knobIncrement < this.min) ? this.min : v - this._knobIncrement;
-			this._updateKnobPosition(v);
 			this.set('knobPosValue', v);
 			this.set('_enterEnable', false);
+			this._updateKnobPosition(v);
 		}
 		return true;
 	},
@@ -473,9 +473,9 @@ module.exports = kind(
 			var value = (typeof this.knobPosValue != 'undefined') ? this.knobPosValue : this.getValue(),
 				v = this.clampValue(this.min, this.max, value);
 			v = (v + this._knobIncrement > this.max) ? this.max : v + this._knobIncrement;
-			this._updateKnobPosition(v);
 			this.set('knobPosValue', v);
 			this.set('_enterEnable', false);
+			this._updateKnobPosition(v);
 		}
 		return true;
 	},
@@ -959,13 +959,15 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	formatTime: function (val) {
+	formatTime: function (val, isHMS) {
 		var hour = Math.floor(val / (60*60));
 		var min = Math.floor((val / 60) % 60);
 		var sec = Math.floor(val % 60);
 		var time = {minute: min, second: sec};
 		if (hour) {
 			time.hour = hour;
+		}  else {
+			if(isHMS) time.hour = hour;
 		}
 		return this.durfmt.format(time);
 	},
@@ -1060,7 +1062,7 @@ module.exports = kind(
 	ariaValue: function () {
 		var valueText;
 		if (this.showing && !Spotlight.getPointerMode() && this.$.popupLabelText && this.$.popupLabelText.content && this.selected) {
-			var str = this.$.popupLabelText.content.length <= 5 ? "00:" + this.$.popupLabelText.content : this.$.popupLabelText.content;
+			var str = this.formatTime( this.knobPosValue, true );
 			valueText = this._enterEnable ? str : $L('jump to ') + str;
 			// Screen reader should read valueText when slider is only spotlight focused, but there is a timing issue between spotlight focus and observed
 			// popupLabelText's content, so Screen reader reads valueText twice. We added below timer code for preventing this issue.
