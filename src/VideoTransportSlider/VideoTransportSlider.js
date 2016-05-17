@@ -959,15 +959,13 @@ module.exports = kind(
 	*
 	* @private
 	*/
-	formatTime: function (val, isHMS) {
+	formatTime: function (val) {
 		var hour = Math.floor(val / (60*60));
 		var min = Math.floor((val / 60) % 60);
 		var sec = Math.floor(val % 60);
 		var time = {minute: min, second: sec};
 		if (hour) {
 			time.hour = hour;
-		}  else {
-			if(isHMS) time.hour = hour;
 		}
 		return this.durfmt.format(time);
 	},
@@ -1062,7 +1060,7 @@ module.exports = kind(
 	ariaValue: function () {
 		var valueText;
 		if (this.showing && !Spotlight.getPointerMode() && this.$.popupLabelText && this.$.popupLabelText.content && this.selected) {
-			var str = this.formatTime( this.knobPosValue, true );
+			var str = this.ttsFormatTime( this.knobPosValue );
 			valueText = this._enterEnable ? str : $L('jump to ') + str;
 			// Screen reader should read valueText when slider is only spotlight focused, but there is a timing issue between spotlight focus and observed
 			// popupLabelText's content, so Screen reader reads valueText twice. We added below timer code for preventing this issue.
@@ -1073,5 +1071,15 @@ module.exports = kind(
 		} else {
 			this.set('accessibilityDisabled', true);
 		}
+	},
+
+	/**
+	* @private
+	*/
+	ttsFormatTime : function(val){
+		var hour = Math.floor(val / (60*60));
+		var min = Math.floor((val / 60) % 60);
+		var sec = Math.floor(val % 60);
+		return this.padDigit(hour) + ":" + this.padDigit(min) + ":" + this.padDigit(sec);
 	}
 });
