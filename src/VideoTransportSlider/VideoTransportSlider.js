@@ -1063,7 +1063,7 @@ module.exports = kind(
 	ariaValue: function () {
 		var valueText;
 		if (this.showing && !Spotlight.getPointerMode() && this.$.popupLabelText && this.$.popupLabelText.content && this.selected) {
-			var str = this.ttsFormatTime( this.knobPosValue );
+			var str = this.ttsFormatTime(this.knobPosValue);
 			valueText = this._enterEnable ? str : $L('jump to ') + str;
 			// Screen reader should read valueText when slider is only spotlight focused, but there is a timing issue between spotlight focus and observed
 			// popupLabelText's content, so Screen reader reads valueText twice. We added below timer code for preventing this issue.
