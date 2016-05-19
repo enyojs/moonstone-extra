@@ -1079,7 +1079,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	ttsFormatTime : function(val){
+	ttsFormatTime: function (val) {
 		var hour = Math.floor(val / (60*60));
 		var min = Math.floor((val / 60) % 60);
 		var sec = Math.floor(val % 60);
