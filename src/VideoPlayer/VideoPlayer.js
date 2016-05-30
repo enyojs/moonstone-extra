@@ -2302,23 +2302,29 @@ module.exports = kind(
 				isControls = index === 0,
 				label = isControls ? $L('More') : $L('Back');
 			this.$.moreButton.set('accessibilityLabel', label);
-			var node = this.$.moreButton.hasNode();
-			if (node) {
-				node.blur();
-				node.focus();
-			}
 
 			this.stopJob('focus infoClient');
 			if (!isControls && this._enableInfoReadOut == ARIA_READ_INFO) {
-				this._enableInfoReadOut = ARIA_READ_NONE;
+				//this._enableInfoReadOut = ARIA_READ_NONE;
+				//this.set("_enableInfoReadOut", ARIA_READ_NONE);
 				// you can't focus() a visibility: hidden control (which infoClient is due to
 				// ShowingTransitionSupport) so we have to defer a moment to allow the mixin to
 				// unhide it before focusing. Tried hooking this.$.infoClient.showing but the DOM
 				// hadn't been updated yet to remove visibility at that point.
 				this.startJob('focus infoClient', function () {
-					this.$.infoClient.focus();
+					this.$.infoClient.set("accessibilityAlert", true);
+					this.set("_enableInfoReadOut", ARIA_READ_NONE);
 				}, 100);
 			}
+
+			this.stopJob('focus moreButton');
+			this.startJob('focus moreButton', function () {
+				var node = this.$.moreButton.hasNode();
+				if (node) {
+					node.blur();
+					node.focus();
+				}
+			}, 100);
 		}},
 		{path: '_loaded', method: function () {
 			this.set('_enableInfoReadOut', this._loaded === true ? ARIA_READ_ALL : ARIA_READ_NONE);
@@ -2330,7 +2336,11 @@ module.exports = kind(
 			var alert = this.$.playerControl.showing && this._enableInfoReadOut == ARIA_READ_ALL;
 			this.$.title.set('accessibilityAlert', alert);
 			// skipping notifications since it'll bring us right back here
-			if (alert) this._enableInfoReadOut = ARIA_READ_INFO;
+			if (alert){
+				this._enableInfoReadOut = ARIA_READ_INFO;
+			} else {
+				this.$.infoClient.set("accessibilityAlert", false);
+			}
 		}}
 	]
 });
