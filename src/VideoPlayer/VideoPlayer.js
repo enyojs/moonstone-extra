@@ -2303,7 +2303,7 @@ module.exports = kind(
 				label = isControls ? $L('More') : $L('Back');
 			this.$.moreButton.set('accessibilityLabel', label);
 			var node = this.$.moreButton.hasNode();
-			if(node){
+			if (node) {
 				node.blur();
 				node.focus();
 			}
