@@ -2302,6 +2302,11 @@ module.exports = kind(
 				isControls = index === 0,
 				label = isControls ? $L('More') : $L('Back');
 			this.$.moreButton.set('accessibilityLabel', label);
+			var node = this.$.moreButton.hasNode();
+			if(node){
+				node.blur();
+				node.focus();
+			}
 
 			this.stopJob('focus infoClient');
 			if (!isControls && this._enableInfoReadOut == ARIA_READ_INFO) {
