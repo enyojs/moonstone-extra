@@ -738,8 +738,8 @@ module.exports = kind(
 		//* Fullscreen controls
 		{name: 'fullscreenControl', kind: Control, classes: 'moon-video-player-fullscreen enyo-fit scrim', onmousemove: 'mousemove', ontap: 'videoFSTapped', components: [
 			{name: 'playerControl', kind: Control, classes: 'moon-video-player-bottom', showing: false, components: [
-				{name: 'titleContainer', kind: Control, classes: 'moon-video-player-title', mixins: [ShowingTransitionSupport, MarqueeSupport], hidingDuration: 1000, marqueeOnRender: true, accessibilityLive: 'off', components: [
-					{name: 'title', kind: MarqueeText, classes: 'moon-video-player-title-text'},
+				{name: 'titleContainer', kind: Control, classes: 'moon-video-player-title', mixins: [ShowingTransitionSupport, MarqueeSupport], hidingDuration: 1000, marqueeOnRender: true, components: [
+					{name: 'title', kind: MarqueeText, classes: 'moon-video-player-title-text', accessibilityLive: 'off'},
 					{name: 'infoClient', kind: Control, defaultKind: InfoBadge, classes: 'moon-video-player-info-badges', showing: false, mixins: [ShowingTransitionSupport], showingDuration: 500, tabIndex: -1}
 				]},
 				{name: 'sliderContainer', kind: Control, classes: 'moon-video-player-slider-frame', components: [
@@ -1306,7 +1306,9 @@ module.exports = kind(
 			}
 
 			//* Initial spot
-			this.spotFSBottomControls();
+			this.startJob('initial spot', function () {
+				this.spotFSBottomControls();
+			}, 100);
 
 			this.$.slider.showKnobStatus();
 			if (this.$.video.isPaused()) {
