@@ -36,6 +36,8 @@ var
 	VideoFullscreenToggleButton = require('../VideoFullscreenToggleButton'),
 	VideoTransportSlider = require('../VideoTransportSlider');
 
+var VoiceReadout = require("enyo-webos/VoiceReadout");
+
 var
 	ARIA_READ_ALL = 1,
 	ARIA_READ_INFO = 2,
@@ -2295,9 +2297,21 @@ module.exports = kind(
 	*/
 	ariaObservers: [
 		{path: '_isPlaying', method: function () {
-			var label = this._isPlaying ? $L('Pause') : $L('Play');
+			var label, notify;
+			if (this._isPlaying) {
+				label = $L('Pause');
+				notify = $L('Play');
+			} else {
+				label = $L('Play');
+				notify = $L('Pause');
+			}
 			this.$.fsPlayPause.set('accessibilityLabel', label);
 			this.$.ilPlayPause.set('accessibilityLabel', label);
+
+			var delay = this.$.playerControl.getShowing() ? 0 : 500;
+			this.startJob('focus infoClient', function () {
+				VoiceReadout.readAlert(notify, !delay);
+			}, delay);
 		}},
 		{path: '$.controlsContainer.index', method: function () {
 			var index = this.$.controlsContainer.index,
