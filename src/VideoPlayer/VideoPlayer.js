@@ -2309,7 +2309,7 @@ module.exports = kind(
 			this.$.ilPlayPause.set('accessibilityLabel', label);
 
 			var delay = this.$.playerControl.getShowing() ? 0 : 500;
-			this.startJob('focus infoClient', function () {
+			this.startJob('notify playStatus', function () {
 				VoiceReadout.readAlert(notify, !delay);
 			}, delay);
 		}},
