@@ -306,6 +306,15 @@ module.exports = kind(
 		autoHideTitleTimeout: 5000,
 
 		/**
+		* When 'true', black gradient background is shown at the bottom slider/controls.
+		*
+		* @type {Boolean}
+		* @default false
+		* @public
+		*/
+		highContrast: true,
+
+		/**
 		* Duration of the video.
 		*
 		* @type {Number}
@@ -798,6 +807,7 @@ module.exports = kind(
 		this.showProgressBarChanged();
 		this.jumpSecChanged();
 		this.updatePlaybackControlState();
+		this.highContrastChanged();
 		this.retrieveIconsSrcOrFont(this.$.jumpBack, this.jumpBackIcon);
 		this.retrieveIconsSrcOrFont(this.$.rewind, this.rewindIcon);
 		this.retrieveIconsSrcOrFont(this.$.fsPlayPause, this.pauseIcon);
@@ -805,6 +815,13 @@ module.exports = kind(
 		this.retrieveIconsSrcOrFont(this.$.jumpForward, this.jumpForwardIcon);
 		this.retrieveIconsSrcOrFont(this.$.ilFullscreen, this.inlineFullscreenIcon);
 		this.$.ilFullscreen.removeClass('moon-icon-exitfullscreen-font-style');
+	},
+
+	/**
+	* @private
+	*/
+	highContrastChanged: function () {
+		this.$.fullscreenControl.addRemoveClass('high-contrast', this.highContrast);
 	},
 
 	/**
