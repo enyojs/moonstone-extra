@@ -595,7 +595,7 @@ module.exports = kind(
 		*
 		* @private
 		*/
-		lessControlsIcon: 'arrowhookleft',
+		lessControlsIcon: 'arrowshrinkleft',
 
 		/**
 		* Name of font-based icon or image file.
