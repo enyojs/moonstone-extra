@@ -2,13 +2,23 @@
 .moon-video-player-fullscreen {
 	box-sizing: border-box;
 
-	// --- Fullscreen Player Controls ---
 	.moon-video-player-bottom {
+		// --- Fullscreen Player Controls ---
 		position: absolute;
 		bottom: 30px;
 		left: @moon-video-player-side-padding;
 		right: @moon-video-player-side-padding;
 		background-color: @moon-video-player-bottom-bg-color;
+	}
+
+	&.high-contrast:not(.scrim)::before {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		height: @moon-video-player-playback-control-height;
+		background: linear-gradient(rgba(0, 0, 0, 0) 0%, rgb(0, 0, 0) 100%);
+		content: "";
 	}
 
 	.moon-video-player-controls-frame {
