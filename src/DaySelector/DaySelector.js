@@ -19,6 +19,17 @@ var
 	FormCheckbox = require('moonstone/FormCheckbox'),
 	$L = require('../i18n');
 
+
+var noIlibDaysComponents = [
+	{content: 'Sunday'},
+	{content: 'Monday'},
+	{content: 'Tuesday'},
+	{content: 'Wednesday'},
+	{content: 'Thursday'},
+	{content: 'Friday'},
+	{content: 'Saturday'}
+];
+
 /**
 * Fires when the current selection changes.
 *
@@ -96,19 +107,19 @@ module.exports = kind(
 		* Text to be displayed when all of the weekend are selected.
 		*
 		* @type {String}
-		* @default 'Every Weekend'
+		* @default 'Both Weekend Days'
 		* @public
 		*/
-		everyWeekendText: $L('Every Weekend'),
+		everyWeekendText: $L('Both weekend days'),
 
 		/**
 		* Text to be displayed as the current value if no item is currently selected.
 		*
 		* @type {String}
-		* @default 'Nothing selected'
+		* @default 'No days selected'
 		* @public
 		*/
-		noneText: $L('Nothing selected'),
+		noneText: $L('No days selected'),
 
 		/**
 		* Day text type to be displayed in the component.
@@ -182,15 +193,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	daysComponents: [
-		{content: 'Sunday'},
-		{content: 'Monday'},
-		{content: 'Tuesday'},
-		{content: 'Wednesday'},
-		{content: 'Thursday'},
-		{content: 'Friday'},
-		{content: 'Saturday'}
-	],
+	daysComponents: null,
 
 	/**
 	* @private
@@ -206,7 +209,7 @@ module.exports = kind(
 			sup.apply(this, arguments);
 			this.createChrome(this.tools);
 			this.initILib();
-			this.selected=[];
+			this.selected = [];
 			this.createComponents(this.daysComponents);
 		};
 	}),
@@ -232,9 +235,11 @@ module.exports = kind(
 			this.days = [];
 			for (i = 0; i < 7; i++) {
 				index = (i + this.firstDayOfWeek) % 7;
-				this.daysComponents[i] = {kind: FormCheckbox, content: this.shortDayText ? days[index] : daysOfWeek[i], classes:"moon-day-picker-control"};
+				this.daysComponents[i] = {kind: FormCheckbox, content: this.shortDayText ? days[index] : daysOfWeek[i], classes: 'moon-day-picker-control'};
 				this.days[i] = days[index];
 			}
+		} else {
+			this.daysComponents = noIlibDaysComponents;
 		}
 	},
 
@@ -252,13 +257,14 @@ module.exports = kind(
 	* @private
 	*/
 	tap: function (sender, ev) {
-		if (sender.checked && this.selected.indexOf(sender) < 0 )
+		if (sender.checked && this.selected.indexOf(sender) < 0 ) {
 			this.selected.push(sender);
-		else if(this.selected.indexOf(sender) >= 0)
+		} else if (this.selected.indexOf(sender) >= 0) {
 			this.selected.splice(this.selected.indexOf(sender), 1);
+		}
 
-		this.rebuildSelectedIndices(this.selected,this.getClientControls());
-		if(this.hasNode()) {
+		this.rebuildSelectedIndices(this.selected, this.getClientControls());
+		if (this.hasNode()) {
 			this.fireChangeEvent();
 		}
 		var str = this.getRepresentativeString();
@@ -271,7 +277,7 @@ module.exports = kind(
 	* @method
 	* @private
 	*/
-	rebuildSelectedIndices: function(selected, controls) {
+	rebuildSelectedIndices: function (selected, controls) {
 		this.selectedIndex = [];
 		for (var i = 0; i < controls.length; i++) {
 			if (selected.indexOf(controls[i]) >= 0) {
@@ -290,9 +296,9 @@ module.exports = kind(
 	fireChangeEvent: function () {
 		var contentStr = this.multiSelectCurrentValue();
 		this.doChange({
-			selected: this.getSelected(),
+			selected: this.get('selected'),
 			content: contentStr,
-			index: this.getSelectedIndex()
+			index: this.get('selectedIndex')
 		});
 	},
 
@@ -300,19 +306,18 @@ module.exports = kind(
 	* @private
 	*/
 	multiSelectCurrentValue: function () {
-		var str = this.getRepresentativeString();
+		var str = this.getRepresentativeString() || '';
 		if (str) {
 			return str;
 		}
 
-		for (var i=0; i < this.selectedIndex.length; i++) {
-			if (!str) {
-				str = this.days[this.selectedIndex[i]];
-			} else {
-				str = str + ', ' + this.days[this.selectedIndex[i]];
+		for (var i = 0; i < this.selectedIndex.length; i++) {
+			if (str) {
+				str += ', ';
 			}
+			str += this.days[this.selectedIndex[i]];
 		}
-		return str || this.getNoneText();
+		return str || this.get('noneText');
 	},
 
 	/**
