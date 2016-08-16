@@ -1,5 +1,66 @@
 /* DaySelector */
 
-.moon-day-picker-control {
+.moon-day-picker {
+	border: @moon-button-border-width solid @moon-white;
+	border-radius: @moon-button-border-radius;
 	display: inline-block;
+	white-space: nowrap;
+
+	.moon-day-picker-control {
+		display: inline-block;
+		vertical-align: top;
+		margin-bottom: 0;
+		padding: 6px;
+		border-left: inherit;
+
+		&.checked,
+		&.spotlight {
+			.moon-checkbox {
+				background-color: @moon-spotlight-text-color;
+			}
+			.moon-icon {
+				color: @moon-spotlight-color;
+			}
+			.moon-checkbox-item-label-wrapper {
+				color: @moon-spotlight-text-color;
+			}
+		}
+
+		&.checked {
+			background-color: @moon-button-background-color;
+		}
+
+		&.spotlight {
+			background-color: @moon-spotlight-color;
+
+		}
+	}
+
+	// First element in non-RTL and last element in RTL
+	body:not(.enyo-locale-right-to-left) & :first-child,
+	.enyo-locale-right-to-left & :last-child {
+		border-left: initial;
+	}
+	// non-RTL
+	body:not(.enyo-locale-right-to-left) & {
+		:first-child {
+			border-top-left-radius: @moon-button-border-radius;
+			border-bottom-left-radius: @moon-button-border-radius;
+		}
+		:last-child {
+			border-top-right-radius: @moon-button-border-radius;
+			border-bottom-right-radius: @moon-button-border-radius;
+		}
+	}
+	// The last element in RTL
+	.enyo-locale-right-to-left & {
+		:first-child {
+			border-top-right-radius: @moon-button-border-radius;
+			border-bottom-right-radius: @moon-button-border-radius;
+		}
+		:last-child {
+			border-top-left-radius: @moon-button-border-radius;
+			border-bottom-left-radius: @moon-button-border-radius;
+		}
+	}
 }

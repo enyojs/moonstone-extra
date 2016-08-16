@@ -81,6 +81,11 @@ module.exports = kind(
 
 	/**
 	* @private
+	*/
+	classes: 'moon-day-picker',
+
+	/**
+	* @private
 	* @lends module:moonstone/DaySelector~DaySelector.prototype
 	*/
 	published: {
@@ -257,6 +262,8 @@ module.exports = kind(
 	* @private
 	*/
 	tap: function (sender, ev) {
+		sender.addRemoveClass('checked', sender.checked);
+
 		if (sender.checked && this.selected.indexOf(sender) < 0 ) {
 			this.selected.push(sender);
 		} else if (this.selected.indexOf(sender) >= 0) {
