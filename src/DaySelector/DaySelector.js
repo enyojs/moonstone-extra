@@ -214,8 +214,10 @@ module.exports = kind(
 			sup.apply(this, arguments);
 			this.createChrome(this.tools);
 			this.initILib();
-			this.selected = [];
+			this.selected = (this.selected) ? this.selected : [];
+			this.selectedIndex = (this.selectedIndex != -1) ? this.selectedIndex : [];
 			this.createComponents(this.daysComponents);
+			this.selectedIndexChanged();
 		};
 	}),
 
@@ -269,15 +271,7 @@ module.exports = kind(
 		} else if (this.selected.indexOf(sender) >= 0) {
 			this.selected.splice(this.selected.indexOf(sender), 1);
 		}
-
-		this.rebuildSelectedIndices(this.selected, this.getClientControls());
-		if (this.hasNode()) {
-			this.fireChangeEvent();
-		}
-		var str = this.getRepresentativeString();
-		if (str) {
-			return str;
-		}
+		this.notifyObservers('selected');
 	},
 
 	/**
@@ -325,6 +319,35 @@ module.exports = kind(
 			str += this.days[this.selectedIndex[i]];
 		}
 		return str || this.get('noneText');
+	},
+
+	/**
+	* @private
+	*/
+	selectedChanged: function (inOldValue) {
+		var selected = this.getSelected(),
+		controls = this.getClientControls();
+		this.rebuildSelectedIndices(selected, controls);
+		this.fireChangeEvent();
+	},
+
+	/**
+	* @private
+	*/
+	selectedIndexChanged: function () {
+		var controls = this.getClientControls(),
+			index = this.get('selectedIndex'),
+			checked;
+
+		for (var i = 0; i < controls.length; i++) {
+			checked = index.indexOf(i) >= 0;
+			if(checked){
+				controls[i].setChecked(checked);
+				this.selected.push(controls[i]);
+				controls[i].addRemoveClass('checked', checked);
+			}
+		}
+		this.notifyObservers('selected');
 	},
 
 	/**
