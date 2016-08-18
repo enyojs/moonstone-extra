@@ -154,10 +154,10 @@ module.exports = kind(
 		* nothing is selected.
 		*
 		* @type {Number | Number[]}
-		* @default -1
+		* @default null
 		* @public
 		*/
-		selectedIndex: -1
+		selectedIndex: null
 	},
 
 	/**
@@ -215,7 +215,7 @@ module.exports = kind(
 			this.createChrome(this.tools);
 			this.initILib();
 			this.selected = (this.selected) ? this.selected : [];
-			this.selectedIndex = (this.selectedIndex != -1) ? this.selectedIndex : [];
+			this.selectedIndex = (this.selectedIndex) ? this.selectedIndex  : [];
 			this.createComponents(this.daysComponents);
 			this.selectedIndexChanged();
 		};
@@ -335,10 +335,10 @@ module.exports = kind(
 	* @private
 	*/
 	selectedIndexChanged: function () {
+		this.selectedIndex = this.selectedIndex.length ? this.selectedIndex : [this.selectedIndex];
 		var controls = this.getClientControls(),
 			index = this.get('selectedIndex'),
 			checked;
-
 		for (var i = 0; i < controls.length; i++) {
 			checked = index.indexOf(i) >= 0;
 			if(checked){
