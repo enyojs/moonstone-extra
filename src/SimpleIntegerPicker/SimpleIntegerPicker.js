@@ -22,11 +22,11 @@ var
     Input = require('moonstone/Input');
 
 var
-    ScrollStrategy = require('../ScrollStrategy'),
+    ScrollStrategy = require('moonstone/ScrollStrategy'),
     TouchScrollStrategy = ScrollStrategy.Touch;
 
 var
-    $L = require('../i18n');
+    $L = require('moonstone/i18n');
 
 var IntegerPicker= kind(
     /** @lends module:moonstone/IntegerPicker~IntegerPicker.prototype */
