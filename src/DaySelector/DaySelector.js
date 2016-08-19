@@ -215,7 +215,7 @@ module.exports = kind(
 			this.createChrome(this.tools);
 			this.initILib();
 			this.selected = (this.selected) ? this.selected : [];
-			this.selectedIndex = (this.selectedIndex) ? this.selectedIndex : [];
+			this.selectedIndex = (this.selectedIndex != null) ? this.selectedIndex : [];
 			this.createComponents(this.daysComponents);
 			this.selectedIndexChanged();
 		};
