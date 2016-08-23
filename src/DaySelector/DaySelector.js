@@ -20,15 +20,8 @@ var
 	$L = require('../i18n');
 
 
-var noIlibDaysComponents = [
-	{content: 'Sunday'},
-	{content: 'Monday'},
-	{content: 'Tuesday'},
-	{content: 'Wednesday'},
-	{content: 'Thursday'},
-	{content: 'Friday'},
-	{content: 'Saturday'}
-];
+var noIlibFullDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+	noIlibLongDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 /**
 * Fires when the current selection changes.
@@ -115,7 +108,7 @@ module.exports = kind(
 		* @default 'Both Weekend Days'
 		* @public
 		*/
-		everyWeekendText: $L('Both weekend days'),
+		everyWeekendText: $L('Every Weekend'),
 
 		/**
 		* Text to be displayed as the current value if no item is currently selected.
@@ -124,7 +117,7 @@ module.exports = kind(
 		* @default 'No days selected'
 		* @public
 		*/
-		noneText: $L('No days selected'),
+		noneText: $L('Nothing selected'),
 
 		/**
 		* Day text type to be displayed in the component.
@@ -166,12 +159,12 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	weekEndStart: 6,
+	weekendStart: 6,
 
 	/**
 	* @private
 	*/
-	weekEndEnd: 0,
+	weekendEnd: 0,
 
 	events: {
 		/**
@@ -201,13 +194,13 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	days: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+	days: null,
 
 	/**
 	* @private
 	*/
 	create: kind.inherit(function (sup) {
-		return function() {
+		return function () {
 			// super initialization
 			sup.apply(this, arguments);
 			this.createChrome(this.tools);
@@ -223,28 +216,26 @@ module.exports = kind(
 	* @private
 	*/
 	initILib: function () {
-		var i, index;
+		var i, daysOfWeek;
 		if (typeof ilib !== 'undefined') {
-			var df = new DateFmt({length: 'full'});
-			var sdf = new DateFmt({length: 'long'});
-			var li = new LocaleInfo(ilib.getLocale());
-			var daysOfWeek = df.getDaysOfWeek();
-			var days = sdf.getDaysOfWeek();
+			var df = new DateFmt({length: this.shortDayText ? 'long' : 'full'}),
+				li = new LocaleInfo(ilib.getLocale());
 
+			daysOfWeek = df.getDaysOfWeek();
 			this.firstDayOfWeek = li.getFirstDayOfWeek();
-			this.weekEndStart = li.getWeekEndStart ? li.getWeekEndStart() : this.weekEndStart;
-			this.weekEndEnd = li.getWeekEndEnd ? li.getWeekEndEnd() : this.getWeekEndEnd;
-
-			// adjust order of days
-			this.daysComponents = [];
-			this.days = [];
-			for (i = 0; i < 7; i++) {
-				index = (i + this.firstDayOfWeek) % 7;
-				this.daysComponents[i] = {kind: FormCheckbox, content: this.shortDayText ? days[index] : daysOfWeek[i], classes: 'moon-day-selector-control'};
-				this.days[i] = days[index];
-			}
+			this.weekendStart = li.getWeekEndStart ? li.getWeekEndStart() : this.weekendStart;
+			this.weekendEnd = li.getWeekEndEnd ? li.getWeekEndEnd() : this.weekendEnd;
 		} else {
-			this.daysComponents = noIlibDaysComponents;
+			daysOfWeek = this.shortDayText ? noIlibLongDays : noIlibFullDays;
+		}
+
+		// adjust order of days
+		this.daysComponents = [];
+		this.days = [];
+		for (i = 0; i < daysOfWeek.length; i++) {
+			var index = (i + this.firstDayOfWeek) % 7;
+			this.daysComponents[i] = {kind: FormCheckbox, content: daysOfWeek[index], classes: 'moon-day-selector-control'};
+			this.days[i] = daysOfWeek[index];
 		}
 	},
 
@@ -306,9 +297,7 @@ module.exports = kind(
 	*/
 	multiSelectCurrentValue: function () {
 		var str = this.getRepresentativeString() || '';
-		if (str) {
-			return str;
-		}
+		if (str) return str;
 
 		for (var i = 0; i < this.selectedIndex.length; i++) {
 			if (str) {
@@ -323,7 +312,7 @@ module.exports = kind(
 	* @private
 	*/
 	selectedChanged: function (inOldValue) {
-		var selected = this.getSelected(),
+		var selected = this.get('selected'),
 		controls = this.getClientControls();
 		this.rebuildSelectedIndices(selected, controls);
 		this.fireChangeEvent();
@@ -338,8 +327,8 @@ module.exports = kind(
 			checked;
 		for (var i = 0; i < controls.length; i++) {
 			checked = index.indexOf(i) >= 0;
-			if(checked){
-				controls[i].setChecked(checked);
+			if (checked) {
+				controls[i].set('checked', checked);
 				this.selected.push(controls[i]);
 				controls[i].addRemoveClass('checked', checked);
 			}
@@ -354,7 +343,7 @@ module.exports = kind(
 		var bWeekEndStart = false,
 			bWeekEndEnd = false,
 			length = this.selectedIndex.length,
-			weekendLength = this.weekEndStart === this.weekEndEnd ? 1 : 2,
+			weekendLength = this.weekendStart === this.weekendEnd ? 1 : 2,
 			index, i;
 
 		if (length == 7) return this.everyDayText;
@@ -362,8 +351,8 @@ module.exports = kind(
 		for (i = 0; i < 7; i++) {
 			// convert the control index to day index
 			index = (this.selectedIndex[i] + this.firstDayOfWeek) % 7;
-			bWeekEndStart = bWeekEndStart || this.weekEndStart == index;
-			bWeekEndEnd = bWeekEndEnd || this.weekEndEnd == index;
+			bWeekEndStart = bWeekEndStart || this.weekendStart == index;
+			bWeekEndEnd = bWeekEndEnd || this.weekendEnd == index;
 		}
 
 		if (bWeekEndStart && bWeekEndEnd && length == weekendLength) {
