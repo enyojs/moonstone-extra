@@ -82,7 +82,7 @@ module.exports = kind(
 	/**
 	* @private
 	*/
-	classes: 'moon-day-picker',
+	classes: 'moon-day-selector',
 
 	/**
 	* @private
@@ -135,25 +135,23 @@ module.exports = kind(
 		* @default true
 		* @public
 		*/
-
 		shortDayText: true,
 
 		/**
-		* Reference to currently selected item, or an array of selected items.
+		* Array of currently selected items, or an empty array if
+		* nothing is selected.
 		*
-		* @type {Object | Object[]}
+		* @type {Object[]}
 		* @default null
 		* @public
 		*/
-
 		selected: null,
 
 		/**
-		* Index of the currently selected item, or `-1` if nothing is selected.
-		* This will be array of the selected items' index values, or an empty array if
+		* Array of the selected items' index values, or an empty array if
 		* nothing is selected.
 		*
-		* @type {Number | Number[]}
+		* @type {Number[]}
 		* @default null
 		* @public
 		*/
@@ -214,8 +212,8 @@ module.exports = kind(
 			sup.apply(this, arguments);
 			this.createChrome(this.tools);
 			this.initILib();
-			this.selected = (this.selected) ? this.selected : [];
-			this.selectedIndex = (this.selectedIndex != null) ? this.selectedIndex : [];
+			this.selected = (this.selected && this.selected instanceof Array) ? this.selected : [];
+			this.selectedIndex = (this.selectedIndex && this.selectedIndex instanceof Array) ? this.selectedIndex : [];
 			this.createComponents(this.daysComponents);
 			this.selectedIndexChanged();
 		};
@@ -242,7 +240,7 @@ module.exports = kind(
 			this.days = [];
 			for (i = 0; i < 7; i++) {
 				index = (i + this.firstDayOfWeek) % 7;
-				this.daysComponents[i] = {kind: FormCheckbox, content: this.shortDayText ? days[index] : daysOfWeek[i], classes: 'moon-day-picker-control'};
+				this.daysComponents[i] = {kind: FormCheckbox, content: this.shortDayText ? days[index] : daysOfWeek[i], classes: 'moon-day-selector-control'};
 				this.days[i] = days[index];
 			}
 		} else {
@@ -335,7 +333,6 @@ module.exports = kind(
 	* @private
 	*/
 	selectedIndexChanged: function () {
-		this.selectedIndex = this.selectedIndex.length ? this.selectedIndex : [this.selectedIndex];
 		var controls = this.getClientControls(),
 			index = this.get('selectedIndex'),
 			checked;
