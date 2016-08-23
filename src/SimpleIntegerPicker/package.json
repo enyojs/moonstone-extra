@@ -1,6 +1,6 @@
 {
-    "main": "SimpleIntegerPicker.js",
-    "styles": [
-        "SimpleIntegerPicker.less"
-    ]
+	"main": "SimpleIntegerPicker.js",
+	"styles": [
+		"SimpleIntegerPicker.less"
+	]
 }

@@ -1,219 +1,134 @@
-.moon-simple-integer-picker1 {
-    padding: 0 @moon-picker-button-width;
-    .moon-scroll-picker-repeater {
-        width: 100%;
-        white-space: nowrap;
-        > * {
-            display: inline-block;
-        }
-    }
-    .moon-scroll-picker {
-        height: @moon-picker-button-width;
-        border-top: 0;
-        border-bottom: 0;
-        width: 100%;
-    }
-    .moon-scroll-picker-item {
-        height: @moon-picker-button-width;
-        line-height: @moon-picker-button-width;
-        padding: 0;
-    }
-    .moon-scroll-picker-overlay-container1 {
-        top: 0;
-        line-height: @moon-picker-button-width;
-        width: @moon-picker-button-width;
-        height: @moon-picker-button-width;
-        &.previous {
-            left: 0;
-            &:after {
-                content: @moon-icon-arrowsmallleft;
-                font-size: @moon-integer-picker-caret-font-size;
-                line-height: @moon-picker-button-width;
-            }
-            &.selected .moon-scroll-picker-overlay {
-                border-bottom: 0;
-                border-left-width: @moon-integer-picker-shadow-width;
-                border-radius: @moon-integer-picker-radius 0 0 @moon-integer-picker-radius;
-               
-            }
-        }
-        &.next {
-            right: 0;
-            &:after {
-                content: @moon-icon-arrowsmallright;
-                font-size: @moon-integer-picker-caret-font-size;
-                line-height: @moon-picker-button-width;
-            }
-            &.selected .moon-scroll-picker-overlay {
-                border-top: 0;
-                border-right-width: @moon-integer-picker-shadow-width;
-                border-radius: 0 @moon-integer-picker-radius @moon-integer-picker-radius 0;
-               
-            }
-        }
-        .moon-scroll-picker-overlay {
-            position: absolute;
-            height: @moon-picker-button-width;
-            .border-box;
-        }
-    }
+.moon-simple-integer-picker {
+	padding: 0 @moon-picker-button-width;
+	.moon-scroll-picker-repeater {
+		width: 100%;
+		white-space: nowrap;
+		> * {
+			display: inline-block;
+		}
+	}
+	.moon-scroll-picker {
+		height: @moon-picker-button-width;
+		border-top: 0;
+		border-bottom: 0;
+		width: 100%;
+	}
+	.moon-scroll-picker-item {
+		height: @moon-picker-button-width;
+		line-height: @moon-picker-button-width;
+		padding: 0;
+		width: 100%;
+		/*added for input field*/
+	}
+	.moon-scroll-picker-overlay-container {
+		top: 0;
+		line-height: @moon-picker-button-width;
+		width: @moon-picker-button-width;
+		height: @moon-picker-button-width;
+		&.previous {
+			left: 0;
+			&:after {
+				content: @moon-icon-arrowsmallleft;
+				line-height: @moon-picker-button-width;
+			}
+			&.selected .moon-scroll-picker-overlay {
+				border-bottom: 0;
+				border-left-width: @moon-integer-picker-shadow-width;
+				border-radius: @moon-integer-picker-radius 0 0 @moon-integer-picker-radius;
+				&:after {
+					content: @moon-icon-arrowsmallleft;
+					line-height: @moon-picker-button-width;
+				}
+			}
+		}
+		&.next {
+			right: 0;
+			&:after {
+				content: @moon-icon-arrowsmallright;
+				line-height: @moon-picker-button-width;
+			}
+			&.selected .moon-scroll-picker-overlay {
+				border-top: 0;
+				border-right-width: @moon-integer-picker-shadow-width;
+				border-radius: 0 @moon-integer-picker-radius @moon-integer-picker-radius 0;
+				&:after {
+					content: @moon-icon-arrowsmallright;
+					line-height: @moon-picker-button-width;
+				}
+			}
+		}
+		.moon-scroll-picker-overlay {
+			position: absolute;
+			height: @moon-picker-button-width;
+			.border-box;
+		}
+	}
 }
 
-.spotlight.moon-simple-integer-picker1 {
-    border: 5px @moon-spotlight-border-color solid;
-    border-radius: 9999px;
-    background: #cf0652;
+.spotlight.moon-simple-integer-picker {
+	background: @moon-spotlight-border-color;
+	border-radius: @moon-integer-picker-radius;
+	.moon-scroll-picker-overlay-container.next:after {
+		content: @moon-icon-arrowlargeright;
+		line-height: @moon-picker-button-width;
+	}
+	.moon-scroll-picker-overlay-container.previous:after {
+		content: @moon-icon-arrowlargeleft;
+		line-height: @moon-picker-button-width;
+	}
 }
 
-.enyo-locale-right-to-left .moon-simple-integer-picker1 {
-    .moon-scroll-picker {
-        // since the repeater controls are inline-block and we want to keep the ordering the same
-        // so scrolling works correctly, override the direction for the scroller's children
-        direction: ltr;
-    }
+.enyo-locale-right-to-left .moon-simple-integer-picker {
+	.moon-scroll-picker {
+		// since the repeater controls are inline-block and we want to keep the ordering the same
+		// so scrolling works correctly, override the direction for the scroller's children
+		direction: ltr;
+	}
 }
 
 .enyo-locale-non-latin {
-    .moon-simple-integer-picker-item {
-        .enyo-locale-non-latin .moon-sub-header-text;
-    }
+	.moon-simple-integer-picker-item {
+		.enyo-locale-non-latin .moon-sub-header-text;
+	}
 }
+
+
+/*added new styles*/
 
 .customStylePicker {
-    width: 150px !important;
+	width: 150px;
 }
 
-.spotlight .moon-simple-integer-picker1 {
-    background: #cf0652 !important;
-    color: #fff;
+.spotlight.moon-simple-integer-picker {
+	color: #fff;
+	border: 5px solid #cf0652;
 }
 
-.spotlight.moon-simple-integer-picker1 .moon-input {
-    color: #fff;
+.spotlight.moon-simple-integer-picker .moon-input {
+	color: #fff;
 }
 
-.spotlight .moon-simple-integer-picker1 .moon-scroll-picker {
-    background: transparent !important;
+.spotlight .moon-simple-integer-picker .moon-scroll-picker {
+	background: transparent;
 }
 
 .arrowColor {
-    color: #cf0652 !important;
+	color: #cf0652;
 }
 
 .selectedPicker {
-    background: #fff !important;
+	background: #fff;
 }
 
 .selectedPickerItem {
-    background: #fff !important;
-    color: #cf0652 !important;
+	background: #fff;
+	color: #cf0652;
 }
 
-
-/* IntegerPicker.css */
-
-.moon-scroll-picker-container {
-    display: inline-block;
-    position: relative;
-    text-align: center;
-    vertical-align: top;
+.moon-simple-integer-picker {
+	width: 150px;
 }
 
-
-/*disabled*/
-
-.moon-scroll-picker-container.disabled {
-    cursor: default;
-    opacity: @moon-disabled-opacity;
-}
-
-.moon-scroll-picker {
-    direction: ltr;
-    height: @moon-integer-picker-height;
-    border-top: solid 30px transparent;
-    border-bottom: solid 30px transparent;
-    border-radius: @moon-integer-picker-radius;
-}
-
-.spotlight .moon-scroll-picker {
-    background: @moon-spotlight-border-color;
-    color: @moon-spotlight-text-color;
-    pointer-events: none;
-}
-
-.moon-scroll-picker-item {
-    white-space: nowrap;
-    padding: 0 @moon-picker-min-padding 3px @moon-picker-min-padding;
-    min-width: 48px;
-    height: @moon-integer-picker-height;
-    line-height: @moon-integer-picker-height;
-    text-align: center;
-    background: transparent;
-}
-
-.moon-scroll-picker-buffer {
-    white-space: nowrap;
-    padding: 0 @moon-picker-min-padding 3px @moon-picker-min-padding;
-    height: 0;
-    opacity: 0;
-}
-
-.moon-scroll-picker-overlay-container1 {
-    position: absolute;
-    z-index: 1;
-    width: 100%;
-    height: @moon-integer-picker-overlay-height;
-    font-family: @moon-icon-font-family;
-    &.nextRight {
-        top: 0;
-    }
-    &.previousLeft {
-        bottom: 0;
-    }
-}
-
-.spotlight .moon-scroll-picker-overlay-container1 {
-    color: @moon-white;
-    &.previousLeft:after {
-        content: @moon-icon-arrowlargeleft;
-        line-height: @moon-integer-picker-caret-font-size/2 - 12;
-    }
-    &.nextRight:after {
-        content: @moon-icon-arrowlargeright;
-        line-height: @moon-integer-picker-caret-font-size/2 - 12;
-    }
-}
-
-/*.selected .moon-scroll-picker-overlay {
-    position: absolute;
-    height: @moon-integer-picker-overlay-height + 6px;
-    width: 100%;
-    background-color: @moon-accent;
-    &.nextRight {
-        top: 0;
-        border-style: solid;
-        border-width: 0;
-        border-color: rgba(0, 0, 0, 0.2);
-        border-top-width: @moon-integer-picker-shadow-width;
-        border-radius: @moon-integer-picker-radius @moon-integer-picker-radius 0 0;
-    }
-    &.previousLeft {
-        bottom: 0;
-        border-style: solid;
-        border-width: 0;
-        border-color: rgba(0, 0, 0, 0.2);
-        border-bottom-width: @moon-integer-picker-shadow-width;
-        border-radius: 0 0 @moon-integer-picker-radius @moon-integer-picker-radius;
-    }
-}
-*/
-.moon-scroll-picker-taparea {
-    position: absolute;
-    top: -12px;
-    right: -12px;
-    bottom: -12px;
-    left: -12px;
-}
-.customInputStyle {
-    width: 100% !important;
+.moon-simple-integer-picker .customInputStyle {
+	width: 100% !important;
 }
