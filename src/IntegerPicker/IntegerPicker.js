@@ -438,6 +438,10 @@ module.exports = kind(
 	* @private
 	*/
 	previous: function (inSender, inEvent) {
+		if(this.$.item.hasNode()){ // dismisses the functionality when input field is enabled
+				// this.$.nextOverlay.applyStyle('color','grey');
+				return true;
+		}
 		if (this.disabled) {
 			return;
 		}
@@ -465,6 +469,9 @@ module.exports = kind(
 	* @private
 	*/
 	next: function (inSender, inEvent) {
+		if(this.$.item.hasNode()){ // dismisses the functionality when input field is enabled
+				return true;
+		}
 		if (this.disabled) {
 			return;
 		}

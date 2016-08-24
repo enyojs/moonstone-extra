@@ -96,10 +96,10 @@ module.exports = kind(
 		 * @private
 		 */
 		handlers: {
-			onSpotlightUp: null,
-			onSpotlightDown: null,
 			onSpotlightRight: 'next',
 			onSpotlightLeft: 'previous',
+			onSpotlightUp: 'spotUp',
+			onSpotlightDown: 'spotDown',
 			onSpotlightSelect: 'fireSelectEvent',
 			onSpotlightBlur: 'fireSpotBlur',
 			onSpotlightKeyDown: 'fireSpotKeyDown',
@@ -178,6 +178,7 @@ module.exports = kind(
 				this.$.item.setStyle('width: ' + dom.unit(this.width, 'rem'));
 			}
 		},
+
 		/**
 		 * Fires when the pointer moves away from a picker and keeps the focus in the input field
 		 * 
@@ -194,6 +195,7 @@ module.exports = kind(
 				// console.log("has node");
 			}
 		},
+
 		/**
 		 * Enables the input field on direct input from the number keys
 		 * 
@@ -208,6 +210,7 @@ module.exports = kind(
 				this.prepareInputField();
 			}
 		},
+
 		/**
 		 * Enables the input field on enter key press
 		 * 
@@ -225,6 +228,7 @@ module.exports = kind(
 				});
 			}
 		},
+
 		/**
 		 * Creates node for the input field and brings focus to the input field
 		 * 
@@ -233,10 +237,11 @@ module.exports = kind(
 		 * @method
 		 */
 		prepareInputField: function() {
+			var index,repeater,item;
 			index = this.valueToIndex(this.value);
 			repeater = this.$.repeater;
 			item = this.$.item;
-			if (!this.$.item.hasNode() || this.$.item.hasFocus() != true) {
+			if (!item.hasNode() || item.hasFocus() != true) {
 				this.previousIndex = index;
 				repeater.renderRow(index);
 				repeater.prepareRow(index);
@@ -246,6 +251,7 @@ module.exports = kind(
 				item.focus();
 			}
 		},
+
 		/**
 		 * Validates the value of input field and sets the value to picker
 		 * 
@@ -257,15 +263,20 @@ module.exports = kind(
 			var valueInputted, tempValue, item;
 			item = this.$.item;
 			valueInputted = parseInt(this.$.item.value);
-			tempValue = this.$.item.tempValue;
-			if (valueInputted && valueInputted <= this.max && valueInputted >= this.min && valueInputted !== tempValue) {
+			tempValue = item.tempValue;
+			if ((valueInputted || valueInputted === 0) && valueInputted <= this.max && valueInputted >= this.min && valueInputted !== tempValue) {
+				console.log('valid value', +valueInputted);
 				this.removeStyle();
 				this.setValue(parseInt(valueInputted));
 				item.blur();
+				this.$.repeater.lockRow(this.valueToIndex(this.value));
 			} else {
+				console.log('invalid value', +valueInputted);
 				this.inputBlur();
+				this.$.repeater.lockRow(this.valueToIndex(this.value));
 			}
 		},
+
 		/**
 		 *  Disables the input field when the focus is lost from the input field
 		 * 
@@ -280,7 +291,9 @@ module.exports = kind(
 			this.removeStyle();
 			item.setValue(tempValue);
 			item.blur();
+			this.$.repeater.lockRow(this.valueToIndex(this.value));
 		},
+
 		/**
 		 *  Disables the input field when the spotlight blurs
 		 * 
@@ -295,7 +308,9 @@ module.exports = kind(
 			this.removeStyle();
 			item.setValue(tempValue);
 			item.blur();
+			this.$.repeater.lockRow(this.valueToIndex(this.value));
 		},
+
 		/**
 		 *  Changes the styling when input field is enabled
 		 * 
@@ -307,10 +322,11 @@ module.exports = kind(
 			var item;
 			item = this.$.item;
 			this.addClass("selectedPicker");
-			this.$.item.addClass("selectedPickerItem");
+			item.addClass("selectedPickerItem");
 			this.$.nextOverlay.addClass("arrowColor");
 			this.$.previousOverlay.addClass("arrowColor");
 		},
+
 		/**
 		 *  Removes the styling when input field is disabled
 		 * 
@@ -322,10 +338,11 @@ module.exports = kind(
 			var item;
 			item = this.$.item;
 			this.removeClass("selectedPicker");
-			this.$.item.removeClass("selectedPickerItem");
+			item.removeClass("selectedPickerItem");
 			this.$.nextOverlay.removeClass("arrowColor");
 			this.$.previousOverlay.removeClass("arrowColor");
 		},
+
 		/**
 		 *  Enable the input field by tap on the picker's input area
 		 * 
@@ -335,7 +352,35 @@ module.exports = kind(
 		 */
 		selectByTap: function(inSender, inEvent) {
 			// development in-progress
-			// console.log("selectByTap");
+			if(inEvent.originator.hasClass('moon-simple-integer-picker')){
+				this.prepareInputField();
+			}
+		},
+
+		/**
+		 * Ignores the 'up' key press when the input field is enabled
+		 *
+		 * @see module:moonstone/IntegerPicker~IntegerPicker.spotUp
+		 * @private
+		 * @method 
+		 */
+		spotUp: function() {
+			if (this.$.item.hasNode()) {
+				return true;
+			}
+		},
+
+		/**
+		 * Ignores the 'down' key press when the input field is enabled
+		 *
+		 * @see module:moonstone/IntegerPicker~IntegerPicker.spotDown
+		 * @private
+		 * @method 
+		 */
+		spotDown: function() {
+			if (this.$.item.hasNode()) {
+				return true;
+			}
 		},
 
 		/**

@@ -100,12 +100,12 @@
 }
 
 .spotlight.moon-simple-integer-picker {
-	color: #fff;
-	border: 5px solid #cf0652;
+	/*color: #fff;*/
+	border: 5px solid transparent;
 }
 
 .spotlight.moon-simple-integer-picker .moon-input {
-	color: #fff;
+	/*color: #fff; */
 }
 
 .spotlight .moon-simple-integer-picker .moon-scroll-picker {
@@ -113,22 +113,29 @@
 }
 
 .arrowColor {
-	color: #cf0652;
+	/*color: #cf0652; */
 }
 
-.selectedPicker {
+.spotlight.moon-simple-integer-picker.selectedPicker {
 	background: #fff;
+	border: 5px solid @moon-spotlight-border-color;
 }
 
 .selectedPickerItem {
 	background: #fff;
-	color: #cf0652;
+	/*color: #cf0652; */
 }
 
 .moon-simple-integer-picker {
 	width: 150px;
+	border-radius: @moon-integer-picker-radius 0 0 @moon-integer-picker-radius;
+	border: 5px solid transparent;
 }
 
 .moon-simple-integer-picker .customInputStyle {
 	width: 100% !important;
+}
+
+.moon-simple-integer-picker .moon-input{
+	color:inherit;
 }
