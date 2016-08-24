@@ -7,6 +7,7 @@ require('moonstone');
 
 var
 	kind = require('enyo/kind'),
+	utils = require('enyo/utils'),
 	Control = require('enyo/Control'),
 	Signals = require('enyo/Signals');
 
@@ -156,15 +157,6 @@ module.exports = kind(
 	*/
 	firstDayOfWeek: 0,
 
-	/**
-	* @private
-	*/
-	weekendStart: 6,
-
-	/**
-	* @private
-	*/
-	weekendEnd: 0,
 
 	events: {
 		/**
@@ -216,27 +208,10 @@ module.exports = kind(
 	* @private
 	*/
 	initILib: function () {
-		var i, daysOfWeek;
-		if (typeof ilib !== 'undefined') {
-			var df = new DateFmt({length: this.shortDayText ? 'long' : 'full'}),
-				li = new LocaleInfo(ilib.getLocale());
-
-			daysOfWeek = df.getDaysOfWeek();
-			this.firstDayOfWeek = li.getFirstDayOfWeek();
-			this.weekendStart = li.getWeekEndStart ? li.getWeekEndStart() : this.weekendStart;
-			this.weekendEnd = li.getWeekEndEnd ? li.getWeekEndEnd() : this.weekendEnd;
-		} else {
-			daysOfWeek = this.shortDayText ? noIlibLongDays : noIlibFullDays;
-		}
-
-		// adjust order of days
-		this.daysComponents = [];
-		this.days = [];
-		for (i = 0; i < daysOfWeek.length; i++) {
-			var index = (i + this.firstDayOfWeek) % 7;
-			this.daysComponents[i] = {kind: FormCheckbox, content: daysOfWeek[index], classes: 'moon-day-selector-control'};
-			this.days[i] = daysOfWeek[index];
-		}
+		this.info = getIlibWeekInfo(this.shortDayText ? 'long' : 'full');
+		this.daysComponents = this.info.days.map(function (day) {
+			return {kind: FormCheckbox, content: day, classes: 'moon-day-selector-control'};
+		});
 	},
 
 	/**
@@ -284,28 +259,21 @@ module.exports = kind(
 	* @private
 	*/
 	fireChangeEvent: function () {
-		var contentStr = this.multiSelectCurrentValue();
-		this.doChange({
-			selected: this.get('selected'),
-			content: contentStr,
-			index: this.get('selectedIndex')
+		var contentStr = formatDayString(this.selectedIndex, {
+			everyDayText: this.everyDayText,
+			everyWeekendText: this.everyWeekendText,
+			everyWeekdayText: this.everyWeekdayText,
+			noneText: this.noneText,
+			info: this.info
 		});
-	},
 
-	/**
-	* @private
-	*/
-	multiSelectCurrentValue: function () {
-		var str = this.getRepresentativeString() || '';
-		if (str) return str;
-
-		for (var i = 0; i < this.selectedIndex.length; i++) {
-			if (str) {
-				str += ', ';
-			}
-			str += this.days[this.selectedIndex[i]];
+		if (this.generated) {
+			this.doChange({
+				selected: this.get('selected'),
+				content: contentStr,
+				index: this.get('selectedIndex')
+			});
 		}
-		return str || this.get('noneText');
 	},
 
 	/**
@@ -334,31 +302,99 @@ module.exports = kind(
 			}
 		}
 		this.notifyObservers('selected');
-	},
+	}
+});
 
-	/**
-	* @private
-	*/
-	getRepresentativeString: function () {
-		var bWeekEndStart = false,
-			bWeekEndEnd = false,
-			length = this.selectedIndex.length,
-			weekendLength = this.weekendStart === this.weekendEnd ? 1 : 2,
-			index, i;
+/**
+ * Returns information about the configuration for a week for the current locale.
+ *
+ * @param  {String} length ilib DatFmt length ('short', 'long', 'full')
+ *
+ * @return {Object}        Week information object
+ */
+function getIlibWeekInfo (length) {
+	var i, index, info,
+		df = new DateFmt({length: length}),
+		li = new LocaleInfo(ilib.getLocale());
 
-		if (length == 7) return this.everyDayText;
+	info = {
+		days: [],
+		daysOfWeek: df.getDaysOfWeek(),
+		firstDayOfWeek: li.getFirstDayOfWeek(),
+		weekendStart: li.getWeekEndStart ? li.getWeekEndStart() : 6,
+		weekendEnd: li.getWeekEndEnd ? li.getWeekEndEnd() : 0
+	};
+
+	for (i = 0; i < info.daysOfWeek.length; i++) {
+		index = (i + info.firstDayOfWeek) % 7;
+		info.days[i] = info.daysOfWeek[index];
+	}
+
+	return info;
+}
+
+/**
+ * Given an array of indices representing days of the week, returns a formatted string of either a
+ * comma-separated list of the names of the days or alternative strings for common combinations.
+ *
+ * @param {Number[]} days                  Array of day indicies
+ * @param {String} [opts.everyDayText]     Alternate text when every day is provided
+ * @param {String} [opts.everyWeekdayText] Alternate text week every weekday is provided
+ * @param {String} [opts.everyWeekendText] Alternate text when every weekend day is provided
+ * @param {String} [opts.noneText]         Alternate text when no days are provided
+ * @param {String} [opts.format]           ilib DataFmt length. Not used if `opts.info` provided
+ * @param {Object} [opts.info]             Week configuration information including names of
+ *	`daysOfWeek`, the `firstDayOfWeek` index, the `weekendStart` index, the `weekendEnd` index, and
+ *	the names of the `days` ordered by the `firstDayOfWeek`.
+ *
+ * @return {String}                        Formatted string for provided days
+ */
+function formatDayString (days, opts) {
+	var bWeekEndStart = false,
+		bWeekEndEnd = false,
+		length = days.length,
+		i, index, info, str, weekendLength;
+
+	opts = utils.mixin({
+		everyDayText: $L('Every Day'),
+		everyWeekdayText: $L('Every Weekday'),
+		everyWeekendText: $L('Every Weekend'),
+		noneText: $L('Nothing selected'),
+		format: 'long',
+		info: null
+	}, opts);
+
+	if (length == 7) {
+		return opts.everyDayText;
+	} else if (length === 0) {
+		return opts.noneText;
+	} else {
+		info = opts.info || getIlibWeekInfo(opts.format);
+		weekendLength = info.weekendStart === info.weekendEnd ? 1 : 2;
 
 		for (i = 0; i < 7; i++) {
 			// convert the control index to day index
-			index = (this.selectedIndex[i] + this.firstDayOfWeek) % 7;
-			bWeekEndStart = bWeekEndStart || this.weekendStart == index;
-			bWeekEndEnd = bWeekEndEnd || this.weekendEnd == index;
+			index = (days[i] + info.firstDayOfWeek) % 7;
+			bWeekEndStart = bWeekEndStart || info.weekendStart == index;
+			bWeekEndEnd = bWeekEndEnd || info.weekendEnd == index;
 		}
 
 		if (bWeekEndStart && bWeekEndEnd && length == weekendLength) {
-			return this.everyWeekendText;
+			return opts.everyWeekendText;
 		} else if (!bWeekEndStart && !bWeekEndEnd && length == 7 - weekendLength) {
-			return this.everyWeekdayText;
+			return opts.everyWeekdayText;
+		} else {
+			str = '';
+			for (i = 0; i < days.length; i++) {
+				if (str) {
+					str += ', ';
+				}
+				str += info.days[days[i]];
+			}
+			return str;
 		}
 	}
-});
+};
+
+module.exports.getIlibWeekInfo = getIlibWeekInfo;
+module.exports.formatDayString = formatDayString;
