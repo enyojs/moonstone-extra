@@ -381,7 +381,7 @@ function formatDayString (days, opts) {
 			return opts.everyWeekdayText;
 		} else {
 			str = '';
-			for (i = 0; i < days.length; i++) {
+			for (i = 0; i < length; i++) {
 				if (str) {
 					str += ', ';
 				}
@@ -390,7 +390,7 @@ function formatDayString (days, opts) {
 			return str;
 		}
 	}
-};
+}
 
 module.exports.getIlibWeekInfo = getIlibWeekInfo;
 module.exports.formatDayString = formatDayString;
