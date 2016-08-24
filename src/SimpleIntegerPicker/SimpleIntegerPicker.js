@@ -265,13 +265,11 @@ module.exports = kind(
 			valueInputted = parseInt(this.$.item.value);
 			tempValue = item.tempValue;
 			if ((valueInputted || valueInputted === 0) && valueInputted <= this.max && valueInputted >= this.min && valueInputted !== tempValue) {
-				console.log('valid value', +valueInputted);
 				this.removeStyle();
 				this.setValue(parseInt(valueInputted));
 				item.blur();
 				this.$.repeater.lockRow(this.valueToIndex(this.value));
 			} else {
-				console.log('invalid value', +valueInputted);
 				this.inputBlur();
 				this.$.repeater.lockRow(this.valueToIndex(this.value));
 			}
