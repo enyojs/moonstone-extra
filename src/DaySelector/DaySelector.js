@@ -20,10 +20,6 @@ var
 	FormCheckbox = require('moonstone/FormCheckbox'),
 	$L = require('../i18n');
 
-
-var noIlibFullDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-	noIlibLongDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
 /**
 * Fires when the current selection changes.
 *
