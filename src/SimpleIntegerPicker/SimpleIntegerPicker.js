@@ -181,7 +181,7 @@ module.exports = kind(
 
 		/**
 		 * Fires when the pointer moves away from a picker and keeps the focus in the input field
-		 * 
+		 *
 		 * @see module:moonstone/IntegerPicker~IntegerPicker.firePointerLeave
 		 * @private
 		 * @method
@@ -189,16 +189,16 @@ module.exports = kind(
 		firePointerLeave: function() {
 			if (!this.$.item.hasNode()) {
 				// development is in-progress
-				// console.log("no node");
+				// console.log('no node');
 			} else {
 				// development is in-progress
-				// console.log("has node");
+				// console.log('has node');
 			}
 		},
 
 		/**
 		 * Enables the input field on direct input from the number keys
-		 * 
+		 *
 		 * @see module:moonstone/IntegerPicker~IntegerPicker.fireSpotKeyDown
 		 * @private
 		 * @method
@@ -213,7 +213,7 @@ module.exports = kind(
 
 		/**
 		 * Enables the input field on enter key press
-		 * 
+		 *
 		 * @see module:moonstone/IntegerPicker~IntegerPicker.fireSelectEvent
 		 * @private
 		 * @method
@@ -231,17 +231,17 @@ module.exports = kind(
 
 		/**
 		 * Creates node for the input field and brings focus to the input field
-		 * 
+		 *
 		 * @see module:moonstone/IntegerPicker~IntegerPicker.prepareInputField
 		 * @private
 		 * @method
 		 */
 		prepareInputField: function() {
-			var index,repeater,item;
+			var index, repeater, item;
 			index = this.valueToIndex(this.value);
 			repeater = this.$.repeater;
 			item = this.$.item;
-			if (!item.hasNode() || item.hasFocus() != true) {
+			if (!item.hasNode() || !item.hasFocus()) {
 				this.previousIndex = index;
 				repeater.renderRow(index);
 				repeater.prepareRow(index);
@@ -254,7 +254,7 @@ module.exports = kind(
 
 		/**
 		 * Validates the value of input field and sets the value to picker
-		 * 
+		 *
 		 * @see module:moonstone/IntegerPicker~IntegerPicker.checkInputEnter
 		 * @private
 		 * @method
@@ -262,11 +262,11 @@ module.exports = kind(
 		checkInputEnter: function() {
 			var valueInputted, tempValue, item;
 			item = this.$.item;
-			valueInputted = parseInt(this.$.item.value);
+			valueInputted = parseInt(this.$.item.value, 10);
 			tempValue = item.tempValue;
 			if ((valueInputted || valueInputted === 0) && valueInputted <= this.max && valueInputted >= this.min && valueInputted !== tempValue) {
 				this.removeStyle();
-				this.setValue(parseInt(valueInputted));
+				this.set('value', parseInt(valueInputted, 10));
 				item.blur();
 				this.$.repeater.lockRow(this.valueToIndex(this.value));
 			} else {
@@ -277,7 +277,7 @@ module.exports = kind(
 
 		/**
 		 *  Disables the input field when the focus is lost from the input field
-		 * 
+		 *
 		 * @see module:moonstone/IntegerPicker~IntegerPicker.inputBlur
 		 * @private
 		 * @method
@@ -294,7 +294,7 @@ module.exports = kind(
 
 		/**
 		 *  Disables the input field when the spotlight blurs
-		 * 
+		 *
 		 * @see module:moonstone/IntegerPicker~IntegerPicker.fireSpotBlur
 		 * @private
 		 * @method
@@ -311,7 +311,7 @@ module.exports = kind(
 
 		/**
 		 *  Changes the styling when input field is enabled
-		 * 
+		 *
 		 * @see module:moonstone/IntegerPicker~IntegerPicker.styleChange
 		 * @private
 		 * @method
@@ -319,15 +319,15 @@ module.exports = kind(
 		styleChange: function() {
 			var item;
 			item = this.$.item;
-			this.addClass("selectedPicker");
-			item.addClass("selectedPickerItem");
-			this.$.nextOverlay.addClass("arrowColor");
-			this.$.previousOverlay.addClass("arrowColor");
+			this.addClass('selectedPicker');
+			item.addClass('selectedPickerItem');
+			this.$.nextOverlay.addClass('arrowColor');
+			this.$.previousOverlay.addClass('arrowColor');
 		},
 
 		/**
 		 *  Removes the styling when input field is disabled
-		 * 
+		 *
 		 * @see module:moonstone/IntegerPicker~IntegerPicker.removeStyle
 		 * @private
 		 * @method
@@ -335,22 +335,22 @@ module.exports = kind(
 		removeStyle: function() {
 			var item;
 			item = this.$.item;
-			this.removeClass("selectedPicker");
-			item.removeClass("selectedPickerItem");
-			this.$.nextOverlay.removeClass("arrowColor");
-			this.$.previousOverlay.removeClass("arrowColor");
+			this.removeClass('selectedPicker');
+			item.removeClass('selectedPickerItem');
+			this.$.nextOverlay.removeClass('arrowColor');
+			this.$.previousOverlay.removeClass('arrowColor');
 		},
 
 		/**
 		 *  Enable the input field by tap on the picker's input area
-		 * 
+		 *
 		 * @see module:moonstone/IntegerPicker~IntegerPicker.selectByTap
 		 * @private
-		 * @method         
+		 * @method
 		 */
 		selectByTap: function(inSender, inEvent) {
 			// development in-progress
-			if(inEvent.originator.hasClass('moon-simple-integer-picker')){
+			if (inEvent.originator.hasClass('moon-simple-integer-picker')) {
 				this.prepareInputField();
 			}
 		},
@@ -360,7 +360,7 @@ module.exports = kind(
 		 *
 		 * @see module:moonstone/IntegerPicker~IntegerPicker.spotUp
 		 * @private
-		 * @method 
+		 * @method
 		 */
 		spotUp: function() {
 			if (this.$.item.hasNode()) {
@@ -373,7 +373,7 @@ module.exports = kind(
 		 *
 		 * @see module:moonstone/IntegerPicker~IntegerPicker.spotDown
 		 * @private
-		 * @method 
+		 * @method
 		 */
 		spotDown: function() {
 			if (this.$.item.hasNode()) {
