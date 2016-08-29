@@ -10,8 +10,8 @@ var
 	kind = require('enyo/kind'),
 	dom = require('enyo/dom'),
 	Control = require('enyo/Control'),
-	Scroller = require('enyo/Scroller'),
-	Input = require('moonstone/Input');
+	Component = require('enyo/Component'),
+	Scroller = require('enyo/Scroller');
 
 var
 	FlyweightRepeater = require('layout/FlyweightRepeater');
@@ -166,6 +166,16 @@ module.exports = kind(
 		minWidth: 50
 
 	},
+	
+	/**
+	 * The components which are to be placed inside the repeater
+	 * @private
+	 * @type {Array}
+	 */
+	tools:[
+		{name: 'item', kind: Control, classes: 'moon-scroll-picker-item', onkeyup: 'triggerCustomEvent'},
+		{name: 'buffer', kind: Control, accessibilityDisabled: true, classes: 'moon-scroll-picker-buffer'}
+	],
 
 	/**
 	* @private
@@ -216,10 +226,8 @@ module.exports = kind(
 		// FIXME: TranslateScrollStrategy doesn't work with the current design of this component so
 		// we're forcing TouchScrollStrategy
 		{kind: Scroller, strategyKind: TouchScrollStrategy, thumb: false, touch: true, useMouseWheel: false, classes: 'moon-scroll-picker', components: [
-			{name: 'repeater', kind: FlyweightRepeater, classes: 'moon-scroll-picker-repeater', ondragstart: 'dragstart', onSetupItem: 'setupItem', noSelect: true, components: [
-				{name: 'item', kind: Input, classes: 'moon-scroll-picker-item customInputStyle', onkeyup: 'triggerCustomEvent'}
-			]},
-			{name: 'buffer', kind: Control, accessibilityDisabled: true, classes: 'moon-scroll-picker-buffer'}
+			{name: 'repeater', kind: FlyweightRepeater, classes: 'moon-scroll-picker-repeater', ondragstart: 'dragstart', onSetupItem: 'setupItem', noSelect: true},
+			
 		]},
 		{name: 'previousOverlay', kind: Control, ondown: 'downPrevious', onholdpulse: 'previous', classes: 'moon-scroll-picker-overlay-container previous', components: [
 			{kind: Control, classes: 'moon-scroll-picker-overlay previous'},
@@ -256,6 +264,15 @@ module.exports = kind(
 		Control.prototype.create.apply(this, arguments);
 		this.rangeChanged();
 		this.updateOverlays();
+	},
+
+	/**
+	* @private
+	*/
+	initComponents: function () {
+		var override = {repeater: {components: this.tools}};
+		this.kindComponents = Component.overrideComponents(this.kindComponents, override);
+		Control.prototype.initComponents.apply(this, arguments);
 	},
 
 	/**
@@ -303,7 +320,7 @@ module.exports = kind(
 	setupItem: function (inSender, inEvent) {
 		var index = inEvent.index;
 		var content = this.labelForValue(this.indexToValue(index % this.range));
-		this.$.item.set('value', content);
+		this.$.item.set('content', content);
 	},
 
 	/**
@@ -471,6 +488,7 @@ module.exports = kind(
 		if (this.$.item.hasNode()) { // dismisses the functionality when input field is enabled
 				return true;
 		}
+		
 		if (this.disabled) {
 			return;
 		}

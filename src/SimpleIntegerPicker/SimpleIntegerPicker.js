@@ -7,9 +7,13 @@ require('moonstone');
 
 var
 	kind = require('enyo/kind'),
+	util = require('enyo/utils'),
 	dom = require('enyo/dom');
 
 var
+	Control = require('enyo/Control'),
+	Input = require('moonstone/Input'),
+	Spotlight = require('spotlight'),
 	IntegerPicker = require('../IntegerPicker');
 
 var
@@ -86,6 +90,14 @@ module.exports = kind(
 		spotlight: true,
 
 		/**
+		* Used only for [dismissOnEnter]{@link module:moonstone/Input~Input#dismissOnEnter} feature;
+		* we cannot rely on `hasFocus()` in this case due to race condition.
+		*
+		* @private
+		*/
+		_bFocused: false,
+
+		/**
 		 * @private
 		 */
 		events: {
@@ -101,12 +113,11 @@ module.exports = kind(
 			onSpotlightUp: 'spotUp',
 			onSpotlightDown: 'spotDown',
 			onSpotlightSelect: 'fireSelectEvent',
-			onSpotlightBlur: 'fireSpotBlur',
 			onSpotlightKeyDown: 'fireSpotKeyDown',
 			onInputEnter: 'checkInputEnter',
 			onBackEnter: 'inputBlur',
-			onleave: 'firePointerLeave',
 			ontap: 'selectByTap',
+			onblur: 'onBlur'
 		},
 
 		/**
@@ -123,7 +134,15 @@ module.exports = kind(
 			 * @default 'sec'
 			 * @public
 			 */
-			unit: 'sec'
+			unit: 'sec',
+			/**
+			 * Percentage of width for the picker to get expanded. Range is 0-100.
+			 *
+			 * @type {number}
+			 * @default 'sec'
+			 * @public
+			 */
+			expandWidth: 0,
 		},
 
 		/**
@@ -137,6 +156,16 @@ module.exports = kind(
 		itemPadding: 60,
 
 		/**
+		 * The components which are to be placed inside the repeater
+		 * @private
+		 * @type {Array}
+		 */
+		tools:[
+			{name: 'item', kind: Input, classes: 'moon-scroll-picker-item customInputStyle', onkeyup: 'triggerCustomEvent'},
+			{name: 'buffer', kind: Control, accessibilityDisabled: true, classes: 'moon-scroll-picker-buffer'},
+		],
+
+		/**
 		 * Appends unit to content, forming label for display.
 		 *
 		 * @see module:moonstone/IntegerPicker~IntegerPicker.labelForValue
@@ -146,6 +175,15 @@ module.exports = kind(
 		labelForValue: function(value) {
 			var content = IntegerPicker.prototype.labelForValue.apply(this, arguments);
 			return this.unit ? content + ' ' + this.unit : content;
+		},
+
+		/**
+		* @private
+		*/
+		setupItem: function (inSender, inEvent) {
+			var index = inEvent.index;
+			var content = this.labelForValue(this.indexToValue(index % this.range));
+			this.$.item.set('value', content);
 		},
 
 		/**
@@ -174,25 +212,10 @@ module.exports = kind(
 				}, this);
 
 				this.width = ib.width + this.itemPadding;
-				this.applyStyle('width', dom.unit(this.width, 'rem'));
-				this.$.item.setStyle('width: ' + dom.unit(this.width, 'rem'));
-			}
-		},
-
-		/**
-		 * Fires when the pointer moves away from a picker and keeps the focus in the input field
-		 *
-		 * @see module:moonstone/IntegerPicker~IntegerPicker.firePointerLeave
-		 * @private
-		 * @method
-		 */
-		firePointerLeave: function() {
-			if (!this.$.item.hasNode()) {
-				// development is in-progress
-				// console.log('no node');
-			} else {
-				// development is in-progress
-				// console.log('has node');
+				this.applyStyle('width', dom.unit(this.width * (0.45 + (this.expandWidth / 100)), 'rem'));
+				this.$.repeater.prepareRow(this.valueToIndex(this.value));
+				this.$.item.setStyle('width: ' + dom.unit(this.width * (0.45 + (this.expandWidth / 100)), 'rem'));
+				this.$.repeater.lockRow(this.valueToIndex(this.value));
 			}
 		},
 
@@ -249,6 +272,7 @@ module.exports = kind(
 				item.tempValue = item.value;
 				item.setValue(null);
 				item.focus();
+				Spotlight.freeze();
 			}
 		},
 
@@ -263,7 +287,7 @@ module.exports = kind(
 			var valueInputted, tempValue, item;
 			item = this.$.item;
 			valueInputted = parseInt(this.$.item.value, 10);
-			tempValue = item.tempValue;
+			tempValue = parseInt(item.tempValue, 10);
 			if ((valueInputted || valueInputted === 0) && valueInputted <= this.max && valueInputted >= this.min && valueInputted !== tempValue) {
 				this.removeStyle();
 				this.set('value', parseInt(valueInputted, 10));
@@ -273,6 +297,7 @@ module.exports = kind(
 				this.inputBlur();
 				this.$.repeater.lockRow(this.valueToIndex(this.value));
 			}
+			Spotlight.unfreeze();
 		},
 
 		/**
@@ -283,6 +308,7 @@ module.exports = kind(
 		 * @method
 		 */
 		inputBlur: function(inSender, inEvent) {
+			if (this.$.item.hasNode()) {
 			var tempValue, item;
 			tempValue = this.$.item.tempValue;
 			item = this.$.item;
@@ -290,25 +316,19 @@ module.exports = kind(
 			item.setValue(tempValue);
 			item.blur();
 			this.$.repeater.lockRow(this.valueToIndex(this.value));
+			}
 		},
 
 		/**
-		 *  Disables the input field when the spotlight blurs
+		 * Validates the value in the input field when focus is lost by clicking somewhere else
 		 *
-		 * @see module:moonstone/IntegerPicker~IntegerPicker.fireSpotBlur
+		 * @see module:moonstone/IntegerPicker~IntegerPicker.onBlur
 		 * @private
 		 * @method
 		 */
-		fireSpotBlur: function(inSender, inEvent) {
-			var tempValue, item;
-			tempValue = this.$.item.tempValue;
-			item = this.$.item;
-			this.removeStyle();
-			item.setValue(tempValue);
-			item.blur();
-			this.$.repeater.lockRow(this.valueToIndex(this.value));
+		onBlur: function(){
+			this.checkInputEnter();
 		},
-
 		/**
 		 *  Changes the styling when input field is enabled
 		 *
@@ -321,6 +341,7 @@ module.exports = kind(
 			item = this.$.item;
 			this.addClass('selectedPicker');
 			item.addClass('selectedPickerItem');
+			this.$.repeater.addClass('selectedPickerItem');
 			this.$.nextOverlay.addClass('arrowColor');
 			this.$.previousOverlay.addClass('arrowColor');
 		},
@@ -337,6 +358,7 @@ module.exports = kind(
 			item = this.$.item;
 			this.removeClass('selectedPicker');
 			item.removeClass('selectedPickerItem');
+			this.$.repeater.removeClass('selectedPickerItem');
 			this.$.nextOverlay.removeClass('arrowColor');
 			this.$.previousOverlay.removeClass('arrowColor');
 		},
@@ -364,7 +386,7 @@ module.exports = kind(
 		 */
 		spotUp: function() {
 			if (this.$.item.hasNode()) {
-				return true;
+			this.checkInputEnter();
 			}
 		},
 
@@ -377,7 +399,7 @@ module.exports = kind(
 		 */
 		spotDown: function() {
 			if (this.$.item.hasNode()) {
-				return true;
+			this.checkInputEnter();
 			}
 		},
 
