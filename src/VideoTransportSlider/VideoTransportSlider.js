@@ -8,6 +8,7 @@ require('moonstone-extra');
 var
 	kind = require('enyo/kind'),
 	dom = require('enyo/dom'),
+	platform = require('enyo/platform'),
 	ri = require('enyo/resolution'),
 	Control = require('enyo/Control'),
 	Popup = require('enyo/Popup');
@@ -338,6 +339,8 @@ module.exports = kind(
 		this.$.popup.setAutoDismiss(false);		//* Always showing popup
 		this.$.popup.captureEvents = false;		//* Hot fix for bad originator on tap, drag ...
 
+		this.showHideKnob(false);
+
 		//* Extend components
 		this.createTickComponents();
 		this.createPopupLabelComponents();
@@ -416,9 +419,7 @@ module.exports = kind(
 			this.spotSelect();
 			// this.knobPosValue will be used for knob positioning.
 			this.knobPosValue = this.get('value');
-			// Todo: visible does not mean slider is visible. it means knob is visible
-			// we'd better change its name to preview or more intuitive name
-			this.addClass('visible');
+			this.showHideKnob(true);
 			//fires enyo.VideoTransportSlider#onEnterTapArea
 			this.doEnterTapArea();
 		}
@@ -444,7 +445,7 @@ module.exports = kind(
 	spotBlur: function () {
 		this.set('_enterEnable', false);
 		this.selected = false;
-		this.removeClass('visible');
+		this.showHideKnob(false);
 		this.endPreview();
 		//fires enyo.VideoTransportSlider#onLeaveTapArea
 		this.doLeaveTapArea();
@@ -478,6 +479,12 @@ module.exports = kind(
 			this._updateKnobPosition(v);
 		}
 		return true;
+	},
+
+	showHideKnob: function (show) {
+		// always show for touch platforms
+		show = show || platform.touch;
+		this.addRemoveClass('visible', show);
 	},
 
 	/**
@@ -539,7 +546,8 @@ module.exports = kind(
 	* @private
 	*/
 	isInPreview: function (sender, e) {
-		return this._previewMode;
+		// Act as if not in preview mode for touch platforms
+		return !platform.touch && this._previewMode;
 	},
 
 	/**
