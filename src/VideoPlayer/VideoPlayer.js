@@ -1576,6 +1576,7 @@ module.exports = kind(
 	*/
 	sliderSeek: function (sender, e) {
 		this.setCurrentTime(e.value);
+		this.resetAutoTimeout();
 		return true;
 	},
 
