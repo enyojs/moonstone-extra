@@ -455,8 +455,13 @@ module.exports = kind(
 	* @private
 	*/
 	previous: function (inSender, inEvent) {
-		if (this.$.item.hasNode()) { // dismisses the functionality when input field is enabled
+		if (this.$.item.hasNode()) {
+			// dismisses the functionality when input field is enabled
 			return true;
+		}
+		if(this.value === this.max - 1 || this.value === this.min + 1){
+			// fix for input field enabling when arrow is pressed on last but one number
+			this.$.previousOverlay.children[1].applyStyle('visibility','visible');
 		}
 		if (this.disabled) {
 			return;
@@ -485,10 +490,14 @@ module.exports = kind(
 	* @private
 	*/
 	next: function (inSender, inEvent) {
-		if (this.$.item.hasNode()) { // dismisses the functionality when input field is enabled
-				return true;
+		if (this.$.item.hasNode()) {
+			// dismisses the functionality when input field is enabled
+			return true;
 		}
-		
+		if(this.value === this.max - 1 || this.value === this.min + 1){
+			// fix for input field enabling when arrow is pressed on last but one number
+			this.$.nextOverlay.children[1].applyStyle('visibility','visible');
+		}
 		if (this.disabled) {
 			return;
 		}

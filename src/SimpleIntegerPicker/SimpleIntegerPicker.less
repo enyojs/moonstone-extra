@@ -33,6 +33,7 @@
 			}
 			&.selected .moon-scroll-picker-overlay {
 				border-bottom: 0;
+				margin-left: -5px;
 				border-left-width: @moon-integer-picker-shadow-width;
 				border-radius: @moon-integer-picker-radius 0 0 @moon-integer-picker-radius;
 				&:after {
@@ -49,6 +50,7 @@
 			}
 			&.selected .moon-scroll-picker-overlay {
 				border-top: 0;
+				margin-left: 5px;
 				border-right-width: @moon-integer-picker-shadow-width;
 				border-radius: 0 @moon-integer-picker-radius @moon-integer-picker-radius 0;
 				&:after {
@@ -119,4 +121,8 @@
 .spotlight.moon-simple-integer-picker.selectedPicker .moon-scroll-picker-overlay-container.previous:after{
 	color: @moon-accent;
 	opacity: @moon-disabled-opacity;
+}
+
+.moon-scroll-picker-item-special{
+	display: none;
 }

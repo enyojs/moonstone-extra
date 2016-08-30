@@ -90,14 +90,6 @@ module.exports = kind(
 		spotlight: true,
 
 		/**
-		* Used only for [dismissOnEnter]{@link module:moonstone/Input~Input#dismissOnEnter} feature;
-		* we cannot rely on `hasFocus()` in this case due to race condition.
-		*
-		* @private
-		*/
-		_bFocused: false,
-
-		/**
 		 * @private
 		 */
 		events: {
@@ -135,14 +127,6 @@ module.exports = kind(
 			 * @public
 			 */
 			unit: 'sec',
-			/**
-			 * Percentage of width for the picker to get expanded. Range is 0-100.
-			 *
-			 * @type {number}
-			 * @default 'sec'
-			 * @public
-			 */
-			expandWidth: 0,
 		},
 
 		/**
@@ -156,12 +140,23 @@ module.exports = kind(
 		itemPadding: 60,
 
 		/**
+		 * Number of pixels added for adjusting the width of each picker item to correct the input field's padding. Note that this
+		 * is not a CSS width value.
+		 *
+		 * @type {Number}
+		 * @default 72
+		 * @public
+		 */
+		widthCorrection: 72,
+
+		/**
 		 * The components which are to be placed inside the repeater
 		 * @private
 		 * @type {Array}
 		 */
 		tools:[
-			{name: 'item', kind: Input, classes: 'moon-scroll-picker-item customInputStyle', onkeyup: 'triggerCustomEvent'},
+			{name: 'item', kind: Input, classes: 'moon-scroll-picker-item moon-scroll-picker-item-special', onkeyup: 'triggerCustomEvent'},
+			{name: 'measureItem', kind: Control, classes: ' moon-scroll-picker-item enyo-input moon-body-text moon-input'},
 			{name: 'buffer', kind: Control, accessibilityDisabled: true, classes: 'moon-scroll-picker-buffer'},
 		],
 
@@ -184,6 +179,7 @@ module.exports = kind(
 			var index = inEvent.index;
 			var content = this.labelForValue(this.indexToValue(index % this.range));
 			this.$.item.set('value', content);
+			this.$.measureItem.set('content', content);
 		},
 
 		/**
@@ -203,22 +199,26 @@ module.exports = kind(
 		updateRepeater: function() {
 			IntegerPicker.prototype.updateRepeater.apply(this, arguments);
 
-			if (!this.width) {
+			if (this.width === 0 && this.width !== null) {
 				var ib;
 				this.$.repeater.performOnRow(this.$.repeater.rowOffset, function() {
 					// have to reset to natural width before getting bounds
-					this.$.item.setStyle('width: auto');
-					ib = this.$.item.getBounds();
+					this.$.measureItem.setStyle('width: auto');
+					ib = this.$.measureItem.getBounds();
 				}, this);
 
-				this.width = ib.width + this.itemPadding;
-				this.applyStyle('width', dom.unit(this.width * (0.45 + (this.expandWidth / 100)), 'rem'));
+				this.width = ib.width + this.itemPadding + this.widthCorrection;
+				this.applyStyle('width', dom.unit(this.width, 'rem'));
 				this.$.repeater.prepareRow(this.valueToIndex(this.value));
-				this.$.item.setStyle('width: ' + dom.unit(this.width * (0.45 + (this.expandWidth / 100)), 'rem'));
+				this.$.item.setStyle('width: ' + dom.unit(this.width, 'rem'));
 				this.$.repeater.lockRow(this.valueToIndex(this.value));
 			}
+			else if(this.width === null){
+				this.$.item.removeClass('moon-scroll-picker-item-special');
+				this.$.measureItem.addClass('moon-scroll-picker-item-special');
+			}
 		},
-
+		
 		/**
 		 * Enables the input field on direct input from the number keys
 		 *
@@ -329,6 +329,7 @@ module.exports = kind(
 		onBlur: function(){
 			this.checkInputEnter();
 		},
+
 		/**
 		 *  Changes the styling when input field is enabled
 		 *
@@ -371,8 +372,7 @@ module.exports = kind(
 		 * @method
 		 */
 		selectByTap: function(inSender, inEvent) {
-			// development in-progress
-			if (inEvent.originator.hasClass('moon-simple-integer-picker')) {
+			if (!inEvent.originator.hasClass('moon-scroll-picker-taparea')) {
 				this.prepareInputField();
 			}
 		},
