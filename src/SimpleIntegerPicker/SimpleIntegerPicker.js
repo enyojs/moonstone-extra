@@ -67,375 +67,375 @@ var
 module.exports = kind(
 	/** @lends module:moonstone/SimpleIntegerPicker~SimpleIntegerPicker.prototype */ {
 
-		/**
-		 * @private
-		 */
-		name: 'moon.SimpleIntegerPicker',
+	/**
+	 * @private
+	 */
+	name: 'moon.SimpleIntegerPicker',
+
+	/**
+	 * @private
+	 */
+	kind: IntegerPicker,
+
+	/**
+	 * @private
+	 */
+	classes: 'moon-simple-integer-picker',
+
+	/**
+	 * @private
+	 */
+	spotlight: true,
+
+	/**
+	 * @private
+	 */
+	events: {
+		onSelect: ''
+	},
+
+	/**
+	 * @private
+	 */
+	handlers: {
+		onSpotlightRight: 'next',
+		onSpotlightLeft: 'previous',
+		onSpotlightUp: 'spotUp',
+		onSpotlightDown: 'spotDown',
+		onSpotlightSelect: 'fireSelectEvent',
+		onSpotlightKeyDown: 'fireSpotKeyDown',
+		onInputEnter: 'checkInputEnter',
+		onBackEnter: 'inputBlur',
+		ontap: 'selectByTap',
+		onblur: 'onBlur'
+	},
+
+	/**
+	 * @lends module:moonstone/SimpleIntegerPicker~SimpleIntegerPicker.prototype
+	 * @private
+	 * @lends module:moonstone/SimpleIntegerPicker~SimpleIntegerPicker.prototype
+	 */
+	published: {
 
 		/**
-		 * @private
-		 */
-		kind: IntegerPicker,
-
-		/**
-		 * @private
-		 */
-		classes: 'moon-simple-integer-picker',
-
-		/**
-		 * @private
-		 */
-		spotlight: true,
-
-		/**
-		 * @private
-		 */
-		events: {
-			onSelect: ''
-		},
-
-		/**
-		 * @private
-		 */
-		handlers: {
-			onSpotlightRight: 'next',
-			onSpotlightLeft: 'previous',
-			onSpotlightUp: 'spotUp',
-			onSpotlightDown: 'spotDown',
-			onSpotlightSelect: 'fireSelectEvent',
-			onSpotlightKeyDown: 'fireSpotKeyDown',
-			onInputEnter: 'checkInputEnter',
-			onBackEnter: 'inputBlur',
-			ontap: 'selectByTap',
-			onblur: 'onBlur'
-		},
-
-		/**
-		 * @lends module:moonstone/SimpleIntegerPicker~SimpleIntegerPicker.prototype
-		 * @private
-		 * @lends module:moonstone/SimpleIntegerPicker~SimpleIntegerPicker.prototype
-		 */
-		published: {
-
-			/**
-			 * Unit label to be appended to the value for display.
-			 *
-			 * @type {String}
-			 * @default 'sec'
-			 * @public
-			 */
-			unit: 'sec'
-		},
-
-		/**
-		 * Number of pixels added to the width of each picker item as padding. Note that this
-		 * is not a CSS padding value.
+		 * Unit label to be appended to the value for display.
 		 *
-		 * @type {Number}
-		 * @default 60
+		 * @type {String}
+		 * @default 'sec'
 		 * @public
 		 */
-		itemPadding: 60,
+		unit: 'sec'
+	},
 
-		/**
-		 * The components which are to be placed inside the repeater
-		 * @private
-		 * @type {Array}
-		 */
-		tools:[
-			{name: 'item', kind: Input, classes: 'moon-scroll-picker-item moon-scroll-picker-item-special', showing: false, onkeyup: 'triggerCustomEvent'},
-			{name: 'measureItem', kind: Control, classes: ' moon-scroll-picker-item enyo-input moon-body-text moon-input'},
-			{name: 'buffer', kind: Control, accessibilityDisabled: true, classes: 'moon-scroll-picker-buffer'}
-		],
+	/**
+	 * Number of pixels added to the width of each picker item as padding. Note that this
+	 * is not a CSS padding value.
+	 *
+	 * @type {Number}
+	 * @default 60
+	 * @public
+	 */
+	itemPadding: 60,
 
-		/**
-		 * Appends unit to content, forming label for display.
-		 *
-		 * @see module:moonstone/IntegerPicker~IntegerPicker.labelForValue
-		 * @private
-		 * @method
-		 */
-		labelForValue: function (value) {
-			var content = IntegerPicker.prototype.labelForValue.apply(this, arguments);
-			return this.unit ? content + ' ' + this.unit : content;
-		},
+	/**
+	 * The components which are to be placed inside the repeater
+	 * @private
+	 * @type {Array}
+	 */
+	tools:[
+		{name: 'item', kind: Input, classes: 'moon-scroll-picker-item moon-scroll-picker-item-special', showing: false, onkeyup: 'triggerCustomEvent'},
+		{name: 'measureItem', kind: Control, classes: ' moon-scroll-picker-item enyo-input moon-body-text moon-input'},
+		{name: 'buffer', kind: Control, accessibilityDisabled: true, classes: 'moon-scroll-picker-buffer'}
+	],
 
-		/**
-		* @private
-		*/
-		setupItem: function (sender, ev) {
-			var index = ev.index;
-			var content = this.labelForValue(this.indexToValue(index % this.range));
-			this.$.item.set('value', content);
-			this.$.measureItem.set('content', content);
-		},
+	/**
+	 * Appends unit to content, forming label for display.
+	 *
+	 * @see module:moonstone/IntegerPicker~IntegerPicker.labelForValue
+	 * @private
+	 * @method
+	 */
+	labelForValue: function (value) {
+		var content = IntegerPicker.prototype.labelForValue.apply(this, arguments);
+		return this.unit ? content + ' ' + this.unit : content;
+	},
 
-		/**
-		 * @private
-		 */
-		unitChanged: function () {
-			this.valueChanged();
-		},
+	/**
+	* @private
+	*/
+	setupItem: function (sender, ev) {
+		var index = ev.index;
+		var content = this.labelForValue(this.indexToValue(index % this.range));
+		this.$.item.set('value', content);
+		this.$.measureItem.set('content', content);
+	},
 
-		/**
-		 * Calculates width of the picker when the first item is rendered.
-		 *
-		 * @see module:moonstone/IntegerPicker~IntegerPicker.updateRepeater
-		 * @private
-		 * @method
-		 */
-		updateRepeater: function () {
-			IntegerPicker.prototype.updateRepeater.apply(this, arguments);
+	/**
+	 * @private
+	 */
+	unitChanged: function () {
+		this.valueChanged();
+	},
 
-			if (this.width === 0 && this.width !== null) {
-				var ib;
-				this.$.repeater.performOnRow(this.$.repeater.rowOffset, function () {
-					// have to reset to natural width before getting bounds
-					this.$.measureItem.setStyle('width: auto');
-					ib = this.$.measureItem.getBounds();
-				}, this);
+	/**
+	 * Calculates width of the picker when the first item is rendered.
+	 *
+	 * @see module:moonstone/IntegerPicker~IntegerPicker.updateRepeater
+	 * @private
+	 * @method
+	 */
+	updateRepeater: function () {
+		IntegerPicker.prototype.updateRepeater.apply(this, arguments);
 
-				this.width = ib.width + this.itemPadding;
-				this.applyStyle('width', dom.unit(this.width, 'rem'));
-				this.$.repeater.prepareRow(this.valueToIndex(this.value));
-				this.$.item.setStyle('width: ' + dom.unit(this.width, 'rem'));
-				this.$.repeater.lockRow(this.valueToIndex(this.value));
-			}
-			else if (this.width === null) {
-				this.$.item.removeClass('moon-scroll-picker-item-special');
-				this.$.measureItem.addClass('moon-scroll-picker-item-special');
-			}
-		},
+		if (this.width === 0 && this.width !== null) {
+			var ib;
+			this.$.repeater.performOnRow(this.$.repeater.rowOffset, function () {
+				// have to reset to natural width before getting bounds
+				this.$.measureItem.setStyle('width: auto');
+				ib = this.$.measureItem.getBounds();
+			}, this);
 
-		/**
-		 * Enables the input field on direct input from the number keys
-		 *
-		 * @see module:moonstone/IntegerPicker~IntegerPicker.fireSpotKeyDown
-		 * @private
-		 * @method
-		 */
-		fireSpotKeyDown: function (sender, ev) {
-			var keyCode;
-			keyCode = ev.keyCode;
-			if ((keyCode >= 48 && keyCode <= 57) || (keyCode >= 96 && keyCode <= 105) || (keyCode === 107 || keyCode === 109)) {
-				this.prepareInputField();
-			}
-		},
+			this.width = ib.width + this.itemPadding;
+			this.applyStyle('width', dom.unit(this.width, 'rem'));
+			this.$.repeater.prepareRow(this.valueToIndex(this.value));
+			this.$.item.setStyle('width: ' + dom.unit(this.width, 'rem'));
+			this.$.repeater.lockRow(this.valueToIndex(this.value));
+		}
+		else if (this.width === null) {
+			this.$.item.removeClass('moon-scroll-picker-item-special');
+			this.$.measureItem.addClass('moon-scroll-picker-item-special');
+		}
+	},
 
-		/**
-		 * Enables the input field on enter key press
-		 *
-		 * @see module:moonstone/IntegerPicker~IntegerPicker.fireSelectEvent
-		 * @private
-		 * @method
-		 */
-		fireSelectEvent: function (sender, ev) {
+	/**
+	 * Enables the input field on direct input from the number keys
+	 *
+	 * @see module:moonstone/IntegerPicker~IntegerPicker.fireSpotKeyDown
+	 * @private
+	 * @method
+	 */
+	fireSpotKeyDown: function (sender, ev) {
+		var keyCode;
+		keyCode = ev.keyCode;
+		if ((keyCode >= 48 && keyCode <= 57) || (keyCode >= 96 && keyCode <= 105) || (keyCode === 107 || keyCode === 109)) {
 			this.prepareInputField();
+		}
+	},
 
-			if (this.hasNode()) {
-				this.doSelect({
-					content: this.labelForValue(this.value),
-					value: this.value
-				});
-			}
-		},
+	/**
+	 * Enables the input field on enter key press
+	 *
+	 * @see module:moonstone/IntegerPicker~IntegerPicker.fireSelectEvent
+	 * @private
+	 * @method
+	 */
+	fireSelectEvent: function (sender, ev) {
+		this.prepareInputField();
 
-		/**
-		 * Creates node for the input field and brings focus to the input field
-		 *
-		 * @see module:moonstone/IntegerPicker~IntegerPicker.prepareInputField
-		 * @private
-		 * @method
-		 */
-		prepareInputField: function () {
-			var index, repeater, item;
-			index = this.valueToIndex(this.value);
-			repeater = this.$.repeater;
-			item = this.$.item;
-			if (!item.hasNode() || !item.hasFocus()) {
-				this.previousIndex = index;
-				repeater.renderRow(index);
-				repeater.prepareRow(index);
-				this.styleChange();
-				item.tempValue = item.value;
-				item.setValue(null);
-				item.focus();
-				Spotlight.freeze();
-			}
-		},
+		if (this.hasNode()) {
+			this.doSelect({
+				content: this.labelForValue(this.value),
+				value: this.value
+			});
+		}
+	},
 
-		/**
-		 * Validates the value of input field and sets the value to picker
-		 *
-		 * @see module:moonstone/IntegerPicker~IntegerPicker.checkInputEnter
-		 * @private
-		 * @method
-		 */
-		checkInputEnter: function () {
-			var valueInputted, tempValue, item;
-			item = this.$.item;
-			valueInputted = parseInt(this.$.item.value, 10);
-			tempValue = parseInt(item.tempValue, 10);
-			if ((valueInputted || valueInputted === 0) && valueInputted <= this.max && valueInputted >= this.min && valueInputted !== tempValue) {
-				this.removeStyle();
-				this.set('value', parseInt(valueInputted, 10));
-				item.blur();
-				this.$.repeater.lockRow(this.valueToIndex(this.value));
-			} else {
-				this.inputBlur();
-				this.$.repeater.lockRow(this.valueToIndex(this.value));
-			}
-			Spotlight.unfreeze();
-		},
+	/**
+	 * Creates node for the input field and brings focus to the input field
+	 *
+	 * @see module:moonstone/IntegerPicker~IntegerPicker.prepareInputField
+	 * @private
+	 * @method
+	 */
+	prepareInputField: function () {
+		var index, repeater, item;
+		index = this.valueToIndex(this.value);
+		repeater = this.$.repeater;
+		item = this.$.item;
+		if (!item.hasNode() || !item.hasFocus()) {
+			this.previousIndex = index;
+			repeater.renderRow(index);
+			repeater.prepareRow(index);
+			this.styleChange();
+			item.tempValue = item.value;
+			item.setValue(null);
+			item.focus();
+			Spotlight.freeze();
+		}
+	},
 
-		/**
-		 *  Disables the input field when the focus is lost from the input field
-		 *
-		 * @see module:moonstone/IntegerPicker~IntegerPicker.inputBlur
-		 * @private
-		 * @method
-		 */
-		inputBlur: function (sender, ev) {
-			if (this.$.item.hasNode()) {
-			var tempValue, item;
-			tempValue = this.$.item.tempValue;
-			item = this.$.item;
+	/**
+	 * Validates the value of input field and sets the value to picker
+	 *
+	 * @see module:moonstone/IntegerPicker~IntegerPicker.checkInputEnter
+	 * @private
+	 * @method
+	 */
+	checkInputEnter: function () {
+		var valueInputted, tempValue, item;
+		item = this.$.item;
+		valueInputted = parseInt(this.$.item.value, 10);
+		tempValue = parseInt(item.tempValue, 10);
+		if ((valueInputted || valueInputted === 0) && valueInputted <= this.max && valueInputted >= this.min && valueInputted !== tempValue) {
 			this.removeStyle();
-			item.setValue(tempValue);
+			this.set('value', parseInt(valueInputted, 10));
 			item.blur();
 			this.$.repeater.lockRow(this.valueToIndex(this.value));
-			}
-		},
+		} else {
+			this.inputBlur();
+			this.$.repeater.lockRow(this.valueToIndex(this.value));
+		}
+		Spotlight.unfreeze();
+	},
 
-		/**
-		 * Validates the value in the input field when focus is lost by clicking somewhere else
-		 *
-		 * @see module:moonstone/IntegerPicker~IntegerPicker.onBlur
-		 * @private
-		 * @method
-		 */
-		onBlur: function () {
-			this.checkInputEnter();
-		},
+	/**
+	 *  Disables the input field when the focus is lost from the input field
+	 *
+	 * @see module:moonstone/IntegerPicker~IntegerPicker.inputBlur
+	 * @private
+	 * @method
+	 */
+	inputBlur: function (sender, ev) {
+		if (this.$.item.hasNode()) {
+		var tempValue, item;
+		tempValue = this.$.item.tempValue;
+		item = this.$.item;
+		this.removeStyle();
+		item.setValue(tempValue);
+		item.blur();
+		this.$.repeater.lockRow(this.valueToIndex(this.value));
+		}
+	},
 
-		/**
-		 *  Changes the styling when input field is enabled
-		 *
-		 * @see module:moonstone/IntegerPicker~IntegerPicker.styleChange
-		 * @private
-		 * @method
-		 */
-		styleChange: function () {
-			var item;
-			item = this.$.item;
-			this.addClass('selectedPicker');
-			item.addClass('selectedPickerItem');
-			this.$.repeater.addClass('selectedPickerItem');
-			this.$.nextOverlay.addClass('arrowColor');
-			this.$.previousOverlay.addClass('arrowColor');
-		},
+	/**
+	 * Validates the value in the input field when focus is lost by clicking somewhere else
+	 *
+	 * @see module:moonstone/IntegerPicker~IntegerPicker.onBlur
+	 * @private
+	 * @method
+	 */
+	onBlur: function () {
+		this.checkInputEnter();
+	},
 
-		/**
-		 *  Removes the styling when input field is disabled
-		 *
-		 * @see module:moonstone/IntegerPicker~IntegerPicker.removeStyle
-		 * @private
-		 * @method
-		 */
-		removeStyle: function () {
-			var item;
-			item = this.$.item;
-			this.removeClass('selectedPicker');
-			item.removeClass('selectedPickerItem');
-			this.$.repeater.removeClass('selectedPickerItem');
-			this.$.nextOverlay.removeClass('arrowColor');
-			this.$.previousOverlay.removeClass('arrowColor');
-		},
+	/**
+	 *  Changes the styling when input field is enabled
+	 *
+	 * @see module:moonstone/IntegerPicker~IntegerPicker.styleChange
+	 * @private
+	 * @method
+	 */
+	styleChange: function () {
+		var item;
+		item = this.$.item;
+		this.addClass('selectedPicker');
+		item.addClass('selectedPickerItem');
+		this.$.repeater.addClass('selectedPickerItem');
+		this.$.nextOverlay.addClass('arrowColor');
+		this.$.previousOverlay.addClass('arrowColor');
+	},
 
-		/**
-		 *  Enable the input field by tap on the picker's input area
-		 *
-		 * @see module:moonstone/IntegerPicker~IntegerPicker.selectByTap
-		 * @private
-		 * @method
-		 */
-		selectByTap: function (sender, ev) {
-			if (!ev.originator.hasClass('moon-scroll-picker-taparea')) {
-				this.prepareInputField();
-			}
-		},
+	/**
+	 *  Removes the styling when input field is disabled
+	 *
+	 * @see module:moonstone/IntegerPicker~IntegerPicker.removeStyle
+	 * @private
+	 * @method
+	 */
+	removeStyle: function () {
+		var item;
+		item = this.$.item;
+		this.removeClass('selectedPicker');
+		item.removeClass('selectedPickerItem');
+		this.$.repeater.removeClass('selectedPickerItem');
+		this.$.nextOverlay.removeClass('arrowColor');
+		this.$.previousOverlay.removeClass('arrowColor');
+	},
 
-		/**
-		 * Ignores the 'up' key press when the input field is enabled
-		 *
-		 * @see module:moonstone/IntegerPicker~IntegerPicker.spotUp
-		 * @private
-		 * @method
-		 */
-		spotUp: function () {
-			if (this.$.item.hasNode()) {
-			this.checkInputEnter();
-			}
-		},
+	/**
+	 *  Enable the input field by tap on the picker's input area
+	 *
+	 * @see module:moonstone/IntegerPicker~IntegerPicker.selectByTap
+	 * @private
+	 * @method
+	 */
+	selectByTap: function (sender, ev) {
+		if (!ev.originator.hasClass('moon-scroll-picker-taparea')) {
+			this.prepareInputField();
+		}
+	},
 
-		/**
-		 * Ignores the 'down' key press when the input field is enabled
-		 *
-		 * @see module:moonstone/IntegerPicker~IntegerPicker.spotDown
-		 * @private
-		 * @method
-		 */
-		spotDown: function () {
-			if (this.$.item.hasNode()) {
-			this.checkInputEnter();
-			}
-		},
+	/**
+	 * Ignores the 'up' key press when the input field is enabled
+	 *
+	 * @see module:moonstone/IntegerPicker~IntegerPicker.spotUp
+	 * @private
+	 * @method
+	 */
+	spotUp: function () {
+		if (this.$.item.hasNode()) {
+		this.checkInputEnter();
+		}
+	},
 
-		/**
-		 * Forces recalculation of the width of the picker.
-		 *
-		 * @see module:enyo/UiComponent~UiComponent.reflow
-		 * @private
-		 * @method
-		 */
-		reflow: function () {
-			this.width = 0;
-			IntegerPicker.prototype.reflow.apply(this, arguments);
-		},
+	/**
+	 * Ignores the 'down' key press when the input field is enabled
+	 *
+	 * @see module:moonstone/IntegerPicker~IntegerPicker.spotDown
+	 * @private
+	 * @method
+	 */
+	spotDown: function () {
+		if (this.$.item.hasNode()) {
+		this.checkInputEnter();
+		}
+	},
 
-		// Accessibility
+	/**
+	 * Forces recalculation of the width of the picker.
+	 *
+	 * @see module:enyo/UiComponent~UiComponent.reflow
+	 * @private
+	 * @method
+	 */
+	reflow: function () {
+		this.width = 0;
+		IntegerPicker.prototype.reflow.apply(this, arguments);
+	},
 
-		/**
-		 * @private
-		 */
-		ariaObservers: [{
-			path: 'unit',
-			method: function () {
-				this.set('accessibilityHint', null);
-				this.ariaValue();
-			}
-		}, {
-			path: 'spotted',
-			method: function () {
-				// When spotlight is focused, it reads value with hint
-				if (this.spotted) {
-					if (!this.wrap && this.value == this.min) {
-						this.set('accessibilityHint', $L('change a value with right button'));
-					} else if (!this.wrap && this.value == this.max) {
-						this.set('accessibilityHint', $L('change a value with left button'));
-					} else {
-						this.set('accessibilityHint', $L('change a value with left right button'));
-					}
+	// Accessibility
+
+	/**
+	 * @private
+	 */
+	ariaObservers: [{
+		path: 'unit',
+		method: function () {
+			this.set('accessibilityHint', null);
+			this.ariaValue();
+		}
+	}, {
+		path: 'spotted',
+		method: function () {
+			// When spotlight is focused, it reads value with hint
+			if (this.spotted) {
+				if (!this.wrap && this.value == this.min) {
+					this.set('accessibilityHint', $L('change a value with right button'));
+				} else if (!this.wrap && this.value == this.max) {
+					this.set('accessibilityHint', $L('change a value with left button'));
+				} else {
+					this.set('accessibilityHint', $L('change a value with left right button'));
 				}
 			}
-		}],
-
-		/**
-		 * @private
-		 */
-		ariaValue: function () {
-			var text = this.accessibilityValueText ||
-				(this.unit ? this.value + ' ' + this.unit : this.value);
-			this.setAriaAttribute('aria-valuetext', text);
 		}
-	});
+	}],
+
+	/**
+	 * @private
+	 */
+	ariaValue: function () {
+		var text = this.accessibilityValueText ||
+			(this.unit ? this.value + ' ' + this.unit : this.value);
+		this.setAriaAttribute('aria-valuetext', text);
+	}
+});
