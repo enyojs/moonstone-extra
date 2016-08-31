@@ -713,7 +713,7 @@ module.exports = kind(
 		return function () {
 			sup.apply(this, arguments);
 			if (!this.isInPreview()) {
-				this._updateKnobPosition(this.value);
+				this._updateKnobPosition(this.progress);
 			}
 			this.updateBarPosition(this.calcPercent(this.progress));
 		};
