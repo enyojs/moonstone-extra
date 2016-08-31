@@ -7,7 +7,6 @@ require('moonstone');
 
 var
 	kind = require('enyo/kind'),
-	util = require('enyo/utils'),
 	dom = require('enyo/dom');
 
 var
@@ -66,8 +65,7 @@ var
  * @public
  */
 module.exports = kind(
-	/** @lends module:moonstone/SimpleIntegerPicker~SimpleIntegerPicker.prototype */
-	{
+	/** @lends module:moonstone/SimpleIntegerPicker~SimpleIntegerPicker.prototype */ {
 
 		/**
 		 * @private
@@ -126,7 +124,7 @@ module.exports = kind(
 			 * @default 'sec'
 			 * @public
 			 */
-			unit: 'sec',
+			unit: 'sec'
 		},
 
 		/**
@@ -140,24 +138,14 @@ module.exports = kind(
 		itemPadding: 60,
 
 		/**
-		 * Number of pixels added for adjusting the width of each picker item to correct the input field's padding. Note that this
-		 * is not a CSS width value.
-		 *
-		 * @type {Number}
-		 * @default 72
-		 * @public
-		 */
-		widthCorrection: 72,
-
-		/**
 		 * The components which are to be placed inside the repeater
 		 * @private
 		 * @type {Array}
 		 */
 		tools:[
-			{name: 'item', kind: Input, classes: 'moon-scroll-picker-item moon-scroll-picker-item-special', onkeyup: 'triggerCustomEvent'},
+			{name: 'item', kind: Input, classes: 'moon-scroll-picker-item moon-scroll-picker-item-special', showing: false, onkeyup: 'triggerCustomEvent'},
 			{name: 'measureItem', kind: Control, classes: ' moon-scroll-picker-item enyo-input moon-body-text moon-input'},
-			{name: 'buffer', kind: Control, accessibilityDisabled: true, classes: 'moon-scroll-picker-buffer'},
+			{name: 'buffer', kind: Control, accessibilityDisabled: true, classes: 'moon-scroll-picker-buffer'}
 		],
 
 		/**
@@ -167,7 +155,7 @@ module.exports = kind(
 		 * @private
 		 * @method
 		 */
-		labelForValue: function(value) {
+		labelForValue: function (value) {
 			var content = IntegerPicker.prototype.labelForValue.apply(this, arguments);
 			return this.unit ? content + ' ' + this.unit : content;
 		},
@@ -175,8 +163,8 @@ module.exports = kind(
 		/**
 		* @private
 		*/
-		setupItem: function (inSender, inEvent) {
-			var index = inEvent.index;
+		setupItem: function (sender, ev) {
+			var index = ev.index;
 			var content = this.labelForValue(this.indexToValue(index % this.range));
 			this.$.item.set('value', content);
 			this.$.measureItem.set('content', content);
@@ -185,7 +173,7 @@ module.exports = kind(
 		/**
 		 * @private
 		 */
-		unitChanged: function() {
+		unitChanged: function () {
 			this.valueChanged();
 		},
 
@@ -196,29 +184,29 @@ module.exports = kind(
 		 * @private
 		 * @method
 		 */
-		updateRepeater: function() {
+		updateRepeater: function () {
 			IntegerPicker.prototype.updateRepeater.apply(this, arguments);
 
 			if (this.width === 0 && this.width !== null) {
 				var ib;
-				this.$.repeater.performOnRow(this.$.repeater.rowOffset, function() {
+				this.$.repeater.performOnRow(this.$.repeater.rowOffset, function () {
 					// have to reset to natural width before getting bounds
 					this.$.measureItem.setStyle('width: auto');
 					ib = this.$.measureItem.getBounds();
 				}, this);
 
-				this.width = ib.width + this.itemPadding + this.widthCorrection;
+				this.width = ib.width + this.itemPadding;
 				this.applyStyle('width', dom.unit(this.width, 'rem'));
 				this.$.repeater.prepareRow(this.valueToIndex(this.value));
 				this.$.item.setStyle('width: ' + dom.unit(this.width, 'rem'));
 				this.$.repeater.lockRow(this.valueToIndex(this.value));
 			}
-			else if(this.width === null){
+			else if (this.width === null) {
 				this.$.item.removeClass('moon-scroll-picker-item-special');
 				this.$.measureItem.addClass('moon-scroll-picker-item-special');
 			}
 		},
-		
+
 		/**
 		 * Enables the input field on direct input from the number keys
 		 *
@@ -226,9 +214,9 @@ module.exports = kind(
 		 * @private
 		 * @method
 		 */
-		fireSpotKeyDown: function(inSender, inEvent) {
+		fireSpotKeyDown: function (sender, ev) {
 			var keyCode;
-			keyCode = inEvent.keyCode;
+			keyCode = ev.keyCode;
 			if ((keyCode >= 48 && keyCode <= 57) || (keyCode >= 96 && keyCode <= 105) || (keyCode === 107 || keyCode === 109)) {
 				this.prepareInputField();
 			}
@@ -241,7 +229,7 @@ module.exports = kind(
 		 * @private
 		 * @method
 		 */
-		fireSelectEvent: function(inSender, inEvent) {
+		fireSelectEvent: function (sender, ev) {
 			this.prepareInputField();
 
 			if (this.hasNode()) {
@@ -259,7 +247,7 @@ module.exports = kind(
 		 * @private
 		 * @method
 		 */
-		prepareInputField: function() {
+		prepareInputField: function () {
 			var index, repeater, item;
 			index = this.valueToIndex(this.value);
 			repeater = this.$.repeater;
@@ -283,7 +271,7 @@ module.exports = kind(
 		 * @private
 		 * @method
 		 */
-		checkInputEnter: function() {
+		checkInputEnter: function () {
 			var valueInputted, tempValue, item;
 			item = this.$.item;
 			valueInputted = parseInt(this.$.item.value, 10);
@@ -307,7 +295,7 @@ module.exports = kind(
 		 * @private
 		 * @method
 		 */
-		inputBlur: function(inSender, inEvent) {
+		inputBlur: function (sender, ev) {
 			if (this.$.item.hasNode()) {
 			var tempValue, item;
 			tempValue = this.$.item.tempValue;
@@ -326,7 +314,7 @@ module.exports = kind(
 		 * @private
 		 * @method
 		 */
-		onBlur: function(){
+		onBlur: function () {
 			this.checkInputEnter();
 		},
 
@@ -337,7 +325,7 @@ module.exports = kind(
 		 * @private
 		 * @method
 		 */
-		styleChange: function() {
+		styleChange: function () {
 			var item;
 			item = this.$.item;
 			this.addClass('selectedPicker');
@@ -354,7 +342,7 @@ module.exports = kind(
 		 * @private
 		 * @method
 		 */
-		removeStyle: function() {
+		removeStyle: function () {
 			var item;
 			item = this.$.item;
 			this.removeClass('selectedPicker');
@@ -371,8 +359,8 @@ module.exports = kind(
 		 * @private
 		 * @method
 		 */
-		selectByTap: function(inSender, inEvent) {
-			if (!inEvent.originator.hasClass('moon-scroll-picker-taparea')) {
+		selectByTap: function (sender, ev) {
+			if (!ev.originator.hasClass('moon-scroll-picker-taparea')) {
 				this.prepareInputField();
 			}
 		},
@@ -384,7 +372,7 @@ module.exports = kind(
 		 * @private
 		 * @method
 		 */
-		spotUp: function() {
+		spotUp: function () {
 			if (this.$.item.hasNode()) {
 			this.checkInputEnter();
 			}
@@ -397,7 +385,7 @@ module.exports = kind(
 		 * @private
 		 * @method
 		 */
-		spotDown: function() {
+		spotDown: function () {
 			if (this.$.item.hasNode()) {
 			this.checkInputEnter();
 			}
@@ -410,7 +398,7 @@ module.exports = kind(
 		 * @private
 		 * @method
 		 */
-		reflow: function() {
+		reflow: function () {
 			this.width = 0;
 			IntegerPicker.prototype.reflow.apply(this, arguments);
 		},
@@ -422,13 +410,13 @@ module.exports = kind(
 		 */
 		ariaObservers: [{
 			path: 'unit',
-			method: function() {
+			method: function () {
 				this.set('accessibilityHint', null);
 				this.ariaValue();
 			}
 		}, {
 			path: 'spotted',
-			method: function() {
+			method: function () {
 				// When spotlight is focused, it reads value with hint
 				if (this.spotted) {
 					if (!this.wrap && this.value == this.min) {
@@ -445,7 +433,7 @@ module.exports = kind(
 		/**
 		 * @private
 		 */
-		ariaValue: function() {
+		ariaValue: function () {
 			var text = this.accessibilityValueText ||
 				(this.unit ? this.value + ' ' + this.unit : this.value);
 			this.setAriaAttribute('aria-valuetext', text);
