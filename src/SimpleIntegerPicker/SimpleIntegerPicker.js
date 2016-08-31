@@ -143,7 +143,7 @@ module.exports = kind(
 	 * @type {Array}
 	 */
 	tools:[
-		{name: 'item', kind: Input, classes: 'moon-scroll-picker-item moon-scroll-picker-item-special', showing: false, onkeyup: 'triggerCustomEvent'},
+		{name: 'item', kind: Input, classes: 'moon-scroll-picker-item', showing: false, onkeyup: 'triggerCustomEvent'},
 		{name: 'measureItem', kind: Control, classes: ' moon-scroll-picker-item enyo-input moon-body-text moon-input'},
 		{name: 'buffer', kind: Control, accessibilityDisabled: true, classes: 'moon-scroll-picker-buffer'}
 	],
@@ -187,24 +187,24 @@ module.exports = kind(
 	updateRepeater: function () {
 		IntegerPicker.prototype.updateRepeater.apply(this, arguments);
 
-		if (this.width === 0 && this.width !== null) {
+		if (this.width === 0) {
 			var ib;
 			this.$.repeater.performOnRow(this.$.repeater.rowOffset, function () {
 				// have to reset to natural width before getting bounds
-				this.$.item.setStyle('width: 0px');
-				this.$.measureItem.setStyle('width: auto');
+				this.$.item.applyStyle('width', 0);
+				this.$.measureItem.applyStyle('width', 'auto');
 				ib = this.$.measureItem.getBounds();
 			}, this);
 
 			this.width = ib.width + this.itemPadding;
 			this.applyStyle('width', dom.unit(this.width, 'rem'));
 			this.$.repeater.prepareRow(this.valueToIndex(this.value));
-			this.$.item.setStyle('width: ' + dom.unit(this.width, 'rem'));
+			this.$.item.applyStyle('width', dom.unit(this.width, 'rem'));
 			this.$.repeater.lockRow(this.valueToIndex(this.value));
 		}
 		else if (this.width === null) {
-			this.$.item.removeClass('moon-scroll-picker-item-special');
-			this.$.measureItem.addClass('moon-scroll-picker-item-special');
+			this.$.item.show();
+			this.$.measureItem.hide();
 		}
 	},
 
