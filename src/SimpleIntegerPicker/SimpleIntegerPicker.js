@@ -191,6 +191,7 @@ module.exports = kind(
 			var ib;
 			this.$.repeater.performOnRow(this.$.repeater.rowOffset, function () {
 				// have to reset to natural width before getting bounds
+				this.$.item.setStyle('width: 0px');
 				this.$.measureItem.setStyle('width: auto');
 				ib = this.$.measureItem.getBounds();
 			}, this);
