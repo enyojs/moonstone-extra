@@ -1,0 +1,122 @@
+.moon-simple-integer-picker {
+	@picker-height: @moon-picker-button-width - (@moon-simple-integer-picker-border-width * 2);
+
+	padding: 0 @moon-picker-button-width;
+	border: @moon-simple-integer-picker-border-width solid transparent;
+	border-radius: @moon-integer-picker-radius;
+
+	.moon-scroll-picker-repeater {
+		width: 100%;
+		white-space: nowrap;
+		> * {
+			display: inline-block;
+		}
+	}
+	.moon-scroll-picker {
+		height: @picker-height;
+		border-radius: 0;
+		border-top: 0;
+		border-bottom: 0;
+		width: 100%;
+	}
+	.moon-scroll-picker-item {
+		height: @picker-height;
+		line-height: @picker-height;
+		padding: 0;
+		width: 100%;
+	}
+	.moon-scroll-picker-overlay-container.previous:after,
+	.moon-scroll-picker-overlay-container.next:after {
+		line-height: @moon-picker-button-width;
+
+		.selectedPicker& {
+			color: @moon-accent;
+			opacity: @moon-disabled-opacity;
+		}
+	}
+	.moon-scroll-picker-overlay-container {
+		top: -@moon-simple-integer-picker-border-width;
+		line-height: @picker-height;
+		width: @moon-picker-button-width;
+		height: @moon-picker-button-width;
+
+		&.previous {
+			left: 0;
+
+			&:after {
+				content: @moon-icon-arrowsmallleft;
+			}
+			&.selected .moon-scroll-picker-overlay {
+				border-bottom: 0;
+				margin-left: -@moon-simple-integer-picker-border-width;
+				border-left-width: @moon-integer-picker-shadow-width;
+				border-radius: @moon-integer-picker-radius 0 0 @moon-integer-picker-radius;
+
+				&:after {
+					content: @moon-icon-arrowsmallleft;
+				}
+			}
+		}
+		&.next {
+			right: 0;
+
+			&:after {
+				content: @moon-icon-arrowsmallright;
+			}
+			&.selected .moon-scroll-picker-overlay {
+				border-top: 0;
+				margin-left: @moon-simple-integer-picker-border-width;
+				border-right-width: @moon-integer-picker-shadow-width;
+				border-radius: 0 @moon-integer-picker-radius @moon-integer-picker-radius 0;
+
+				&:after {
+					content: @moon-icon-arrowsmallright;
+				}
+			}
+		}
+		.moon-scroll-picker-overlay {
+			position: absolute;
+			height: @moon-picker-button-width;
+			.border-box;
+		}
+	}
+
+	&.spotlight {
+		background: @moon-spotlight-border-color;
+
+		.moon-scroll-picker-overlay-container.next:after {
+			content: @moon-icon-arrowlargeright;
+		}
+
+		.moon-scroll-picker-overlay-container.previous:after {
+			content: @moon-icon-arrowlargeleft;
+		}
+
+		&.selectedPicker {
+			background: @moon-white;
+			border-color: @moon-spotlight-border-color;
+
+			.moon-scroll-picker {
+				height: @picker-height;
+				color: @moon-accent;
+			}
+			.moon-scroll-picker-item {
+				background: @moon-white;
+			}
+		}
+	}
+}
+
+.enyo-locale-right-to-left .moon-simple-integer-picker {
+	.moon-scroll-picker {
+		// since the repeater controls are inline-block and we want to keep the ordering the same
+		// so scrolling works correctly, override the direction for the scroller's children
+		direction: ltr;
+	}
+}
+
+.enyo-locale-non-latin {
+	.moon-simple-integer-picker-item {
+		.enyo-locale-non-latin .moon-sub-header-text;
+	}
+}
