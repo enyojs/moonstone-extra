@@ -166,7 +166,7 @@ module.exports = kind(
 		minWidth: 50
 
 	},
-	
+
 	/**
 	 * The components which are to be placed inside the repeater
 	 * @private
@@ -227,7 +227,7 @@ module.exports = kind(
 		// we're forcing TouchScrollStrategy
 		{kind: Scroller, strategyKind: TouchScrollStrategy, thumb: false, touch: true, useMouseWheel: false, classes: 'moon-scroll-picker', components: [
 			{name: 'repeater', kind: FlyweightRepeater, classes: 'moon-scroll-picker-repeater', ondragstart: 'dragstart', onSetupItem: 'setupItem', noSelect: true},
-			
+
 		]},
 		{name: 'previousOverlay', kind: Control, ondown: 'downPrevious', onholdpulse: 'previous', classes: 'moon-scroll-picker-overlay-container previous', components: [
 			{kind: Control, classes: 'moon-scroll-picker-overlay previous'},
@@ -331,7 +331,7 @@ module.exports = kind(
 	triggerCustomEvent: function (inSender, inEvent) {
 		if (inEvent.keyCode === 13) {
 			this.doInputEnter();
-		} else if (inEvent.keyCode === 8 || inEvent.keyCode === 461) {
+		} else if (inEvent.keySymbol == 'back') {
 			this.$.item.removeClass('selectedPickerItem');
 			this.doBackEnter();
 		}
