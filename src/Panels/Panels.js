@@ -159,7 +159,7 @@ var Breadcrumb = kind(
 	/**
 	* @private
 	*/
-	accessibilityLabel: $L('go to previous'),
+	accessibilityLabel: $L('GO TO PREVIOUS'),
  
 	/**
 	* @private
