@@ -54,10 +54,10 @@ module.exports = kind(
 		* disappear.
 		*
 		* @type {Number}
-		* @default 2000
+		* @default 3000
 		* @public
 		*/
-		autoTimeoutMS: 2000,
+		autoTimeoutMS: 3000,
 
 		/**
 		* When `true`, the content will have locale-safe uppercasing applied.
