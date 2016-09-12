@@ -160,7 +160,7 @@ var Breadcrumb = kind(
 	* @private
 	*/
 	accessibilityLabel: $L('go to previous'),
- 
+
 	/**
 	* @private
 	*/
@@ -1190,7 +1190,7 @@ module.exports = kind(
 	spotlightFocus: function (oSender, oEvent) {
 		var orig = oEvent.originator;
 		var idx = this.getPanelIndex(orig);
-		if (orig.owner === this.$.appClose) {
+		if (orig.owner === this.$.appClose && this.getActive()) {
 			Spotlight.Container.setLastFocusedChild(this.getActive(), orig);
 		}
 		if (this.index !== idx && idx !== -1) {
