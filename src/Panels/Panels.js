@@ -828,7 +828,6 @@ module.exports = kind(
 		oPanel.render();
 		this.resize();
 		this.isModifyingPanels = false;
-		Spotlight.spot(this.getActive());
 	},
 
 	/**
