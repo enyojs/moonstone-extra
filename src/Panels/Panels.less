@@ -18,6 +18,7 @@
 			height: 100%;
 			width: @moon-breadcrumb-width;
 			right: -@moon-breadcrumb-width;
+			opacity: 1;
 
 			.moon-panels-breadcrumb-header {
 				border-top: 0.25rem solid #ccc;
@@ -33,6 +34,9 @@
 				.moon-panels-breadcrumb-header {
 					border-color: @moon-spotlight-text-color;
 				}
+			}
+			&.hide {
+				opacity: 0;
 			}
 		}
 		.moon-panel {

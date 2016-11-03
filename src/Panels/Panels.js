@@ -1557,8 +1557,7 @@ module.exports = kind(
 			from = this.fromIndex,
 			trans = this.transitioning;
 		if (this.pattern == 'activity') {
-			// Show breadcrumbs if we're landing on any panel besides the first
-			this.$.breadcrumbs.set('showing', idx > 0);
+			this.$.breadcrumbs.addRemoveClass('hide', idx == 0);
 			// Adjust viewport to show full-width panel if we're landing on OR transitioning from the first panel
 			this.addRemoveClass('first', idx === 0 || (trans && from === 0));
 		}
@@ -1569,8 +1568,12 @@ module.exports = kind(
 	*/
 	adjustFirstPanelAfterTransition: function() {
 		// Keep viewport adjusted for full-width panel only if we've landed on the first panel
-		if (this.pattern == 'activity' && this.index !== 0) {
-			this.removeClass('first');
+		if (this.pattern == 'activity') {
+			// Show breadcrumbs if we're landing on any panel besides the first
+			this.$.breadcrumbs.set('showing', this.index > 0);
+			if (this.index !== 0) {
+				this.removeClass('first');
+			}
 		}
 	},
 
