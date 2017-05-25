@@ -2,8 +2,7 @@
 	@picker-height: @moon-picker-button-width - (@moon-simple-integer-picker-border-width * 2);
 
 	padding: 0 @moon-picker-button-width;
-	border: @moon-simple-integer-picker-border-width solid transparent;
-	border-radius: @moon-integer-picker-radius;
+	box-sizing: border-box;
 
 	.moon-scroll-picker-repeater {
 		width: 100%;
@@ -13,15 +12,15 @@
 		}
 	}
 	.moon-scroll-picker {
-		height: @picker-height;
+		height: @moon-picker-button-width;
 		border-radius: 0;
 		border-top: 0;
 		border-bottom: 0;
 		width: 100%;
 	}
 	.moon-scroll-picker-item {
-		height: @picker-height;
-		line-height: @picker-height;
+		height: @moon-picker-button-width;
+		line-height: @moon-picker-button-width;
 		padding: 0;
 		width: 100%;
 	}
@@ -35,8 +34,8 @@
 		}
 	}
 	.moon-scroll-picker-overlay-container {
-		top: -@moon-simple-integer-picker-border-width;
-		line-height: @picker-height;
+		top: 0;
+		line-height: @moon-picker-button-width;
 		width: @moon-picker-button-width;
 		height: @moon-picker-button-width;
 
@@ -92,9 +91,28 @@
 			content: @moon-icon-arrowlargeleft;
 		}
 
+		.selectedPickerItem {
+			height: @picker-height;
+			line-height: @picker-height;
+		}
+
 		&.selectedPicker {
 			background: @moon-white;
+			border: @moon-simple-integer-picker-border-width solid transparent;
+			border-radius: @moon-integer-picker-radius;
+			height: @moon-picker-button-width;
+			line-height: @moon-picker-button-width;
 			border-color: @moon-spotlight-border-color;
+
+			.moon-scroll-picker-overlay-container {
+				top: -@moon-simple-integer-picker-border-width;
+				&.previous {
+					left: -@moon-simple-integer-picker-border-width;
+				}
+				&.next {
+					right: -@moon-simple-integer-picker-border-width;
+				}
+			}
 
 			.moon-scroll-picker {
 				height: @picker-height;

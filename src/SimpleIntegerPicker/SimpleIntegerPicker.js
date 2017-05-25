@@ -197,7 +197,7 @@ module.exports = kind(
 			}, this);
 
 			this.width = ib.width + this.itemPadding;
-			this.applyStyle('width', dom.unit(this.width, 'rem'));
+			this.applyStyle('width', dom.unit(this.width + 60 * 2, 'rem')); // 60px padding for arrows
 			this.$.repeater.prepareRow(this.valueToIndex(this.value));
 			this.$.item.applyStyle('width', dom.unit(this.width, 'rem'));
 			this.$.repeater.lockRow(this.valueToIndex(this.value));
