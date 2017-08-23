@@ -362,7 +362,12 @@ module.exports = kind(
 	 */
 	selectByTap: function (sender, ev) {
 		if (!ev.originator.hasClass('moon-scroll-picker-taparea')) {
+			if (Spotlight.getCurrent() != this) {
+			  	Spotlight.unfreeze();
+				Spotlight.spot(this, {focusType: 'point'});
+			}
 			this.prepareInputField();
+			ev.preventDefault();
 		}
 	},
 
