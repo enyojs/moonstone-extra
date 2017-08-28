@@ -107,7 +107,8 @@ module.exports = kind(
 		onInputEnter: 'checkInputEnter',
 		onBackEnter: 'inputBlur',
 		ontap: 'selectByTap',
-		onblur: 'onBlur'
+		onblur: 'onBlur',
+		onresize:'handleResize'
 	},
 
 	/**
@@ -317,6 +318,17 @@ module.exports = kind(
 	 */
 	onBlur: function () {
 		this.checkInputEnter();
+	},
+
+	/**
+	 * Handles the resize of the component
+	 *
+	 * @see module:moonstone/IntegerPicker~IntegerPicker.handleResize
+	 * @private
+	 * @method
+	 */
+	handleResize: function() {
+		return;
 	},
 
 	/**
