@@ -321,9 +321,8 @@ module.exports = kind(
 	},
 
 	/**
-	 * Handles the resize of the component
+	 * This is to handle the component resize issues found in Android devices
 	 *
-	 * @see module:moonstone/IntegerPicker~IntegerPicker.handleResize
 	 * @private
 	 * @method
 	 */
