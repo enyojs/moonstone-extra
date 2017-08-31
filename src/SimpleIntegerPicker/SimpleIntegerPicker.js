@@ -108,7 +108,7 @@ module.exports = kind(
 		onBackEnter: 'inputBlur',
 		ontap: 'selectByTap',
 		onblur: 'onBlur',
-		onresize:'handleResize'
+		onresize: 'handleResize'
 	},
 
 	/**
