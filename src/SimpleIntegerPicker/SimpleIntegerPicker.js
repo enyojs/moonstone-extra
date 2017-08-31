@@ -107,8 +107,7 @@ module.exports = kind(
 		onInputEnter: 'checkInputEnter',
 		onBackEnter: 'inputBlur',
 		ontap: 'selectByTap',
-		onblur: 'onBlur',
-		onresize: 'handleResize'
+		onblur: 'onBlur'
 	},
 
 	/**
@@ -192,7 +191,6 @@ module.exports = kind(
 			var ib;
 			this.$.repeater.performOnRow(this.$.repeater.rowOffset, function () {
 				// have to reset to natural width before getting bounds
-				this.$.item.applyStyle('width', 0);
 				this.$.measureItem.applyStyle('width', 'auto');
 				ib = this.$.measureItem.getBounds();
 			}, this);
@@ -318,16 +316,6 @@ module.exports = kind(
 	 */
 	onBlur: function () {
 		this.checkInputEnter();
-	},
-
-	/**
-	 * This is to handle the component resize issues found in Android devices
-	 *
-	 * @private
-	 * @method
-	 */
-	handleResize: function() {
-		return;
 	},
 
 	/**
