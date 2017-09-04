@@ -12,6 +12,7 @@ var
 var
 	Control = require('enyo/Control'),
 	Input = require('moonstone/Input'),
+	platform = require('enyo/platform'),
 	Spotlight = require('spotlight'),
 	IntegerPicker = require('../IntegerPicker');
 
@@ -107,7 +108,8 @@ module.exports = kind(
 		onInputEnter: 'checkInputEnter',
 		onBackEnter: 'inputBlur',
 		ontap: 'selectByTap',
-		onblur: 'onBlur'
+		onblur: 'onBlur',
+		onresize: 'handleResize'
 	},
 
 	/**
@@ -126,6 +128,15 @@ module.exports = kind(
 		 */
 		unit: 'sec'
 	},
+
+	/**
+	 * The property to check the orientation of the devices
+	 *
+	 * @type {Boolean}
+	 * @ default false
+	 * @private
+	 */
+	isPortrait: false,
 
 	/**
 	 * Number of pixels added to the width of each picker item as padding. Note that this
@@ -191,7 +202,9 @@ module.exports = kind(
 			var ib;
 			this.$.repeater.performOnRow(this.$.repeater.rowOffset, function () {
 				// have to reset to natural width before getting bounds
+				this.$.item.applyStyle('width', 0);
 				this.$.measureItem.applyStyle('width', 'auto');
+				this.$.measureItem.show(); // To capture the boundaries of the picker
 				ib = this.$.measureItem.getBounds();
 			}, this);
 
@@ -319,6 +332,36 @@ module.exports = kind(
 	},
 
 	/**
+	* To handle the resize event in android devices which triggers on enabling the input field by tap
+	*
+	* @private
+	* @method
+	*/
+	handleResize: function () {
+		var portrait = window.orientation === 90 || window.orientation === -90  ? false : true;
+
+		if (portrait === this.isPortrait && platform.touch && platform.platformName === "androidChrome" ) {
+			return;
+		}
+		this.inherited(arguments);
+		this.set('isPortrait', portrait);
+	},
+
+
+	/**
+	*
+	*
+	* @private
+	* @method
+	*/
+	create:  function () {
+		this.inherited(arguments);
+		//capturing the orientation when the component is created
+		this.isPortrait =  window.orientation === 90 || window.orientation === -90  ? false : true;
+	},
+
+
+	/**
 	 *  Changes the styling when input field is enabled
 	 *
 	 * @see module:moonstone/IntegerPicker~IntegerPicker.styleChange
@@ -405,6 +448,7 @@ module.exports = kind(
 	 */
 	reflow: function () {
 		this.width = 0;
+		this.onBlur(); //To blur the input field during orientation change
 		IntegerPicker.prototype.reflow.apply(this, arguments);
 	},
 
