@@ -136,7 +136,7 @@ module.exports = kind(
 	 * @ default false
 	 * @private
 	 */
-	isPortrait: false,
+	portrait: false,
 
 	/**
 	 * Number of pixels added to the width of each picker item as padding. Note that this
@@ -332,21 +332,33 @@ module.exports = kind(
 	},
 
 	/**
+	* Checks whether orientation of the device is Portrait or not
+	*
+	* @private
+	* @method
+	*/
+	isPortrait: function () {
+		return window.orientation !== 90 && window.orientation !== -90;
+	},
+
+	/**
 	* To handle the resize event in android devices which triggers on enabling the input field by tap
 	*
 	* @private
 	* @method
 	*/
-	handleResize: function () {
-		var portrait = window.orientation === 90 || window.orientation === -90  ? false : true;
+	handleResize: kind.inherit(function (sup) {
+		return function () {
+			var portrait = this.isPortrait();
 
-		if (portrait === this.isPortrait && platform.touch && platform.platformName === "androidChrome" ) {
-			return;
+			if (portrait === this.portrait && platform.touch && platform.androidChrome) {
+				return;
+			}
+
+			sup.apply(this, arguments);
+			this.portrait = portrait;
 		}
-		this.inherited(arguments);
-		this.set('isPortrait', portrait);
-	},
-
+	}),
 
 	/**
 	*
@@ -354,11 +366,13 @@ module.exports = kind(
 	* @private
 	* @method
 	*/
-	create:  function () {
-		this.inherited(arguments);
-		//capturing the orientation when the component is created
-		this.isPortrait =  window.orientation === 90 || window.orientation === -90  ? false : true;
-	},
+	create: kind.inherit(function (sup) {
+		return function () {
+			sup.apply(this, arguments);
+			//	capturing the orientation when the component is created
+			this.portrait = this.isPortrait();
+		}
+	}),
 
 
 	/**
