@@ -332,13 +332,26 @@ module.exports = kind(
 	},
 
 	/**
+	* Checks whether the device is android or not
+	*
+	* @private
+	* @method
+	*/
+	isAndroid: function () {
+		return platform.touch && platform.androidChrome;
+	},
+
+	/**
 	* Checks whether orientation of the device is Portrait or not
 	*
 	* @private
 	* @method
 	*/
 	isPortrait: function () {
-		return window.orientation !== 90 && window.orientation !== -90;
+		if(window.screen.orientation) {
+			return window.screen.orientation.type.indexOf('portrait') > -1;
+		}
+		return false;
 	},
 
 	/**
@@ -349,14 +362,14 @@ module.exports = kind(
 	*/
 	handleResize: kind.inherit(function (sup) {
 		return function () {
-			var portrait = this.isPortrait();
-
-			if (portrait === this.portrait && platform.touch && platform.androidChrome) {
-				return;
+			if(this.isAndroid()) {
+				var portrait = this.isPortrait();
+				if (portrait === this.portrait) {
+					return;
+				}
+				this.portrait = portrait;
 			}
-
 			sup.apply(this, arguments);
-			this.portrait = portrait;
 		}
 	}),
 
@@ -370,7 +383,9 @@ module.exports = kind(
 		return function () {
 			sup.apply(this, arguments);
 			//	capturing the orientation when the component is created
-			this.portrait = this.isPortrait();
+			if(this.isAndroid()) {
+				this.portrait = this.isPortrait();
+			}
 		}
 	}),
 
