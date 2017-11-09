@@ -12,6 +12,7 @@ var
 var
 	Control = require('enyo/Control'),
 	Input = require('moonstone/Input'),
+	platform = require('enyo/platform'),
 	Spotlight = require('spotlight'),
 	IntegerPicker = require('../IntegerPicker');
 
@@ -107,7 +108,8 @@ module.exports = kind(
 		onInputEnter: 'checkInputEnter',
 		onBackEnter: 'inputBlur',
 		ontap: 'selectByTap',
-		onblur: 'onBlur'
+		onblur: 'onBlur',
+		onresize: 'handleResize'
 	},
 
 	/**
@@ -126,6 +128,15 @@ module.exports = kind(
 		 */
 		unit: 'sec'
 	},
+
+	/**
+	 * The property to check the orientation of the devices
+	 *
+	 * @type {Boolean}
+	 * @ default false
+	 * @private
+	 */
+	portrait: false,
 
 	/**
 	 * Number of pixels added to the width of each picker item as padding. Note that this
@@ -193,6 +204,7 @@ module.exports = kind(
 				// have to reset to natural width before getting bounds
 				this.$.item.applyStyle('width', 0);
 				this.$.measureItem.applyStyle('width', 'auto');
+				this.$.measureItem.show(); // To capture the boundaries of the picker
 				ib = this.$.measureItem.getBounds();
 			}, this);
 
@@ -320,6 +332,55 @@ module.exports = kind(
 	},
 
 	/**
+	* Checks whether orientation of the device is portrait or not
+	*
+	* @private
+	* @method
+	*/
+	isPortrait: function () {
+		if (window.screen.orientation) {
+			return window.screen.orientation.type.indexOf('portrait') > -1;
+		}
+		return false;
+	},
+
+	/**
+	* To handle the resize event in android devices which triggers on enabling the input field by tap
+	*
+	* @private
+	* @method
+	*/
+	handleResize: kind.inherit(function (sup) {
+		return function () {
+			if (platform.androidChrome) {
+				var portrait = this.isPortrait();
+				if (portrait === this.portrait) {
+					return;
+				}
+				this.portrait = portrait;
+			}
+			sup.apply(this, arguments);
+		}
+	}),
+
+	/**
+	*
+	*
+	* @private
+	* @method
+	*/
+	create: kind.inherit(function (sup) {
+		return function () {
+			sup.apply(this, arguments);
+			//	capturing the orientation when the component is created
+			if (platform.androidChrome) {
+				this.portrait = this.isPortrait();
+			}
+		}
+	}),
+
+
+	/**
 	 *  Changes the styling when input field is enabled
 	 *
 	 * @see module:moonstone/IntegerPicker~IntegerPicker.styleChange
@@ -362,7 +423,12 @@ module.exports = kind(
 	 */
 	selectByTap: function (sender, ev) {
 		if (!ev.originator.hasClass('moon-scroll-picker-taparea')) {
+			if (Spotlight.getCurrent() !== this) {
+			  	Spotlight.unfreeze();
+				Spotlight.spot(this, {focusType: 'point'});
+			}
 			this.prepareInputField();
+			ev.preventDefault();
 		}
 	},
 
@@ -401,6 +467,7 @@ module.exports = kind(
 	 */
 	reflow: function () {
 		this.width = 0;
+		this.onBlur(); //To blur the input field during orientation change
 		IntegerPicker.prototype.reflow.apply(this, arguments);
 	},
 
